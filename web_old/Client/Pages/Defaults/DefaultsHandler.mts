@@ -208,7 +208,7 @@ export default class DefaultsHandler {
         }
         async function navigateToItem() {
             const id = await DefaultData.loadID(item.instance, item.key.toString())
-            window.location.href = `../../../../../php/editor.php`
+            window.location.href = `../../../../php/editor.php`
         }
         function getLabel(exists: boolean, mappedLabel?: string) {
             const icon = exists ? '✅' : '❌'

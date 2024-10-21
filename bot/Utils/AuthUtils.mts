@@ -1,4 +1,4 @@
-import BrowserUtils from '../../web/Client/BrowserUtils.mts'
+import BrowserUtils from '../../web_old/Client/BrowserUtils.mts'
 
 export default class AuthUtils {
     static async checkIfAuthed(): Promise<boolean> {

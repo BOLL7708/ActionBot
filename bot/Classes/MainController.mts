@@ -1,5 +1,5 @@
 import {ConfigController, ConfigSteam, DataUtils, EnlistData, SettingAccumulatingCounter, SettingDictionaryEntry, SettingIncrementingCounter, SettingStreamQuote, SettingTwitchClip, SettingTwitchRedemption, SettingTwitchReward, SettingTwitchTokens, SettingUser} from '../../lib/index.mts'
-import PasswordForm from '../../web/PasswordForm.mts'
+import PasswordForm from '../../web_old/PasswordForm.mts'
 import Color from '../Constants/ColorConstants.mts'
 import DataBaseHelper from '../Helpers/DataBaseHelper.mts'
 import TwitchHelixHelper from '../Helpers/TwitchHelixHelper.mts'
@@ -16,6 +16,9 @@ import Rewards from './Rewards.mts'
 export default class MainController {
     public static async init() {
         EnlistData.run()
+
+        return // This is as far as we get right now.
+
         const authed = await AuthUtils.checkIfAuthed()
         if(!authed) {
             PasswordForm.spawn()

@@ -1,0 +1,57 @@
+{
+   "lock": false,
+   "nodeModulesDir": "auto",
+   "compilerOptions": {
+      "strict": true,
+      "strictNullChecks": true,
+      "strictFunctionTypes": true,
+      "strictPropertyInitialization": true,
+      "strictBindCallApply": true,
+      "jsx": "react-jsx",
+      "jsxImportSource": "preact"
+   },
+   "tasks": {
+      "install": "deno install",
+      "generate": "cd ./dev && deno run --allow-read --allow-write ./generate.mts",
+      "run-only": "deno run --allow-write --allow-read --allow-net --allow-env --allow-run ./server/main.ts",
+      "run-dev": "deno task generate && cd deno task start",
+      "run-test": "deno task generate && deno task preview",
+      "run-full": "deno task install && deno task generate && deno task run-only",
+      "check": "deno fmt --check && deno lint && deno check **/*.*ts && deno check **/*.tsx && deno check **/*.mts",
+      "cli": "echo \"import '\\$fresh/src/dev/cli.ts'\" | deno run --unstable -A -",
+      "manifest": "deno task cli manifest $(pwd)",
+      "start": "deno run -A --watch=server/static/,server/routes/ server/dev.ts",
+      "build": "deno run -A server/dev.ts build",
+      "preview": "deno run -A server/main.ts",
+      "update": "deno run -A -r https://fresh.deno.dev/update ."
+   },
+   "lint": {
+      "rules": {
+         "tags": [
+            "fresh",
+            "recommended"
+         ]
+      }
+   },
+   "imports": {
+      "$fresh/": "https://deno.land/x/fresh@1.7.3/",
+      "$std/": "https://deno.land/std@0.216.0/",
+      "@preact/signals": "https://esm.sh/*@preact/signals@1.2.2",
+      "@preact/signals-core": "https://esm.sh/*@preact/signals-core@1.5.1",
+      "@types/better-sqlite3": "npm:@types/better-sqlite3@^7.6.11",
+      "better-sqlite3": "npm:better-sqlite3@^11.5.0",
+      "chalk": "npm:chalk@^5.3.0",
+      "node-gyp": "npm:node-gyp@^10.2.0",
+      "preact": "https://esm.sh/preact@10.22.0",
+      "preact/": "https://esm.sh/preact@10.22.0/"
+   },
+   "exclude": [
+      "**/_fresh/*"
+   ],
+   "fmt": {
+      "lineWidth": 120,
+      "semiColons": false,
+      "singleQuote": true,
+      "indentWidth": 3
+   }
+}

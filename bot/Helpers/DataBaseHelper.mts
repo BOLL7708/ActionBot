@@ -1,13 +1,15 @@
 import {AbstractData, DataMap} from '../../lib/index.mts'
+import BrowserUtils from '../../web_old/Client/BrowserUtils.mts'
 import Color from '../Constants/ColorConstants.mts'
-import Constants from '../Constants/Constants.mts'
 import {IDictionary, INumberDictionary, IStringDictionary} from '../Interfaces/igeneral.mts'
+import DbSingleton from '../Singletons/DbSingleton.mts'
 import Utils from '../Utils/Utils.mts'
 
 export default class DataBaseHelper {
     static readonly OBJECT_MAIN_KEY: string = 'Main'
     private static readonly LOG_GOOD_COLOR: string = Color.BlueViolet
     private static readonly LOG_BAD_COLOR: string = Color.DarkRed
+    static isTesting: boolean = false
 
     /*
     TODO
@@ -31,28 +33,39 @@ export default class DataBaseHelper {
         const response = await fetch(this.getUrl(), {
             method: 'HEAD',
             headers: {
-                Authorization: Utils.getAuth()
+                Authorization: BrowserUtils.getAuth()
             }
         })
         return response.ok
     }
 
     // region Json Store
-    static async loadJson(
+    static loadJson(
         groupClass: string,
-        groupKey?: string,
-        parentId?: number,
-        noData?: boolean): Promise<any|undefined> {
-        let url = this.getUrl()
-        const options: IDataBaseHelperHeaders = {groupClass, groupKey, noData}
-        if(parentId && !isNaN(parentId) && parentId > 0) {
-            options.parentId = parentId
+        groupKey: string|null = null,
+        parentId: number|null = null,
+        noData: boolean = false
+    ): IDataBaseItem<any>[]|undefined {
+        const db = DbSingleton.get(this.isTesting)
+
+        const fields = ['row_id', 'group_class', 'group_key', 'parent_id']
+        if (!noData) fields.push('data_json')
+        const fieldsStr = fields.join(',')
+
+        let query = `SELECT ${fieldsStr} FROM json_store WHERE group_class = :group_class`
+        const params: IDictionary<any> = {group_class: groupClass}
+        if (groupKey !== null) {
+            query += ' AND group_key = :group_key'
+            params['group_key'] = groupKey
         }
-        const response = await fetch(url, {
-            headers: await this.getHeader(options)
-        })
-        const responseText = await response.text()
-        return responseText.length > 0 ? JSON.parse(responseText) : undefined;
+        if (parentId !== null) {
+            query += ' AND parent_id = :parent_id'
+            params['parent_id'] = parentId
+        }
+        query += ';'
+
+        const result = db.queryAll({query,params})
+        return this.outputEntries(result ?? [])
     }
 
     /**
@@ -63,39 +76,54 @@ export default class DataBaseHelper {
      * @param newGroupKey New key to replace old with.
      * @param parentId Optional ID for a parent row.
      */
-    static async saveJson(
+    static saveJson(
         jsonStr: string,
         groupClass: string,
-        groupKey?: string,
-        newGroupKey?: string,
-        parentId?: number
-    ): Promise<string|undefined> {
-        const options: IDataBaseHelperHeaders = {groupClass, groupKey, addJsonHeader: true}
-        if(newGroupKey && groupKey != newGroupKey) {
-            options.newGroupKey = newGroupKey
+        groupKey: string|null = null,
+        newGroupKey: string|null = null,
+        parentId: number|null = null
+    ): string|undefined {
+        const db = DbSingleton.get(this.isTesting)
+        console.log('saveJson', jsonStr, groupClass, groupKey, newGroupKey)
+        // Update the key if it's not already in use
+        let updatedKey = false
+        if(groupKey && newGroupKey && groupKey !== newGroupKey) {
+            const newKeyAlreadyExists = !!db.queryValue<string>({
+                query: 'SELECT group_key FROM json_store WHERE group_class = :group_class AND group_key = :group_key LIMIT 1;',
+                params: {group_class: groupClass, group_key: newGroupKey}
+            })
+            updatedKey = !newKeyAlreadyExists && !!db.queryRun({
+                query: 'UPDATE json_store SET group_key = :new_group_key WHERE group_class = :group_class AND group_key = :old_group_key;',
+                params: {new_group_key: newGroupKey, group_class: groupClass, old_group_key: groupKey}
+            })
         }
-        if(typeof parentId == 'number' && !isNaN(parentId)) {
-            options.parentId = parentId
+
+        // A new key was provided without an original key, we apply this before saving.
+        if(!groupKey && newGroupKey) {
+            groupKey = newGroupKey
         }
-        let url = this.getUrl()
-        const response = await fetch(url, {
-            headers: await this.getHeader(options),
-            method: 'POST',
-            body: jsonStr
+
+        // Unset parent ID if it is invalid
+        if(typeof parentId !== 'number' || isNaN(parentId)) {
+            parentId = null
+        }
+
+        if (!groupKey) groupKey = this.getUUID(groupClass) ?? null
+        const result = db.queryRun({
+           query: "INSERT INTO json_store (group_class, group_key, parent_id, data_json) VALUES (:group_class, :group_key, :parent_id, :data_json) ON CONFLICT DO UPDATE SET parent_id=:parent_id, data_json=:data_json;",
+           params: {group_class: groupClass, group_key: groupKey, parent_id: parentId, data_json: jsonStr}
         })
-        if(response.ok) {
-            const jsonData = await response.json()
-            groupKey = jsonData.groupKey
-            if(groupKey) { // Load item and store in reference lists
-                const newItemResponse = await this.loadJson(groupClass, groupKey, parentId, true)
-                if(newItemResponse.ok) {
-                    const newItemJson = await newItemResponse.json()
-                    if(Array.isArray(newItemJson) && newItemJson.length > 0)
-                    this.handleDataBaseItem(newItemJson[0]).then()
-                }
+        console.log('DbSaveResult', result, groupKey)
+        if(!result) groupKey = null
+
+        if(groupKey) { // Load item and store in reference lists
+            const newItem = this.loadJson(groupClass, groupKey, parentId, true)
+
+            if(newItem?.length) {
+                this.handleDataBaseItem(newItem[0]).then()
             }
         }
-        return response.ok ? groupKey : undefined
+        return result && groupKey !== null ? groupKey : undefined
     }
     static async deleteJson(groupClass: string, groupKey: string): Promise<boolean> {
         let url = this.getUrl()
@@ -523,11 +551,74 @@ export default class DataBaseHelper {
     // region Helpers
 
     /**
+     * Load entries from the DB and return a list if they exist.
+     * @param entries
+     */
+    static outputEntries(entries: IDatabaseRow[]): IDataBaseItem<any>[] | undefined {
+        let output: IDataBaseItem<any>[] | undefined = undefined
+        if (Array.isArray(entries)) {
+            output = []
+            for (const row of entries) {
+                const item: IDataBaseItem<any> = {
+                    key: row.group_key,
+                    class: row.group_class,
+                    id: row.row_id,
+                    pid: row.parent_id,
+                    data: this.tryParseJson(row.data_json),
+                    filledData: null
+                }
+                output.push(item)
+            }
+        }
+        return output;
+    }
+
+    /**
+     * Safe JSON parser that won't throw exceptions.
+     * @param text
+     * @private
+     */
+    private static tryParseJson(text: string): any|null {
+        try {
+            return JSON.parse(text)
+        } catch (e) {
+            return null
+        }
+    }
+
+    private static getUUID(groupClass: string): string|undefined {
+        const db = DbSingleton.get()
+        let notUniqueYet = true
+        let groupKey: string|undefined
+        while (notUniqueYet) {
+            const hexResult = db.queryValue<string>({query: 'SELECT lower(hex(randomblob(18))) as hex;'}); // UUID() does not exist in Sqlite so this is a substitute.
+        //     const groupKey = $hexResult[0]['hex'] ?? null;
+        //     if ($groupKey === null) {
+        //         error_log("UUID: Unable to get new hex for group_class: $groupClass");
+        //         return null;
+        //     }
+        //     $countResult = $this->query(
+        //        'SELECT COUNT(*) as count FROM json_store WHERE group_class = :group_class AND group_key = :group_key LIMIT 1;',
+        //        [':group_class' => $groupClass, ':group_key' => $groupKey]
+        // );
+        //     $count = $countResult[0]['count'] ?? null;
+        //     if ($count === null) {
+        //         error_log("UUID: Unable to get count for group_class: $groupClass, group_key: $groupKey");
+        //         return null;
+        //     }
+        //     $notUniqueYet = $count > 0;
+            notUniqueYet = false
+        }
+        return groupKey
+    }
+
+    /**
      * Returns the relative path to the PHP file, this used to have functionality.
      * @returns string
      */
     private static getUrl(): string {
-        return '_db.php'
+        // TODO: This will not be used, we will interface directly with the DB and use a persistent connection.
+        return 'http://localhost' // '_db.php'
     }
 
     /**
@@ -539,7 +630,8 @@ export default class DataBaseHelper {
         options: IDataBaseHelperHeaders
     ): Promise<HeadersInit> {
         const headers = new Headers()
-        headers.set('Authorization', localStorage.getItem(Constants.LOCAL_STORAGE_KEY_AUTH+Utils.getCurrentPath()) ?? '')
+        // TODO: Auth will break here, but we can do the initial DB implementation unauthed
+        // headers.set('Authorization', localStorage.getItem(Constants.LOCAL_STORAGE_KEY_AUTH+Utils.getCurrentPath()) ?? '')
         if(options.groupClass !== undefined) headers.set('X-Group-Class', options.groupClass)
         if(options.groupKey !== undefined) headers.set('X-Group-Key', options.groupKey)
         if(options.newGroupKey !== undefined) headers.set('X-New-Group-Key', options.newGroupKey)
@@ -619,4 +711,14 @@ export interface IDataBaseListItem {
 }
 export interface IDataBaseNextKeyItem {
     key: string
+}
+
+export interface IDatabaseRow {
+    row_id: number
+    row_created: string
+    row_modified: string
+    group_class: string
+    group_key: string
+    parent_id: number|null
+    data_json: string
 }

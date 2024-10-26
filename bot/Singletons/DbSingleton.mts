@@ -1,0 +1,81 @@
+import {Database} from '@db/sqlite'
+import {IDatabaseRow} from '../Helpers/DataBaseHelper.mts'
+import {IDictionary} from '../Interfaces/igeneral.mts'
+
+export default class DbSingleton {
+   private static _instance: DbSingleton
+
+   /**
+    * Will fetch a connected DB instance.
+    */
+   static get(isTest: boolean = false): DbSingleton {
+      if (!this._instance || !this._instance._db.open) {
+         this._instance = new DbSingleton(isTest)
+      }
+      return this._instance
+   }
+
+   private _db: Database
+   private constructor(isTest: boolean = false) {
+      const dir = './_user/db'
+      Deno.mkdirSync(dir, { recursive: true })
+
+      const file = isTest ? 'test.sqlite' : 'main.sqlite'
+      this._db = new Database(`${dir}/${file}`, {
+         int64: true,
+         unsafeConcurrency: true,
+      })
+      if(this._db.open) {
+         const version = this._db.prepare("select sqlite_version()").value<[string]>()
+         console.log(`Database connected: ${file}, SQLite driver version:`, version?.pop())
+
+         // Check if table exists
+         const tableName = this._db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name=:name").value({name: 'json_store'})
+         if(!tableName) {
+            const sqlBuffer = Deno.readFileSync('./dev/sql/0.sql')
+            const sqlStr = new TextDecoder().decode(sqlBuffer)
+            const changes = this._db.run(sqlStr)
+            console.log('Table not found, ran import.')
+         } else {
+            console.log('Table exists:', tableName?.pop())
+         }
+      } else {
+         console.warn('Unable to initialize or connect to database!')
+      }
+   }
+
+   queryRun(options: IDatabaseQuery): number | object | undefined {
+      return this._db.prepare(options.query).run(options.params)
+   }
+   queryGet(options: IDatabaseQuery):IDatabaseRow|undefined {
+      return this._db.prepare(options.query).get(options.params)
+   }
+   queryAll(options: IDatabaseQuery):IDatabaseRow[]|undefined {
+      return this._db.prepare(options.query).all(options.params)
+   }
+   queryValue<T>(options: IDatabaseQuery):T|undefined {
+      const arr = this._db.prepare(options.query).value<T[]>(options.params)
+      if(arr) return arr.pop()
+   }
+
+   /**
+    * Check if the DB is connected.
+    */
+   test(): boolean {
+      return this._db.open && !!this.queryValue({query: 'SELECT 1;'})
+   }
+
+   /**
+    * Terminate the DB connection.
+    */
+   kill() {
+      this._db.close()
+   }
+}
+
+export type TDatabaseQueryInput = null | undefined | number | bigint | string | boolean | Date | Uint8Array | {} | []
+
+export interface IDatabaseQuery {
+   query: string
+   params?: IDictionary<TDatabaseQueryInput>
+}

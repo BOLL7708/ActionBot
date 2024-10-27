@@ -1,4 +1,4 @@
-import Constants from '../Constants/Constants.mts'
+import Constants from '../../web_old/Constants/Constants.mts'
 import Color from '../Constants/ColorConstants.mts'
 
 export default class Utils {

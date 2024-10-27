@@ -1,5 +1,5 @@
 import {db} from 'https://jsr.io/@std/media-types/1.0.3/_db.ts'
-import {ActionAudio, ConfigSign} from '../lib/index.mts'
+import {ActionAudio, ConfigSign} from '../lib-shared/index.mts'
 import MainController from './Classes/MainController.mts'
 import chalk from 'chalk'
 import DataBaseHelper from './Helpers/DataBaseHelper.mts'

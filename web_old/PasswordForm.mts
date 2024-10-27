@@ -1,5 +1,5 @@
 import Color from '../bot/Constants/ColorConstants.mts'
-import Constants from '../bot/Constants/Constants.mts'
+import Constants from './Constants/Constants.mts'
 import Utils from '../bot/Utils/Utils.mts'
 import BrowserUtils from './Client/BrowserUtils.mts'
 

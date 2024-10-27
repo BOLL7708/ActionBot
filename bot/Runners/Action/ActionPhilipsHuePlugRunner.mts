@@ -1,4 +1,4 @@
-import {ActionPhilipsHuePlug, DataUtils, IActionCallback, IActionUser} from '../../../lib/index.mts'
+import {ActionPhilipsHuePlug, DataUtils, IActionCallback, IActionUser} from '../../../lib-shared/index.mts'
 import PhilipsHueHelper from '../../Helpers/PhilipsHueHelper.mts'
 import ArrayUtils from '../../Utils/ArrayUtils.mts'
 import Utils from '../../Utils/Utils.mts'

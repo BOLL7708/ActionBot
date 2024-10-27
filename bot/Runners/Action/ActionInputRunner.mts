@@ -1,4 +1,4 @@
-import {ActionInput, IActionCallback, IActionUser} from '../../../lib/index.mts'
+import {ActionInput, IActionCallback, IActionUser} from '../../../lib-shared/index.mts'
 import ArrayUtils from '../../Utils/ArrayUtils.mts'
 import ExecUtils from '../../Utils/ExecUtils.mts'
 import Utils from '../../Utils/Utils.mts'

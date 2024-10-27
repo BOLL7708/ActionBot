@@ -1,8 +1,8 @@
-import {ConfigOpenVR2WS} from '../../../lib/index.mts'
+import {ConfigOpenVR2WS} from '../../../lib-shared/index.mts'
 import WebSockets from '../Web/WebSockets.mts'
 import DataBaseHelper from '../../Helpers/DataBaseHelper.mts'
 import Utils from '../../Utils/Utils.mts'
-import {ActionSettingVR} from '../../../lib/index.mts'
+import {ActionSettingVR} from '../../../lib-shared/index.mts'
 import Color from '../../Constants/ColorConstants.mts'
 
 export default class OpenVR2WS {

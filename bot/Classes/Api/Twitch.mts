@@ -1,4 +1,4 @@
-import {ConfigChat, ConfigCommands, ConfigTwitch, DataUtils, IActionUser, SettingTwitchTokens, TriggerCommand, TriggerRemoteCommand} from '../../../lib/index.mts'
+import {ConfigChat, ConfigCommands, ConfigTwitch, DataUtils, IActionUser, SettingTwitchTokens, TriggerCommand, TriggerRemoteCommand} from '../../../lib-shared/index.mts'
 import Color from '../../Constants/ColorConstants.mts'
 import DataBaseHelper from '../../Helpers/DataBaseHelper.mts'
 import TextHelper from '../../Helpers/TextHelper.mts'

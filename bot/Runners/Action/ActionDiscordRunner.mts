@@ -1,4 +1,4 @@
-import {ActionDiscord, DataUtils, IActionCallback, IActionUser} from '../../../lib/index.mts'
+import {ActionDiscord, DataUtils, IActionCallback, IActionUser} from '../../../lib-shared/index.mts'
 import TextHelper from '../../Helpers/TextHelper.mts'
 import TwitchHelixHelper from '../../Helpers/TwitchHelixHelper.mts'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.mts'

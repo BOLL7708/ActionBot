@@ -1,4 +1,5 @@
 import {Database} from '@db/sqlite'
+import Chalk from '../../lib-core/Constants/Chalk.mts'
 import {IDatabaseRow} from '../Helpers/DataBaseHelper.mts'
 import {IDictionary} from '../Interfaces/igeneral.mts'
 
@@ -19,7 +20,6 @@ export default class DbSingleton {
    private constructor(isTest: boolean = false) {
       const dir = './_user/db'
       Deno.mkdirSync(dir, { recursive: true })
-
       const file = isTest ? 'test.sqlite' : 'main.sqlite'
       this._db = new Database(`${dir}/${file}`, {
          int64: true,
@@ -27,20 +27,20 @@ export default class DbSingleton {
       })
       if(this._db.open) {
          const version = this._db.prepare("select sqlite_version()").value<[string]>()
-         console.log(`Database connected: ${file}, SQLite driver version:`, version?.pop())
+         console.log(Chalk.data(`Database connected: ${Chalk.text(file)}, SQLite driver version:`, Chalk.text(version?.pop())))
 
          // Check if table exists
          const tableName = this._db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name=:name").value({name: 'json_store'})
          if(!tableName) {
             const sqlBuffer = Deno.readFileSync('./dev/sql/0.sql')
             const sqlStr = new TextDecoder().decode(sqlBuffer)
-            const changes = this._db.run(sqlStr)
-            console.log('Table not found, ran import.')
+            this._db.run(sqlStr)
+            console.log(Chalk.data('Table not found, ran import.'))
          } else {
-            console.log('Table exists:', tableName?.pop())
+            console.log(Chalk.data('Table exists:'), Chalk.text(tableName?.pop()))
          }
       } else {
-         console.warn('Unable to initialize or connect to database!')
+         console.warn(Chalk.data('Unable to initialize or connect to database!'))
       }
    }
 

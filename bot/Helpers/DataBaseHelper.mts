@@ -1,4 +1,4 @@
-import {AbstractData, DataMap} from '../../lib/index.mts'
+import {AbstractData, DataMap} from '../../lib-shared/index.mts'
 import BrowserUtils from '../../web_old/Client/BrowserUtils.mts'
 import Color from '../Constants/ColorConstants.mts'
 import {IDictionary, INumberDictionary, IStringDictionary} from '../Interfaces/igeneral.mts'

@@ -1,4 +1,4 @@
-import {ActionSettingVR, IActionCallback, IActionUser} from '../../../lib/index.mts'
+import {ActionSettingVR, IActionCallback, IActionUser} from '../../../lib-shared/index.mts'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.mts'
 import Utils from '../../Utils/Utils.mts'
 

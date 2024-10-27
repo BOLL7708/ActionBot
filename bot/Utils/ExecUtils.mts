@@ -1,7 +1,7 @@
 import BrowserUtils from '../../web_old/Client/BrowserUtils.mts'
 import Utils from './Utils.mts'
-import {OptionCommandType} from '../../lib/index.mts'
-import {ActionInput} from '../../lib/index.mts'
+import {OptionCommandType} from '../../lib-shared/index.mts'
+import {ActionInput} from '../../lib-shared/index.mts'
 
 export default class ExecUtils {
     static runCommand(window: string, type: TRunType, command: string, postfixEnterStroke: boolean = true) {

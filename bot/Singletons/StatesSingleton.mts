@@ -1,6 +1,6 @@
 import DataBaseHelper from '../Helpers/DataBaseHelper.mts'
 import {ITextTagsCached} from '../Helpers/TextHelper.mts'
-import {ConfigController} from '../../lib/index.mts'
+import {ConfigController} from '../../lib-shared/index.mts'
 
 /**
  * Contains states and settings for this session

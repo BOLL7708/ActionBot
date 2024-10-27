@@ -1,4 +1,4 @@
-import {ConfigCleanText, ConfigSpeech, EventDefault, IActionUser, SettingAccumulatingCounter, SettingUser, SettingUserName, SettingUserVoice} from '../../lib/index.mts'
+import {ConfigCleanText, ConfigSpeech, EventDefault, IActionUser, SettingAccumulatingCounter, SettingUser, SettingUserName, SettingUserVoice} from '../../lib-shared/index.mts'
 import {ITwitchEmotePosition} from '../Classes/Data/TwitchFactory.mts'
 import ModulesSingleton from '../Singletons/ModulesSingleton.mts'
 import StatesSingleton from '../Singletons/StatesSingleton.mts'

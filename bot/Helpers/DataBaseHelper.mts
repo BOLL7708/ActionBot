@@ -1,3 +1,4 @@
+import Chalk from '../../lib-core/Constants/Chalk.mts'
 import {AbstractData, DataMap} from '../../lib-shared/index.mts'
 import BrowserUtils from '../../web_old/Client/BrowserUtils.mts'
 import Color from '../Constants/ColorConstants.mts'
@@ -130,36 +131,59 @@ export default class DataBaseHelper {
         }
         return result && groupKey !== null ? groupKey : undefined
     }
+
+    /**
+     * Will delete single entry, returns how many items were deleted.
+     * @param groupClass
+     * @param groupKey
+     */
     static deleteJson(
        groupClass: string,
        groupKey: string
-    ): boolean {
+    ): number {
         const db = DbSingleton.get(this.isTesting)
         const result = db.queryRun({
             query: "DELETE FROM json_store WHERE group_class = :group_class AND group_key = :group_key;",
             params: {group_class: groupClass, group_key: groupKey}
         })
-        return !!result
+        return typeof result === 'number' ? result : -1
     }
 
-    static async deleteCategoryJson(categoryId: number): Promise<boolean> {
-        let url = this.getUrl()
-        const response = await fetch(url, {
-            headers: await this.getHeader({categoryId, addJsonHeader: true}),
-            method: 'DELETE'
+    /**
+     * Delete a category, this is a special action for the editor, and TODO: might be unused.
+     * @param categoryId
+     */
+    static deleteCategoryJson(categoryId: number): number {
+        const db = DbSingleton.get(this.isTesting)
+        const result = db.queryRun({
+            query: 'DELETE FROM json_store WHERE JSON_EXTRACT(data_json, \'$.category\') = :category;',
+            params: {category: categoryId},
         })
-        return response.ok
+        return typeof result === 'number' ? result : -1
     }
 
-    static async search(searchQuery: string, surroundWithWildcards: boolean = true): Promise<IDataBaseItemRaw[]> {
-        if(surroundWithWildcards) searchQuery = `*${searchQuery}*`
-        let url = this.getUrl()
-        const response = await fetch(url, {
-            headers: await this.getHeader({searchQuery}),
-            method: 'GET'
+    static search(searchQuery: string, surroundWithWildcards: boolean = true): IDataBaseItemRaw[] {
+        const pattern = searchQuery
+           .replace(/\*/g, '?')
+           .replace(/%/g, '_')
+        const db = DbSingleton.get(this.isTesting)
+        const output = db.queryAll({
+            query: 'SELECT row_id, group_class, group_key, parent_id, data_json FROM json_store WHERE LOWER(group_key) LIKE LOWER(:like_group_key) OR LOWER(data_json) LIKE LOWER(:like_data_json);',
+            params: {like_group_key: pattern, like_data_json: pattern},
         })
-        const json = await response.json()
-        return json as IDataBaseItemRaw[]
+        if(!Array.isArray(output)) return []
+
+        return output.map((row) => {
+            const raw: IDataBaseItemRaw = {
+                id: row.row_id,
+                class: row.group_class,
+                key: row.group_key,
+                pid: row.parent_id,
+                data: row.data_json,
+                filledData: null
+            }
+            return raw
+        })
     }
     // endregion
 
@@ -476,12 +500,12 @@ export default class DataBaseHelper {
      * @param newKey
      * @param parentId
      */
-    static async save<T>(setting: T&AbstractData, key?: string, newKey?: string, parentId?: number): Promise<string|undefined> {
+    static save<T>(setting: T&AbstractData, key?: string, newKey?: string, parentId?: number): string|undefined {
         const className = setting.constructor.name
         if(this.checkAndReportClassError(className, 'saveSingle')) return undefined
 
         // DB
-        key = await this.saveJson(JSON.stringify(setting), className, key, newKey, parentId)
+        key = this.saveJson(JSON.stringify(setting), className, key, newKey, parentId)
         console.log('Key from saving', key)
 
         // Update cache
@@ -498,7 +522,7 @@ export default class DataBaseHelper {
         return key
     }
 
-    static async saveMain<T>(setting: T&AbstractData, parentId?: number): Promise<string|undefined> {
+    static saveMain<T>(setting: T&AbstractData, parentId?: number): string|undefined {
         return this.save(setting, this.OBJECT_MAIN_KEY, undefined, parentId)
     }
 
@@ -507,12 +531,12 @@ export default class DataBaseHelper {
      * @param emptyInstance Instance of the class to delete.
      * @param key The key for the row to delete. // TODO: Could do this optional to delete a whole group, but that is scary... wait with adding until we need it.
      */
-    static async delete<T>(emptyInstance: T&AbstractData|string, key: string): Promise<boolean> {
+    static delete<T>(emptyInstance: T&AbstractData|string, key: string): boolean {
         const className = emptyInstance.constructor.name
         if(this.checkAndReportClassError(className, 'deleteSingle')) return false
 
         // DB
-        const ok = await this.deleteJson(className, key)
+        const ok = this.deleteJson(className, key) >= 0
 
         // Clear cache
         if(ok) {
@@ -525,10 +549,10 @@ export default class DataBaseHelper {
         }
 
         // Result
-        Utils.log(
-            ok ? `Deleted '${className}:${key}' from DB` : `Failed to delete '${className}:${key}' from DB`,
-            ok ? this.LOG_GOOD_COLOR : this.LOG_BAD_COLOR
-        )
+        console.log(Chalk.data(ok
+           ? Chalk.data('Deleted this from DB:')
+           : Chalk.error('Failed to delete this from DB:')
+        ), className, key)
         return ok
     }
 
@@ -536,9 +560,9 @@ export default class DataBaseHelper {
      * Delete whole category (of events)
      * @param categoryId the ID for the category to delete.
      */
-    static async deleteCategory<T>(categoryId: number): Promise<boolean> {
+    static deleteCategory<T>(categoryId: number): boolean {
         // DB
-        const ok = await this.deleteCategoryJson(categoryId)
+        const ok = this.deleteCategoryJson(categoryId) >= 0
 
         // Clear cache
         if(ok) {
@@ -548,9 +572,10 @@ export default class DataBaseHelper {
         }
 
         // Result
-        Utils.log(
-            ok ? `Deleted all entries in category ${categoryId} from DB` : `Failed to delete entries in category ${categoryId} from DB`,
-            ok ? this.LOG_GOOD_COLOR : this.LOG_BAD_COLOR
+        console.log(ok
+           ? Chalk.data('Deleted all entries from DB with category:')
+           : Chalk.error('Failed to delete all entries from DB with category:'),
+           categoryId
         )
         return ok
     }
@@ -682,6 +707,7 @@ export default class DataBaseHelper {
     // endregion
 }
 
+// region Interfaces
 interface IDataBaseHelperHeaders {
     groupClass?: string
     groupKey?: string
@@ -730,3 +756,4 @@ export interface IDatabaseRow {
     parent_id: number|null
     data_json: string
 }
+// endregion

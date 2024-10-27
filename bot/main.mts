@@ -1,5 +1,5 @@
 import Chalk from '../lib-core/Constants/Chalk.mts'
-import {ActionAudio} from '../lib-shared/index.mts'
+import {ActionAudio, ConfigMain, EnlistData} from '../lib-shared/index.mts'
 import MainController from './Classes/MainController.mts'
 import DataBaseHelper from './Helpers/DataBaseHelper.mts'
 import DbSingleton from './Singletons/DbSingleton.mts'
@@ -37,17 +37,30 @@ export async function bot() {
       ActionAudio.name
    )?.length)
     */
+   EnlistData.run()
    console.log(Chalk.client('Random ID generation'), db.queryValue<string>({query: 'SELECT lower(hex(randomblob(18))) as hex;'}))
-   const fakeClass = 'ConfigFakeTest'
-   const fakeKey = 'MySpecialKey'
-   console.log(Chalk.client('Create'), DataBaseHelper.saveJson('{fakeData: true}', fakeClass, fakeKey))
-   console.log(Chalk.client('Update'), DataBaseHelper.saveJson('{fakeData: true}', fakeClass, fakeKey+2))
+   const instance = new ConfigMain()
+   const groupClass = ConfigMain.name
+   const groupKey = 'MySpecialKey'
+   // TODO: Switch saveJson and loadJson to save/load item
+   console.log(Chalk.client('Create'), DataBaseHelper.saveJson(JSON.stringify(instance), groupClass, groupKey))
+   console.log(Chalk.client('Update'), DataBaseHelper.saveJson(JSON.stringify(instance), groupClass, groupKey+2))
    // console.log('Update item', DataBaseHelper.saveJson('Will throw an error', '', null))
-   console.log(Chalk.client('Load group'), DataBaseHelper.loadJson(fakeClass)?.length)
-   console.log(Chalk.client('Load item'), DataBaseHelper.loadJson(fakeClass, fakeKey)?.length)
-   console.log(Chalk.client('Delete item'), DataBaseHelper.deleteJson(fakeClass, fakeKey))
-   console.log(Chalk.client('Delete item'), DataBaseHelper.deleteJson(fakeClass, fakeKey))
-   console.log(Chalk.client('Load item'), DataBaseHelper.loadJson(fakeClass, fakeKey)?.length)
+   console.log(Chalk.client('Load group'), DataBaseHelper.loadJson(groupClass)?.length)
+   console.log(Chalk.client('Load item'), DataBaseHelper.loadJson(groupClass, groupKey)?.length)
+   console.log(Chalk.client('Delete item'), DataBaseHelper.delete(instance, groupKey))
+   console.log(Chalk.client('Delete item'), DataBaseHelper.delete(instance, groupKey))
+   console.log(Chalk.client('Load item'), DataBaseHelper.loadJson(groupClass, groupKey)?.length)
+
+   // region Category
+   console.log(Chalk.client('Load item'), DataBaseHelper.loadJson(groupClass, groupKey)?.length)
+   console.log(Chalk.client('Create'), DataBaseHelper.saveJson('{"category": 1}', groupClass, groupKey))
+   console.log(Chalk.client('Load item'), DataBaseHelper.loadJson(groupClass, groupKey)?.length)
+   console.log(Chalk.client('Delete Category'), DataBaseHelper.deleteCategory(1))
+   console.log(Chalk.client('Load item'), DataBaseHelper.loadJson(groupClass, groupKey)?.length)
+   // endregion
+
+   console.log(Chalk.client('Search'), DataBaseHelper.search(groupKey).length)
 
    // TODO: Make comprehensive tests in Deno.test() later when things aren't erroring out due to browser features and broken imports.
 

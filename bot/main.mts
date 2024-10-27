@@ -40,9 +40,13 @@ export async function bot() {
    console.log(Chalk.client('Random ID generation'), db.queryValue<string>({query: 'SELECT lower(hex(randomblob(18))) as hex;'}))
    const fakeClass = 'ConfigFakeTest'
    const fakeKey = 'MySpecialKey'
-   console.log(Chalk.client('Update item, resulting key:'), DataBaseHelper.saveJson('{fakeData: true}', fakeClass, fakeKey))
+   console.log(Chalk.client('Create'), DataBaseHelper.saveJson('{fakeData: true}', fakeClass, fakeKey))
+   console.log(Chalk.client('Update'), DataBaseHelper.saveJson('{fakeData: true}', fakeClass, fakeKey+2))
    // console.log('Update item', DataBaseHelper.saveJson('Will throw an error', '', null))
    console.log(Chalk.client('Load group'), DataBaseHelper.loadJson(fakeClass)?.length)
+   console.log(Chalk.client('Load item'), DataBaseHelper.loadJson(fakeClass, fakeKey)?.length)
+   console.log(Chalk.client('Delete item'), DataBaseHelper.deleteJson(fakeClass, fakeKey))
+   console.log(Chalk.client('Delete item'), DataBaseHelper.deleteJson(fakeClass, fakeKey))
    console.log(Chalk.client('Load item'), DataBaseHelper.loadJson(fakeClass, fakeKey)?.length)
 
    // TODO: Make comprehensive tests in Deno.test() later when things aren't erroring out due to browser features and broken imports.

@@ -130,13 +130,16 @@ export default class DataBaseHelper {
         }
         return result && groupKey !== null ? groupKey : undefined
     }
-    static async deleteJson(groupClass: string, groupKey: string): Promise<boolean> {
-        let url = this.getUrl()
-        const response = await fetch(url, {
-            headers: await this.getHeader({groupClass, groupKey, addJsonHeader: true}),
-            method: 'DELETE'
+    static deleteJson(
+       groupClass: string,
+       groupKey: string
+    ): boolean {
+        const db = DbSingleton.get(this.isTesting)
+        const result = db.queryRun({
+            query: "DELETE FROM json_store WHERE group_class = :group_class AND group_key = :group_key;",
+            params: {group_class: groupClass, group_key: groupKey}
         })
-        return response.ok
+        return !!result
     }
 
     static async deleteCategoryJson(categoryId: number): Promise<boolean> {

@@ -1,3 +1,4 @@
+import BrowserUtils from '../../web_old/Client/BrowserUtils.mts'
 import Utils from './Utils.mts'
 import {OptionCommandType} from '../../lib/index.mts'
 import {ActionInput} from '../../lib/index.mts'
@@ -6,10 +7,10 @@ export default class ExecUtils {
     static runCommand(window: string, type: TRunType, command: string, postfixEnterStroke: boolean = true) {
         const windowb64 = Utils.encode(window)
         const commandb64 = Utils.encode(command)
-        Utils.getAuth()
+        BrowserUtils.getAuth()
         fetch(
             `_run.php?window=${windowb64}&type=${type}&command=${commandb64}&enter=${postfixEnterStroke ? 1 : 0}`,
-            Utils.getAuthInit()
+            BrowserUtils.getAuthInit()
         ).then()
     }
 
@@ -48,7 +49,7 @@ export default class ExecUtils {
     static loadCustomURI(uri: string) {
         fetch(
             `_uri.php?uri=${Utils.encode(uri)}`,
-            Utils.getAuthInit()
+            BrowserUtils.getAuthInit()
         ).then()
     }
 }

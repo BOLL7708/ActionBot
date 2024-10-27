@@ -1,3 +1,4 @@
+import { IS_BROWSER } from '$fresh/runtime.ts'
 import Constants from '../../bot/Constants/Constants.mts'
 import Utils from '../../bot/Utils/Utils.mts'
 
@@ -35,6 +36,8 @@ export default class BrowserUtils {
    }
 
    static getCurrentPath(): string {
+      if(!IS_BROWSER) return 'http://localhost/'
+
       let path = window.location.pathname;
       const pathArray = path.split("/");
       while (pathArray.length && (path.includes(".") || path.length == 0)) {

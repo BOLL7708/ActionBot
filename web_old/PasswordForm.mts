@@ -1,6 +1,7 @@
 import Color from '../bot/Constants/ColorConstants.mts'
 import Constants from '../bot/Constants/Constants.mts'
 import Utils from '../bot/Utils/Utils.mts'
+import BrowserUtils from './Client/BrowserUtils.mts'
 
 export default class PasswordForm {
     static spawn() {
@@ -37,7 +38,7 @@ export default class PasswordForm {
             if(input.name == 'password') {
                 const password = input.value
                 if(password.length) {
-                    localStorage.setItem(Constants.LOCAL_STORAGE_KEY_AUTH+Utils.getCurrentPath(), password)
+                    localStorage.setItem(Constants.LOCAL_STORAGE_KEY_AUTH+BrowserUtils.getCurrentPath(), password)
                     Utils.reload()
                 }
             }

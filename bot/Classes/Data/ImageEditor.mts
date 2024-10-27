@@ -1,8 +1,9 @@
+import {ConfigImageEditorFontSettings, ConfigImageEditorOutline, ConfigImageEditorRect} from '../../../lib/index.mts'
+import BrowserUtils from '../../../web_old/Client/BrowserUtils.mts'
+import Color from '../../Constants/ColorConstants.mts'
 import ImageHelper from '../../Helpers/ImageHelper.mts'
 import Utils from '../../Utils/Utils.mts'
-import Color from '../../Constants/ColorConstants.mts'
 import Twitch, {ITwitchMessageData} from '../Api/Twitch.mts'
-import {ConfigImageEditorFontSettings, ConfigImageEditorOutline, ConfigImageEditorRect} from '../../../lib/index.mts'
 
 export default class ImageEditor {
     private readonly _canvas: HTMLCanvasElement
@@ -35,7 +36,7 @@ export default class ImageEditor {
      * @returns 
      */
     async loadDataUrl(dataUrl: string): Promise<boolean> {
-        const img = await Utils.makeImage(dataUrl)
+        const img = await BrowserUtils.makeImage(dataUrl)
         if(img == null) return false
         this._canvas.width = img.naturalWidth
         this._canvas.height = img.naturalHeight
@@ -82,7 +83,7 @@ export default class ImageEditor {
         radius: number = 0,
         outlines: ConfigImageEditorOutline[] = []
     ): Promise<boolean> {
-        const img: HTMLImageElement|null = await Utils.makeImage(imageData)
+        const img: HTMLImageElement|null = await BrowserUtils.makeImage(imageData)
         if(img == null) return false
 
         const maxBorderWidth = outlines.length == 0 ? 0 : outlines.reduce((a,b)=>a.width>b.width?a:b).width ?? 0;
@@ -328,7 +329,7 @@ export default class ImageEditor {
             if (word.emoteUrl != undefined) {
                 // Emote
                 const imageData = await ImageHelper.getDataUrl(`${word.emoteUrl}/${emoteRes}`)
-                const img = await Utils.makeImage(imageData) // TODO: Make this cached?
+                const img = await BrowserUtils.makeImage(imageData) // TODO: Make this cached?
                 if(img) this._textCtx.drawImage(img, wordPosX, wordPosY, word.widthPx, word.widthPx)
                 else console.warn(`ImageEditor: Failed to load emote ${word.emoteUrl}`)
                 wordPosX += word.widthPx + ((nextWord?.emoteUrl != undefined) ? 0 : wordSpacingPx) // Makes neighbor emotes cozy close together                

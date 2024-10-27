@@ -1,4 +1,4 @@
-import Utils from './Utils.mts'
+import BrowserUtils from '../../web_old/Client/BrowserUtils.mts'
 
 export default class DataFileUtils {
     static async writeData(path: string, data: any): Promise<boolean> {
@@ -6,7 +6,7 @@ export default class DataFileUtils {
             {
                 method: 'POST',
                 headers: {
-                    Authorization: Utils.getAuth(),
+                    Authorization: BrowserUtils.getAuth(),
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(data)
@@ -19,7 +19,7 @@ export default class DataFileUtils {
             {
                 method: 'POST',
                 headers: {
-                    Authorization: Utils.getAuth(),
+                    Authorization: BrowserUtils.getAuth(),
                     'Content-Type': 'plain/text'
                 },
                 body: text
@@ -32,7 +32,7 @@ export default class DataFileUtils {
             {
                 method: 'PUT',
                 headers: {
-                    Authorization: Utils.getAuth(),
+                    Authorization: BrowserUtils.getAuth(),
                     'Content-Type': 'plain/text'
                 },
                 body: text
@@ -41,7 +41,7 @@ export default class DataFileUtils {
         return response.ok
     }
     static async readData<T>(path: string): Promise<T|string|undefined> {
-        const response = await fetch(`_data.php?path=${path}`, Utils.getAuthInit())
+        const response = await fetch(`_data.php?path=${path}`, BrowserUtils.getAuthInit())
         if(!response.ok) {
             console.warn(`Could not read: ${path}`)
             return undefined

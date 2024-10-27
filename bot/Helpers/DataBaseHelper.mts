@@ -84,22 +84,24 @@ export default class DataBaseHelper {
         parentId: number|null = null
     ): string|undefined {
         const db = DbSingleton.get(this.isTesting)
-        console.log('saveJson', jsonStr, groupClass, groupKey, newGroupKey)
-        // Update the key if it's not already in use
-        let updatedKey = false
-        if(groupKey && newGroupKey && groupKey !== newGroupKey) {
+
+        // EDIT the key for an already existing post if the new key is not already used
+        if(groupKey !== null && newGroupKey !== null && groupKey !== newGroupKey) {
             const newKeyAlreadyExists = !!db.queryValue<string>({
                 query: 'SELECT group_key FROM json_store WHERE group_class = :group_class AND group_key = :group_key LIMIT 1;',
                 params: {group_class: groupClass, group_key: newGroupKey}
             })
-            updatedKey = !newKeyAlreadyExists && !!db.queryRun({
+            let keyUpdated = false
+            if(!newKeyAlreadyExists) keyUpdated = !!db.queryRun({
                 query: 'UPDATE json_store SET group_key = :new_group_key WHERE group_class = :group_class AND group_key = :old_group_key;',
                 params: {new_group_key: newGroupKey, group_class: groupClass, old_group_key: groupKey}
             })
+            if(keyUpdated) groupKey = newGroupKey
         }
 
         // A new key was provided without an original key, we apply this before saving.
-        if(!groupKey && newGroupKey) {
+        // TODO: Cannot actually remember why this would happen...
+        if(groupKey === null && newGroupKey !== null) {
             groupKey = newGroupKey
         }
 
@@ -108,15 +110,18 @@ export default class DataBaseHelper {
             parentId = null
         }
 
+        // If key is still missing, generate one
         if (!groupKey) groupKey = this.getUUID(groupClass) ?? null
+
+        // Upsert
         const result = db.queryRun({
            query: "INSERT INTO json_store (group_class, group_key, parent_id, data_json) VALUES (:group_class, :group_key, :parent_id, :data_json) ON CONFLICT DO UPDATE SET parent_id=:parent_id, data_json=:data_json;",
            params: {group_class: groupClass, group_key: groupKey, parent_id: parentId, data_json: jsonStr}
         })
-        console.log('DbSaveResult', result, groupKey)
         if(!result) groupKey = null
 
-        if(groupKey) { // Load item and store in reference lists
+        // Load item and update caches
+        if(groupKey) {
             const newItem = this.loadJson(groupClass, groupKey, parentId, true)
 
             if(newItem?.length) {

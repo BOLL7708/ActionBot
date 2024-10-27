@@ -1,4 +1,4 @@
-import {ConfigController, ConfigSteam, DataUtils, EnlistData, SettingAccumulatingCounter, SettingDictionaryEntry, SettingIncrementingCounter, SettingStreamQuote, SettingTwitchClip, SettingTwitchRedemption, SettingTwitchReward, SettingTwitchTokens, SettingUser} from '../../lib/index.mts'
+import {ConfigController, ConfigSteam, DataUtils, EnlistData, SettingAccumulatingCounter, SettingDictionaryEntry, SettingIncrementingCounter, SettingStreamQuote, SettingTwitchClip, SettingTwitchRedemption, SettingTwitchReward, SettingTwitchTokens, SettingUser} from '../../lib-shared/index.mts'
 import PasswordForm from '../../web_old/PasswordForm.mts'
 import Color from '../Constants/ColorConstants.mts'
 import DataBaseHelper from '../Helpers/DataBaseHelper.mts'
@@ -17,13 +17,13 @@ export default class MainController {
     public static async init() {
         EnlistData.run()
 
-        return // This is as far as we get right now.
-
         const authed = await AuthUtils.checkIfAuthed()
         if(!authed) {
             PasswordForm.spawn()
             return
         }
+
+        return // TODO: Implement a new DataBaseHelper that talks directly to the database.
 
         // Make sure settings are pre-cached
         await DataBaseHelper.loadAll(new SettingUser())

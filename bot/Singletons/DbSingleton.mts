@@ -45,17 +45,33 @@ export default class DbSingleton {
    }
 
    queryRun(options: IDatabaseQuery): number | object | undefined {
-      return this._db.prepare(options.query).run(options.params)
+      try {
+         return this._db.prepare(options.query).run(options.params)
+      } catch(e) {
+         console.error(Chalk.error(e), options)
+      }
    }
    queryGet(options: IDatabaseQuery):IDatabaseRow|undefined {
-      return this._db.prepare(options.query).get(options.params)
+      try {
+         return this._db.prepare(options.query).get(options.params)
+      } catch(e) {
+         console.error(Chalk.error(e), options)
+      }
    }
    queryAll(options: IDatabaseQuery):IDatabaseRow[]|undefined {
-      return this._db.prepare(options.query).all(options.params)
+      try {
+         return this._db.prepare(options.query).all(options.params)
+      } catch(e) {
+         console.error(Chalk.error(e), options)
+      }
    }
    queryValue<T>(options: IDatabaseQuery):T|undefined {
-      const arr = this._db.prepare(options.query).value<T[]>(options.params)
-      if(arr) return arr.pop()
+      try {
+         const arr = this._db.prepare(options.query).value<T[]>(options.params)
+         if(arr) return arr.pop()
+      } catch(e) {
+         console.error(Chalk.error(e), options)
+      }
    }
 
    /**

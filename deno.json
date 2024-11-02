@@ -14,7 +14,7 @@
     "install": "deno install",
     "generate": "cd ./dev && deno run --allow-read --allow-write ./generate.mts",
     "run-only": "deno run --allow-write --allow-read --allow-net --allow-env --allow-run ./server/main.ts",
-    "run-dev": "deno task generate && cd deno task start",
+    "run-dev": "deno task generate && deno task start",
     "run-test": "deno task generate && deno task preview",
     "run-full": "deno task install && deno task generate && deno task run-only",
     "test": "deno test --allow-all",
@@ -52,6 +52,6 @@
     "lineWidth": 120,
     "semiColons": false,
     "singleQuote": true,
-    "indentWidth": 3
+    "indentWidth": 4
   }
 }

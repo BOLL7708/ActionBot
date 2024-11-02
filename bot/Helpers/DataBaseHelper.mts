@@ -3,7 +3,7 @@ import {AbstractData, DataMap} from '../../lib-shared/index.mts'
 import BrowserUtils from '../../web_old/Client/BrowserUtils.mts'
 import Color from '../Constants/ColorConstants.mts'
 import {IDictionary, INumberDictionary, IStringDictionary} from '../Interfaces/igeneral.mts'
-import DbSingleton from '../Singletons/DbSingleton.mts'
+import DatabaseSingleton from '../Singletons/DatabaseSingleton.mts'
 import Utils from '../Utils/Utils.mts'
 
 export default class DataBaseHelper {
@@ -47,7 +47,7 @@ export default class DataBaseHelper {
         parentId: number|null = null,
         noData: boolean = false
     ): IDataBaseItem<any>[]|undefined {
-        const db = DbSingleton.get(this.isTesting)
+        const db = DatabaseSingleton.get(this.isTesting)
 
         const fields = ['row_id', 'group_class', 'group_key', 'parent_id']
         if (!noData) fields.push('data_json')
@@ -84,7 +84,7 @@ export default class DataBaseHelper {
         newGroupKey: string|null = null,
         parentId: number|null = null
     ): string|undefined {
-        const db = DbSingleton.get(this.isTesting)
+        const db = DatabaseSingleton.get(this.isTesting)
 
         // EDIT the key for an already existing post if the new key is not already used
         if(groupKey !== null && newGroupKey !== null && groupKey !== newGroupKey) {
@@ -141,7 +141,7 @@ export default class DataBaseHelper {
        groupClass: string,
        groupKey: string
     ): number {
-        const db = DbSingleton.get(this.isTesting)
+        const db = DatabaseSingleton.get(this.isTesting)
         const result = db.queryRun({
             query: "DELETE FROM json_store WHERE group_class = :group_class AND group_key = :group_key;",
             params: {group_class: groupClass, group_key: groupKey}
@@ -154,7 +154,7 @@ export default class DataBaseHelper {
      * @param categoryId
      */
     static deleteCategoryJson(categoryId: number): number {
-        const db = DbSingleton.get(this.isTesting)
+        const db = DatabaseSingleton.get(this.isTesting)
         const result = db.queryRun({
             query: 'DELETE FROM json_store WHERE JSON_EXTRACT(data_json, \'$.category\') = :category;',
             params: {category: categoryId},
@@ -166,7 +166,7 @@ export default class DataBaseHelper {
         const pattern = searchQuery
            .replace(/\*/g, '?')
            .replace(/%/g, '_')
-        const db = DbSingleton.get(this.isTesting)
+        const db = DatabaseSingleton.get(this.isTesting)
         const output = db.queryAll({
             query: 'SELECT row_id, group_class, group_key, parent_id, data_json FROM json_store WHERE LOWER(group_key) LIKE LOWER(:like_group_key) OR LOWER(data_json) LIKE LOWER(:like_data_json);',
             params: {like_group_key: pattern, like_data_json: pattern},
@@ -620,7 +620,7 @@ export default class DataBaseHelper {
     }
 
     private static getUUID(groupClass: string): string|undefined {
-        const db = DbSingleton.get()
+        const db = DatabaseSingleton.get()
         let notUniqueYet = true
         let groupKey: string|undefined
         while (notUniqueYet) {

@@ -3,10 +3,10 @@
  */
 export default class AssetsHelper {
     static rootFolder = '_user'
-    static rootPath = `../${this.rootFolder}`
+    static rootPath = `./${this.rootFolder}`
     private static _filePaths: string[] = []
     private static _filePathCache: IAssetFilesCache = {}
-    private static _ignoreList = ['main.sqlite']
+    private static _ignoreList = ['main.sqlite', 'test.sqlite']
 
     /**
      * Load a selection of the available asset file-paths.

@@ -1,5 +1,5 @@
 import {Database} from '@db/sqlite'
-import Chalk from '../../lib-core/Constants/Chalk.mts'
+import Log from '../EasyTSUtils/Log.mts'
 import {IDatabaseRow} from '../Helpers/DataBaseHelper.mts'
 import {IDictionary} from '../Interfaces/igeneral.mts'
 
@@ -20,6 +20,7 @@ export default class DatabaseSingleton {
     private readonly _dbPath: string
     private _db: Database
 
+    private TAG = this.constructor.name
     private constructor(isTest: boolean = false) {
         const dir = './_user/db'
         Deno.mkdirSync(dir, {recursive: true})
@@ -35,20 +36,20 @@ export default class DatabaseSingleton {
         })
         if (db.open) {
             const version = db.prepare('select sqlite_version()').value<[string]>()
-            console.log(Chalk.data(`Database connected: ${Chalk.text(filePath)}, SQLite driver version:`, Chalk.text(version?.pop())))
+            Log.i(this.TAG, `Database with SQLite driver connected:`, filePath, version?.pop())
 
             // Check if table exists
-            const tableName = db.prepare('SELECT name FROM sqlite_master WHERE type=\'table\' AND name=:name').value({name: 'json_store'})
+            const tableName = db.prepare(`SELECT name FROM sqlite_master WHERE type='table' AND name=:name`).value({name: 'json_store'})
             if (!tableName) {
-                const sqlBuffer = Deno.readFileSync('./dev/sql/0.sql')
+                const sqlBuffer = Deno.readFileSync('./sql/structure.sql')
                 const sqlStr = new TextDecoder().decode(sqlBuffer)
                 db.run(sqlStr)
-                console.log(Chalk.data('Table not found, ran import.'))
+                Log.i(this.TAG, 'Table not found, ran import.')
             } else {
-                console.log(Chalk.data('Table exists:'), Chalk.text(tableName?.pop()))
+                Log.i(this.TAG, 'Table exists:', tableName?.pop())
             }
         } else {
-            console.warn(Chalk.data('Unable to initialize or connect to database!'))
+            Log.w(this.TAG, 'Unable to initialize or connect to database!')
         }
         return db
     }
@@ -86,7 +87,7 @@ export default class DatabaseSingleton {
         try {
             return this._db.prepare(options.query).run(options.params)
         } catch (e) {
-            console.error(Chalk.error(e), options)
+            Log.e(this.TAG, '', e, options)
         }
     }
 
@@ -98,7 +99,7 @@ export default class DatabaseSingleton {
         try {
             return this._db.prepare(options.query).get(options.params)
         } catch (e) {
-            console.error(Chalk.error(e), options)
+            Log.e(this.TAG, '', e, options)
         }
     }
 
@@ -110,7 +111,7 @@ export default class DatabaseSingleton {
         try {
             return this._db.prepare(options.query).all(options.params)
         } catch (e) {
-            console.error(Chalk.error(e), options)
+            Log.e(this.TAG, '', e, options)
         }
     }
 
@@ -123,7 +124,7 @@ export default class DatabaseSingleton {
             const arr = this._db.prepare(options.query).value<T[]>(options.params)
             if (arr) return arr.pop()
         } catch (e) {
-            console.error(Chalk.error(e), options)
+            Log.e(this.TAG, '', e, options)
         }
     }
 

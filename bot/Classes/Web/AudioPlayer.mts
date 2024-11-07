@@ -50,26 +50,26 @@ export class AudioPlayerInstance {
     }
 
     private initAudio() {
-        this._isPlaying = false
-        this._currentNonce = undefined
-        if(this._audio != null) {
-            this._audio.pause()
-            delete this._audio
-        }
-        this._audio = new Audio()
-        this._audio.volume = 1.0
-        this._audio.addEventListener('error', (evt)=>{
-            doCallback(this, AudioPlayer.STATUS_ERROR)
-        })
-        this._audio.addEventListener('ended', (evt)=>{
-            doCallback(this, AudioPlayer.STATUS_OK)
-        })
-        this._audio.addEventListener('pause', (evt)=>{
-            // doCallback.call(this, AudioPlayer.STATUS_ABORTED) // TODO: Appears to do false negatives
-        })
-        this._audio.addEventListener('canplaythrough', (evt) => {
-            this._audio?.play().then()
-        })
+        // this._isPlaying = false
+        // this._currentNonce = undefined
+        // if(this._audio != null) {
+        //     this._audio.pause()
+        //     delete this._audio
+        // }
+        // this._audio = new Audio()
+        // this._audio.volume = 1.0
+        // this._audio.addEventListener('error', (evt)=>{
+        //     doCallback(this, AudioPlayer.STATUS_ERROR)
+        // })
+        // this._audio.addEventListener('ended', (evt)=>{
+        //     doCallback(this, AudioPlayer.STATUS_OK)
+        // })
+        // this._audio.addEventListener('pause', (evt)=>{
+        //     // doCallback.call(this, AudioPlayer.STATUS_ABORTED) // TODO: Appears to do false negatives
+        // })
+        // this._audio.addEventListener('canplaythrough', (evt) => {
+        //     this._audio?.play().then()
+        // })
 
         function doCallback(self: AudioPlayerInstance, status: number) {
             // console.log(`Audio Player: Finished playing audio: ${self._currentNonce}, status: ${status}`)
@@ -93,10 +93,10 @@ export class AudioPlayerInstance {
         if (src) {
             this._isPlaying = true
             this._currentNonce = audio.nonce
-            if(this._audio) {
-                this._audio.volume = audio.volume || 1.0
-                this._audio.src = src
-            }
+            // if(this._audio) {
+            //     this._audio.volume = audio.volume || 1.0
+            //     this._audio.src = src
+            // }
         } else {
             console.warn('AudioPlayer: Dequeued audio but had no src value')
         }
@@ -104,7 +104,7 @@ export class AudioPlayerInstance {
 
     enqueueAudio(audio: ActionAudio|undefined) {
         if(audio) {
-            console.log(`AudioPlayer: Enqueued audio with nonce: ${audio.nonce}`)
+            // console.log(`AudioPlayer: Enqueued audio with nonce: ${audio.nonce}`)
             const clone = Utils.clone(audio)
             for(const src of Utils.ensureArray(audio.srcEntries)) {
                 clone.srcEntries = [src]

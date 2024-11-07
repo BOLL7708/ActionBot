@@ -11,17 +11,17 @@ import * as $Counter from './islands/Counter.tsx'
 import type { Manifest } from '$fresh/server.ts'
 
 const manifest = {
-   routes: {
-      './routes/_404.tsx': $_404,
-      './routes/_app.tsx': $_app,
-      './routes/api/joke.ts': $api_joke,
-      './routes/greet/[name].tsx': $greet_name_,
-      './routes/index.tsx': $index,
-   },
-   islands: {
-      './islands/Counter.tsx': $Counter,
-   },
-   baseUrl: import.meta.url,
+    routes: {
+        './routes/_404.tsx': $_404,
+        './routes/_app.tsx': $_app,
+        './routes/api/joke.ts': $api_joke,
+        './routes/greet/[name].tsx': $greet_name_,
+        './routes/index.tsx': $index,
+    },
+    islands: {
+        './islands/Counter.tsx': $Counter,
+    },
+    baseUrl: import.meta.url,
 } satisfies Manifest
 
 export default manifest

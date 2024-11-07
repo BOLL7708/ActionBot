@@ -1,14 +1,14 @@
+import GoogleTTS from '../Classes/Api/GoogleTTS.mts'
+import OBS from '../Classes/Api/OBS.mts'
+import OpenVR2WS from '../Classes/Api/OpenVR2WS.mts'
+import Pipe from '../Classes/Api/Pipe.mts'
+import Relay from '../Classes/Api/Relay.mts'
+import SuperScreenShotterVR from '../Classes/Api/SuperScreenShotterVR.mts'
 import Twitch from '../Classes/Api/Twitch.mts'
 import TwitchEventSub from '../Classes/Api/TwitchEventSub.mts'
-import GoogleTTS from '../Classes/Api/GoogleTTS.mts'
-import Pipe from '../Classes/Api/Pipe.mts'
-import OBS from '../Classes/Api/OBS.mts'
-import SuperScreenShotterVR from '../Classes/Api/SuperScreenShotterVR.mts'
-import OpenVR2WS from '../Classes/Api/OpenVR2WS.mts'
+import StreamDeckRelay from '../Classes/Data/StreamDeckRelay.mts'
 import AudioPlayer from '../Classes/Web/AudioPlayer.mts'
 import Sign from '../Classes/Web/Sign.mts'
-import Relay from '../Classes/Api/Relay.mts'
-import StreamDeckRelay from '../Classes/Data/StreamDeckRelay.mts'
 
 /**
  * Contains instances of various modules

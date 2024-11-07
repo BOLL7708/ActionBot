@@ -17,7 +17,7 @@
     "run-dev": "deno task generate && deno task start",
     "run-test": "deno task generate && deno task preview",
     "run-full": "deno task install && deno task generate && deno task run-only",
-    "test": "deno test --allow-all",
+    "test": "deno task generate && deno test --allow-all --trace-leaks --watch",
     "check": "deno fmt --check && deno lint && deno check **/*.*ts && deno check **/*.tsx && deno check **/*.mts",
     "cli": "echo \"import '\\$fresh/src/dev/cli.ts'\" | deno run --unstable -A -",
     "manifest": "deno task cli manifest $(pwd)",

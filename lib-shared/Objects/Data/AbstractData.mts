@@ -1,3 +1,4 @@
+import Log from '../../../bot/EasyTSUtils/Log.mts'
 import {DataUtils} from './DataUtils.mts'
 import {DataMap} from './DataMap.mts'
 import DataBaseHelper, {IDataBaseItem} from '../../../bot/Helpers/DataBaseHelper.mts'
@@ -42,7 +43,8 @@ export abstract class AbstractData {
      * @param instanceOrJsonResult Optional properties to apply to this instance.
      * @param fill If IDs should be replaced by what they reference.
      */
-    async __apply(instanceOrJsonResult: object = {}, fill: boolean) {
+    __apply(instanceOrJsonResult: object = {}, fill: boolean) {
+        const TAG = this.constructor.name
         // Ensure valid input
         const prototype = Object.getPrototypeOf(this)
         const sourceObject =
@@ -81,12 +83,12 @@ export abstract class AbstractData {
                         newProp.type = EDataType.Array
                         for (const id of propertyValue) {
                             if(typeof id !== 'number' && typeof id !== 'string') {
-                                console.warn(`Data: ID was not a number nor string, skipping:`, id)
+                                Log.w(TAG,`Data: ID was not a number nor string, skipping:`, id)
                                 continue
                             }
-                            const dbItem = await DataBaseHelper.loadById(id.toString())
+                            const dbItem = DataBaseHelper.loadById(id.toString())
                             if(dbItem?.data && dbItem?.filledData) newProp.dataArray.push(dbItem)
-                            else if(id !== 0) console.warn(`Data.__apply: Unable to load instance for ${typeValues.class}:${id}, it might not exist anymore.`)
+                            else if(id !== 0) Log.w(TAG, `Data.__apply: Unable to load instance for ${typeValues.class}:${id}, it might not exist anymore.`)
                         }
                         (this as any)[propertyName] = newProp
                     } else if (typeof propertyValue == 'object') {
@@ -94,17 +96,17 @@ export abstract class AbstractData {
                         newProp.type = EDataType.Dictionary
                         for (const [k, idValue] of Object.entries(propertyValue)) {
                             const id = Utils.ensureNumber(idValue)
-                            const dbItem = await DataBaseHelper.loadById(id.toString())
+                            const dbItem = DataBaseHelper.loadById(id.toString())
                             if(dbItem?.data && dbItem?.filledData) newProp.dataDictionary[k] = dbItem
-                            else if(id !== 0) console.warn(`Data.__apply: Unable to load instance for ${typeValues.class}:${id}, it might not exist anymore.`)
+                            else if(id !== 0) Log.w(TAG, `Data.__apply: Unable to load instance for ${typeValues.class}:${id}, it might not exist anymore.`)
                         }
                         (this as any)[propertyName] = newProp
                     } else {
                         // It is single instance
-                        const dbItem = await DataBaseHelper.loadById(propertyValue)
+                        const dbItem = DataBaseHelper.loadById(propertyValue)
                         newProp.type = EDataType.Single
                         if(dbItem?.data && dbItem?.filledData) newProp.dataSingle = dbItem
-                        else if(propertyValue !== 0) console.warn(`Data.__apply: Unable to load instance for ${typeValues.class}|${dbItem?.class} from (${propertyValue}), it might not exist anymore.`);
+                        else if(propertyValue !== 0) Log.w(TAG, `Data.__apply: Unable to load instance for ${typeValues.class}|${dbItem?.class} from (${propertyValue}), it might not exist anymore.`);
                         (this as any)[propertyName] = newProp
                     }
                 } else if(hasSubInstance && !typeValues.isIdReference) {
@@ -113,14 +115,14 @@ export abstract class AbstractData {
                         // It is an array of subclasses, instantiate.
                         const newProp: any[] = []
                         for(const v of propertyValue) {
-                            newProp.push(await DataMap.getInstance({ className: typeValues.class, props: v, fill }))
+                            newProp.push(DataMap.getInstance({ className: typeValues.class, props: v, fill }))
                         }
                         (this as any)[propertyName] = newProp
                     } else if (typeof propertyValue == 'object') {
                         // It is a dictionary of subclasses, instantiate.
                         const newProp: { [key: string]: any } = {}
                         for(const [k, v] of Object.entries(propertyValue)) {
-                            newProp[k] = await DataMap.getInstance({ className: typeValues.class, props: v as object|undefined, fill })
+                            newProp[k] = DataMap.getInstance({ className: typeValues.class, props: v as object|undefined, fill })
                         }
                         (this as any)[propertyName] = newProp
                     }
@@ -129,7 +131,7 @@ export abstract class AbstractData {
                     const singleInstanceType = (this as any)[propertyName]?.constructor.name ?? (prototype as any)[propertyName]?.constructor.name
                     if(DataMap.hasInstance(singleInstanceType) && !typeValues.isIdReference) {
                         // It is a single instance class
-                        (this as any)[propertyName] = await DataMap.getInstance({ className: singleInstanceType, props: propertyValue, fill })
+                        (this as any)[propertyName] = DataMap.getInstance({ className: singleInstanceType, props: propertyValue, fill })
                     } else {
                         // It is a basic value, just set it.
                         const expectedType = typeof (this as any)[propertyName]
@@ -140,7 +142,7 @@ export abstract class AbstractData {
                                 case 'string': correctedProp = propertyValue?.toString() ?? ''; break;
                                 case 'number': correctedProp = parseFloat(propertyValue?.toString() ?? 0); break;
                                 case 'boolean': correctedProp = Utils.toBool(propertyValue); break;
-                                default: console.warn(`Data.__apply: Unhandled field type for prop [${propertyName}] in [${thisClass}]: ${expectedType}`, propertyValue)
+                                default: Log.w(TAG, `Data.__apply: Unhandled field type for prop [${propertyName}] in [${thisClass}]: ${expectedType}`, propertyValue)
                             }
                         }
                         (this as any)[propertyName] = correctedProp
@@ -163,9 +165,9 @@ export abstract class AbstractData {
      * @param props Optional properties to apply to the new instance, usually a plain object cast to the same class which is why we need to do this.
      * @param fill If IDs should be replaced by what they reference.
      */
-    async __new<T>(props: (T&object)|undefined, fill: boolean): Promise<T&AbstractData> {
+    __new<T>(props: (T&object)|undefined, fill: boolean): T&AbstractData {
         const obj = Object.create(this) as T&AbstractData // Easy way of making a new instance, it will have the previous class as prototype though, but it still returns the same constructor name which is what we need.
-        await obj.__apply(props ?? {}, fill) // Will run with empty just to lift properties from the prototype up to the class instance.
+        obj.__apply(props ?? {}, fill) // Will run with empty just to lift properties from the prototype up to the class instance.
         return obj
     }
 

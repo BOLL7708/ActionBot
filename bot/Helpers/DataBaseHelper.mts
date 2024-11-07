@@ -1,15 +1,12 @@
-import Chalk from '../../lib-core/Constants/Chalk.mts'
 import {AbstractData, DataMap} from '../../lib-shared/index.mts'
-import BrowserUtils from '../../web_old/Client/BrowserUtils.mts'
-import Color from '../Constants/ColorConstants.mts'
+import Log from '../EasyTSUtils/Log.mts'
 import {IDictionary, INumberDictionary, IStringDictionary} from '../Interfaces/igeneral.mts'
 import DatabaseSingleton from '../Singletons/DatabaseSingleton.mts'
 import Utils from '../Utils/Utils.mts'
 
 export default class DataBaseHelper {
+    private static readonly TAG = this.name
     static readonly OBJECT_MAIN_KEY: string = 'Main'
-    private static readonly LOG_GOOD_COLOR: string = Color.BlueViolet
-    private static readonly LOG_BAD_COLOR: string = Color.DarkRed
     static isTesting: boolean = false
 
     /*
@@ -30,40 +27,45 @@ export default class DataBaseHelper {
     private static _groupKeyTupleToMetaMap: Map<[string, string], IDataBaseItem<any>> = new Map()
     private static _idToMetaMap: Map<number, IDataBaseItem<any>> = new Map()
 
-    static async testConnection(): Promise<boolean> {
-        const response = await fetch(this.getUrl(), {
-            method: 'HEAD',
-            headers: {
-                Authorization: BrowserUtils.getAuth()
-            }
-        })
-        return response.ok
+    static testConnection(): boolean {
+        return DatabaseSingleton.get(this.isTesting).test()
+    }
+    static closeConnection() {
+        return DatabaseSingleton.get(this.isTesting).kill()
+    }
+
+    private static getFieldsString(withData: boolean = true): string {
+        const fields = ['row_id', 'group_class', 'group_key', 'parent_id']
+        if (withData) fields.push('data_json')
+        return fields.join(',')
     }
 
     // region Json Store
     static loadJson(
-        groupClass: string,
+        groupClass: string|null = null,
         groupKey: string|null = null,
         parentId: number|null = null,
+        rowId: number|string|null = null,
         noData: boolean = false
     ): IDataBaseItem<any>[]|undefined {
         const db = DatabaseSingleton.get(this.isTesting)
+        const fieldsStr = this.getFieldsString(!noData)
 
-        const fields = ['row_id', 'group_class', 'group_key', 'parent_id']
-        if (!noData) fields.push('data_json')
-        const fieldsStr = fields.join(',')
-
-        let query = `SELECT ${fieldsStr} FROM json_store WHERE group_class = :group_class`
-        const params: IDictionary<any> = {group_class: groupClass}
+        const params: IDictionary<any> = {}
+        if (groupClass !== null) {
+            params.group_class = groupClass
+        }
         if (groupKey !== null) {
-            query += ' AND group_key = :group_key'
-            params['group_key'] = groupKey
+            params.group_key = groupKey
         }
         if (parentId !== null) {
-            query += ' AND parent_id = :parent_id'
-            params['parent_id'] = parentId
+            params.parent_id = parentId
         }
-        query += ';'
+        if (rowId !== null) {
+            params.row_id = rowId
+        }
+        const where = Object.keys(params).map((p)=>{return `${p} = :${p}`}).join(' AND ')
+        let query = `SELECT ${fieldsStr} FROM json_store WHERE ${where};`
 
         const result = db.queryAll({query,params})
         return this.outputEntries(result ?? [])
@@ -123,10 +125,10 @@ export default class DataBaseHelper {
 
         // Load item and update caches
         if(groupKey) {
-            const newItem = this.loadJson(groupClass, groupKey, parentId, true)
+            const newItem = this.loadJson(groupClass, groupKey, parentId, null, true)
 
             if(newItem?.length) {
-                this.handleDataBaseItem(newItem[0]).then()
+                this.handleDataBaseItem(newItem[0])
             }
         }
         return result && groupKey !== null ? groupKey : undefined
@@ -156,7 +158,7 @@ export default class DataBaseHelper {
     static deleteCategoryJson(categoryId: number): number {
         const db = DatabaseSingleton.get(this.isTesting)
         const result = db.queryRun({
-            query: 'DELETE FROM json_store WHERE JSON_EXTRACT(data_json, \'$.category\') = :category;',
+            query: `DELETE FROM json_store WHERE JSON_EXTRACT(data_json, '$.category') = :category;`,
             params: {category: categoryId},
         })
         return typeof result === 'number' ? result : -1
@@ -194,7 +196,7 @@ export default class DataBaseHelper {
      * @param item
      * @private
      */
-    private static async handleDataBaseItem<T>(item: IDataBaseItem<T>):Promise<T|undefined> {
+    private static handleDataBaseItem<T>(item: IDataBaseItem<T>):T|undefined {
         const itemClone = Utils.clone<IDataBaseItem<T>>(item)
         itemClone.data = null
 
@@ -205,8 +207,8 @@ export default class DataBaseHelper {
         // Add filled version
         const meta = DataMap.getMeta(item.class)
         if(meta) {
-            item.filledData = await meta.instance.__new(item.data ?? undefined, true)
-            item.data = await meta.instance.__new(item.data ?? undefined, false)
+            item.filledData = meta.instance.__new(item.data ?? undefined, true)
+            item.data = meta.instance.__new(item.data ?? undefined, false)
         }
 
         return item.data ? item.data as T : undefined
@@ -217,10 +219,10 @@ export default class DataBaseHelper {
      * @param emptyInstance Instance of the class to load.
      * @param parentId Filter on items with this parent id.
      */
-    static async loadAll<T>(
+    static loadAll<T>(
         emptyInstance: T&AbstractData,
         parentId?: number,
-    ): Promise<IDictionary<IDataBaseItem<T>>|undefined> {
+    ): IDictionary<IDataBaseItem<T>>|undefined {
         const className = emptyInstance.constructor.name
         if(this.checkAndReportClassError(className, 'loadDictionary')) return undefined
 
@@ -230,16 +232,16 @@ export default class DataBaseHelper {
         }
 
         // DB
-        const jsonResult = await this.loadJson(className) as IDataBaseItem<T>[]|undefined
+        const jsonResult = this.loadJson(className) as IDataBaseItem<T>[]|undefined
         if(Array.isArray(jsonResult)) {
             const cacheDictionary: IDictionary<IDataBaseItem<T>> = {}
 
             // Convert plain objects to class instances and cache them
             for(const item of jsonResult) {
-                const filledObject = await emptyInstance.__new(item.data ?? undefined, true)
+                const filledObject = emptyInstance.__new(item.data ?? undefined, true)
                 if(filledObject) {
                     item.filledData = filledObject
-                    item.data = await emptyInstance.__new(item.data ?? undefined, false)
+                    item.data = emptyInstance.__new(item.data ?? undefined, false)
                     cacheDictionary[item.key] = item
                 }
             }
@@ -254,11 +256,11 @@ export default class DataBaseHelper {
      * @param emptyInstance Instance of the class to load.
      * @param filled
      */
-    static async loadMain<T>(
+    static loadMain<T>(
         emptyInstance: T&AbstractData,
         filled: boolean = true
-    ): Promise<T> {
-        return await this.load(emptyInstance, this.OBJECT_MAIN_KEY, undefined, filled) ?? emptyInstance
+    ): T {
+        return this.load(emptyInstance, this.OBJECT_MAIN_KEY, undefined, filled) ?? emptyInstance
     }
 
     /**
@@ -269,14 +271,14 @@ export default class DataBaseHelper {
      * @param filled
      * @param ignoreCache
      */
-    static async load<T>(
+    static load<T>(
         emptyInstance: T&AbstractData,
         key: string,
         parentId?: number,
         filled?: boolean,
         ignoreCache?: boolean
-    ): Promise<T|undefined> {
-        const item = await this.loadItem(emptyInstance, key, parentId, ignoreCache)
+    ): T|undefined {
+        const item = this.loadItem(emptyInstance, key, parentId, ignoreCache)
         if(item) {
             return filled ? item.filledData as T : item.data as T
         }
@@ -300,12 +302,12 @@ export default class DataBaseHelper {
      * @param parentId Only load the item if it has this parent id.
      * @param ignoreCache Used to load a fresh item after saving to update the cache.
      */
-    static async loadItem<T>(
+    static loadItem<T>(
         emptyInstance: T&AbstractData,
         key: string,
         parentId?: number,
         ignoreCache?: boolean
-    ): Promise<IDataBaseItem<T>|undefined> {
+    ): IDataBaseItem<T>|undefined {
         const className = emptyInstance.constructor.name
         if (this.checkAndReportClassError(className, 'loadSingle')) return undefined
 
@@ -318,57 +320,57 @@ export default class DataBaseHelper {
         }
 
         // DB
-        const jsonResult = await this.loadJson(className, key, parentId) as IDataBaseItem<T>[]|undefined
+        const jsonResult = this.loadJson(className, key, parentId) as IDataBaseItem<T>[]|undefined
         if(jsonResult && jsonResult.length == 1) {
+            this.fillItemsInPlace(
+                className,
+                key,
+                emptyInstance,
+                jsonResult
+            )
+            return jsonResult[0]
+        }
+        return undefined
+    }
+
+    static loadById(
+        rowId?: string|number,
+        parentId?: number
+    ): IDataBaseItem<unknown>|undefined {
+        if(!rowId) return undefined
+
+        const result = this.loadJson(null, null, parentId, rowId)
+        const item: IDataBaseItem<any>|undefined = result?.[0]
+        if(item) {
+            this.fillItemsInPlace(item.class, item.key, null, [item])
+        }
+        return item
+    }
+
+    private static fillItemsInPlace(
+        className: string,
+        key: string,
+        emptyInstance: AbstractData|null,
+        items: IDataBaseItem<any>[]
+    ): void {
+        if(emptyInstance === null) {
+            emptyInstance = DataMap.getInstance({ className, fill: false }) as AbstractData
+        }
+        for (const item of items) {
             // Convert plain object to class filled and unfilled instances
-            const item = jsonResult[0]
-            if(['ConfigTest', 'ConfigExample'].includes(className))  {
-                item.filledData = await emptyInstance.__new(item.data ?? undefined, true)
-                item.data = await emptyInstance.__new(item.data ?? undefined, false)
-            } else {
-                item.filledData = await emptyInstance.__new(item.data ?? undefined, true)
-                item.data = await emptyInstance.__new(item.data ?? undefined, false)
-            }
+            item.filledData = emptyInstance.__new(item.data ?? undefined, true)
+            item.data = emptyInstance.__new(item.data ?? undefined, false)
 
             // Ensure dictionary exists
             if (!this._dataStore.has(className)) {
-                const newDic: IDictionary<IDataBaseItem<T>> = {}
+                const newDic: IDictionary<IDataBaseItem<any>> = {}
                 this._dataStore.set(className, newDic)
             }
             const cacheDictionary = this._dataStore.get(className)
 
             // Save cache
             if (cacheDictionary) cacheDictionary[key] = item
-            return item
         }
-        return undefined
-    }
-
-    static async loadById(
-        rowId?: string|number,
-        parentId?: number
-    ): Promise<IDataBaseItem<unknown>|undefined> {
-        if(!rowId) return undefined
-        let url = this.getUrl()
-        const options: IDataBaseHelperHeaders = {rowIds: rowId}
-        if(parentId && !isNaN(parentId) && parentId > 0) {
-            options.parentId = parentId
-        }
-        const response = await fetch(url, {
-            headers: await this.getHeader(options)
-        })
-        const jsonResult = await response.json()
-        if(jsonResult && jsonResult.length > 0) {
-            // TODO: Redo caching and stuff.
-            const item = jsonResult[0]
-            const emptyInstance = await DataMap.getInstance({ className: item.class, fill: false })
-            if(emptyInstance) {
-                item.filledData = await emptyInstance.__new(item.data ?? undefined, true)
-                item.data = await emptyInstance.__new(item.data ?? undefined, false)
-            }
-            return item
-        }
-        return undefined
     }
 
     /**
@@ -418,7 +420,7 @@ export default class DataBaseHelper {
         }
 
         // Load from DB
-        const jsonResult = await this.loadJson(groupClass, groupKey, 0, true)
+        const jsonResult = await this.loadJson(groupClass, groupKey, 0, null, true)
         if(jsonResult && jsonResult.length > 0) {
             const item = jsonResult[0]
             this.handleDataBaseItem(item).then() // Store cache
@@ -468,7 +470,7 @@ export default class DataBaseHelper {
                 const jsonResult = await response.json()
                 if(jsonResult && jsonResult.length > 0) {
                     for(const item of jsonResult) {
-                        this.handleDataBaseItem(item).then()
+                        // this.handleDataBaseItem(item).then()
                         if(item) {
                             output[item.id] = item.class
                         }
@@ -506,19 +508,17 @@ export default class DataBaseHelper {
 
         // DB
         key = this.saveJson(JSON.stringify(setting), className, key, newKey, parentId)
-        console.log('Key from saving', key)
+        Log.v(this.TAG, `Key from saving`, key)
 
         // Update cache
         if(key) {
             // Loading an item here while ignoring the cache will also update the cache.
-            const item = await this.loadItem(setting, key, parentId, true) as IDataBaseItem<T>
+            const _item = this.loadItem(setting, key, parentId, true) as IDataBaseItem<T>
         }
 
         // Result
-        Utils.log(
-            key ? `Wrote '${className}' with key '${key}' to DB` : `Failed to write '${className}' with key '${key}' to DB`,
-            key ? this.LOG_GOOD_COLOR : this.LOG_BAD_COLOR
-        )
+        if(key) Log.i(this.TAG, `Wrote '${className}' with key '${key}' to DB`)
+        else Log.e(this.TAG, `Failed to write '${className}' with key '${key}' to DB`)
         return key
     }
 
@@ -549,10 +549,8 @@ export default class DataBaseHelper {
         }
 
         // Result
-        console.log(Chalk.data(ok
-           ? Chalk.data('Deleted this from DB:')
-           : Chalk.error('Failed to delete this from DB:')
-        ), className, key)
+        if(ok) Log.i(this.TAG, 'Deleted this from DB:', className, key)
+        else Log.e('Failed to delete this from DB:', className, key)
         return ok
     }
 
@@ -572,11 +570,8 @@ export default class DataBaseHelper {
         }
 
         // Result
-        console.log(ok
-           ? Chalk.data('Deleted all entries from DB with category:')
-           : Chalk.error('Failed to delete all entries from DB with category:'),
-           categoryId
-        )
+        if(ok) Log.i(this.TAG, 'Deleted all entries from DB with category:', categoryId)
+        else Log.e(this.TAG, 'Failed to delete all entries from DB with category:', categoryId)
         return ok
     }
     // endregion
@@ -603,7 +598,7 @@ export default class DataBaseHelper {
                 output.push(item)
             }
         }
-        return output;
+        return output
     }
 
     /**
@@ -645,23 +640,16 @@ export default class DataBaseHelper {
         return groupKey
     }
 
-    /**
-     * Returns the relative path to the PHP file, this used to have functionality.
-     * @returns string
-     */
-    private static getUrl(): string {
-        // TODO: This will not be used, we will interface directly with the DB and use a persistent connection.
-        return 'http://localhost' // '_db.php'
-    }
+    static getUrl() { return '' } // TODO: TEMPORARY TO ENABLE BUILDING
 
     /**
      * Get authorization header with optional JSON content type.
      * @param options
      * @private
      */
-    private static async getHeader(
+    private static getHeader(
         options: IDataBaseHelperHeaders
-    ): Promise<HeadersInit> {
+    ): HeadersInit {
         const headers = new Headers()
         // TODO: Auth will break here, but we can do the initial DB implementation unauthed
         // headers.set('Authorization', localStorage.getItem(Constants.LOCAL_STORAGE_KEY_AUTH+Utils.getCurrentPath()) ?? '')
@@ -685,10 +673,10 @@ export default class DataBaseHelper {
         // TODO: Add callstack?
         const isProblem = className == 'Object'
         if(isProblem) {
-            Utils.log(`DB: "${action}" got class "${className}" which is invalid.`, Color.DarkRed, true, true)
+            Log.w(this.TAG, `DB: "${action}" got class "${className}" which is invalid.`)
         }
         if(!DataMap.hasInstance(className)) {
-            Utils.log(`DB: "${action}" got class "${className}" which does not exist in the DataObjectMap! Is it added to RegisterObjects?`, Color.DarkRed, true, true)
+            Log.w(this.TAG, `DB: "${action}" got class "${className}" which does not exist in the DataObjectMap! Is it added to RegisterObjects?`)
         }
         return isProblem
     }

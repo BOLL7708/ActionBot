@@ -4,7 +4,7 @@ include_once '_init.php';
 $db = DB_SQLite::get();
 
 // Auth
-Utils::checkAuth();
+//Utils::checkAuth();
 
 // Test
 $method = strtolower($_SERVER['REQUEST_METHOD']);

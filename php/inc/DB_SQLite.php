@@ -4,7 +4,7 @@ class DB_SQLite
 {
     // Const
     const DIR = '../_user/db';
-    const FILE = DB_SQLite::DIR.'/main.sqlite';
+    const FILE = DB_SQLite::DIR.'/test_old.sqlite';
 
     // region Singleton
     private static DB_SQLite|null $instance = null;
@@ -26,7 +26,7 @@ class DB_SQLite
         $dbExisted = file_exists($this::FILE);
         $this->sqlite = new SQLite3($this::FILE);
         if(!$dbExisted) {
-            $createTableQuery = file_get_contents('../app/sql/0.sql');
+            $createTableQuery = file_get_contents('../sql/structure.sql');
             $success = $this->sqlite->exec($createTableQuery);
             if(!$success) {
                 error_log("DB_SQLite: Unable to create table: ".$this->sqlite->lastErrorMsg());

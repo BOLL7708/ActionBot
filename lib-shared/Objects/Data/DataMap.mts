@@ -58,17 +58,17 @@ export class DataMap {
      * @param props
      * @param fill If IDs should be replaced by what they reference.
      */
-    public static async getInstance({className, props, fill}: {
+    public static getInstance({className, props, fill}: {
         className?: string,
         props?: object,
         fill: boolean
-    }): Promise<AbstractData|undefined> {
+    }): AbstractData|undefined {
         const invalidClassNames: TTypes[] = ['string', 'number', 'boolean']
         if(!className || invalidClassNames.indexOf(className) != -1) return undefined
         if(className && this.hasInstance(className)) {
             const instance = this._map.get(className)?.instance
             if(instance) {
-                return await instance.__new(props, fill)
+                return instance.__new(props, fill)
             } else console.warn(`DataMap: Class instance was invalid: ${className}`, props)
         } else console.warn(`DataMap: Class instance does not exist: ${className}`, props)
         return undefined

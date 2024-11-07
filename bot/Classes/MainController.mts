@@ -1,6 +1,7 @@
 import {ConfigController, ConfigSteam, DataUtils, EnlistData, SettingAccumulatingCounter, SettingDictionaryEntry, SettingIncrementingCounter, SettingStreamQuote, SettingTwitchClip, SettingTwitchRedemption, SettingTwitchReward, SettingTwitchTokens, SettingUser} from '../../lib-shared/index.mts'
 import PasswordForm from '../../web_old/PasswordForm.mts'
 import Color from '../Constants/ColorConstants.mts'
+import Log from '../EasyTSUtils/Log.mts'
 import DataBaseHelper from '../Helpers/DataBaseHelper.mts'
 import TwitchHelixHelper from '../Helpers/TwitchHelixHelper.mts'
 import TwitchTokensHelper from '../Helpers/TwitchTokensHelper.mts'
@@ -23,21 +24,21 @@ export default class MainController {
             return
         }
 
-        return // TODO: Implement a new DataBaseHelper that talks directly to the database.
-
         // Make sure settings are pre-cached
-        await DataBaseHelper.loadAll(new SettingUser())
-        await DataBaseHelper.loadAll(new SettingTwitchTokens())
-        await DataBaseHelper.loadAll(new SettingTwitchReward())
-        await DataBaseHelper.loadAll(new SettingTwitchRedemption())
-        const dictionarySettings = await DataBaseHelper.loadAll(new SettingDictionaryEntry())
-        await DataBaseHelper.loadAll(new SettingTwitchClip())
-        await DataBaseHelper.loadAll(new SettingIncrementingCounter())
-        await DataBaseHelper.loadAll(new SettingAccumulatingCounter())
-        await DataBaseHelper.loadAll(new SettingStreamQuote())
+        DataBaseHelper.loadAll(new SettingUser())
+        DataBaseHelper.loadAll(new SettingTwitchTokens())
+        DataBaseHelper.loadAll(new SettingTwitchReward())
+        DataBaseHelper.loadAll(new SettingTwitchRedemption())
+        const dictionarySettings = DataBaseHelper.loadAll(new SettingDictionaryEntry())
+        DataBaseHelper.loadAll(new SettingTwitchClip())
+        DataBaseHelper.loadAll(new SettingIncrementingCounter())
+        DataBaseHelper.loadAll(new SettingAccumulatingCounter())
+        DataBaseHelper.loadAll(new SettingStreamQuote())
+        return // TODO: Modules below use browser components, need to migrate/disablethose.
 
         const modules = ModulesSingleton.getInstance()
         modules.tts.setDictionary(DataUtils.getKeyDataDictionary(dictionarySettings ?? {}))
+
 
         await TwitchHelixHelper.loadNamesForUsersWhoLackThem()
 

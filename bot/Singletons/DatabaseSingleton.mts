@@ -116,13 +116,27 @@ export default class DatabaseSingleton {
     }
 
     /**
-     * Used specifically to load things not in the main table, thus it's generic.
+     * Get the first value in the result, will return that value without a key.
+     * Used to get a value not in the main table.
      * @param options
      */
     queryValue<T>(options: IDatabaseQuery): T | undefined {
         try {
             const arr = this._db.prepare(options.query).value<T[]>(options.params)
             if (arr) return arr.pop()
+        } catch (e) {
+            Log.e(this.TAG, '', e, options)
+        }
+    }
+    /**
+     * Get the first values in the result, will return those values without keys.
+     * Used to get values not in the main table.
+     * @param options
+     */
+    queryValues<T>(options: IDatabaseQuery): T[] | undefined {
+        try {
+            const arr = this._db.prepare(options.query).values<T[]>(options.params)
+            if (arr) return arr.map((it)=>{return it.pop()}).filter((it)=>it !== undefined)
         } catch (e) {
             Log.e(this.TAG, '', e, options)
         }

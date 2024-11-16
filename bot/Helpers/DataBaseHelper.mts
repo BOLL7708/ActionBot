@@ -420,10 +420,10 @@ export default class DataBaseHelper {
         }
 
         // Load from DB
-        const jsonResult = await this.loadJson(groupClass, groupKey, 0, null, true)
+        const jsonResult = this.loadJson(groupClass, groupKey, 0, null, true)
         if(jsonResult && jsonResult.length > 0) {
             const item = jsonResult[0]
-            this.handleDataBaseItem(item).then() // Store cache
+            this.handleDataBaseItem<any>(item).then() // Store cache
             return item
         }
         return undefined
@@ -481,18 +481,12 @@ export default class DataBaseHelper {
         return output
     }
 
-    static async loadID(groupClass: string, groupKey: string): Promise<number> {
-        const url = this.getUrl()
-        const options: IDataBaseHelperHeaders = {
-            groupClass: groupClass,
-            groupKey: groupKey,
-            onlyId: true
-        }
-        const response = await fetch(url, {
-            headers: await this.getHeader(options)
-        })
-        const jsonResult = await response.json()
-        return response.ok ? jsonResult.result : 0
+    static loadID(groupClass: string, groupKey: string): number {
+        const db = DatabaseSingleton.get(this.isTesting)
+        const query = `SELECT row_id AS id FROM json_store WHERE group_class = :group_class AND group_key = :group_key LIMIT 1;`
+        const params = {group_class: groupClass, group_key: groupKey}
+        const result = db.queryValue<number>({query, params})
+        return result ?? 0
     }
 
     /**
@@ -619,23 +613,11 @@ export default class DataBaseHelper {
         let notUniqueYet = true
         let groupKey: string|undefined
         while (notUniqueYet) {
-            const hexResult = db.queryValue<string>({query: 'SELECT lower(hex(randomblob(18))) as hex;'}); // UUID() does not exist in Sqlite so this is a substitute.
-        //     const groupKey = $hexResult[0]['hex'] ?? null;
-        //     if ($groupKey === null) {
-        //         error_log("UUID: Unable to get new hex for group_class: $groupClass");
-        //         return null;
-        //     }
-        //     $countResult = $this->query(
-        //        'SELECT COUNT(*) as count FROM json_store WHERE group_class = :group_class AND group_key = :group_key LIMIT 1;',
-        //        [':group_class' => $groupClass, ':group_key' => $groupKey]
-        // );
-        //     $count = $countResult[0]['count'] ?? null;
-        //     if ($count === null) {
-        //         error_log("UUID: Unable to get count for group_class: $groupClass, group_key: $groupKey");
-        //         return null;
-        //     }
-        //     $notUniqueYet = $count > 0;
-            notUniqueYet = false
+            // UUID() does not exist in Sqlite so this is a substitute.
+            const hexResult = db.queryValue<string>({query: 'SELECT lower(hex(randomblob(18))) as hex;'});
+            if(!hexResult) return undefined
+            const id = this.loadID(groupClass, hexResult)
+            if(id === 0) notUniqueYet = false
         }
         return groupKey
     }
@@ -681,16 +663,36 @@ export default class DataBaseHelper {
         return isProblem
     }
 
-    static async getNextKey(groupClass: string, parentId: number, shorten: boolean): Promise<IDataBaseNextKeyItem|undefined> {
-        const parent = await this.loadById(parentId)
+    static getNextKey(groupClass: string, parentId: number, shorten: boolean): IDataBaseNextKeyItem|undefined {
+        const parent = this.loadById(parentId)
         let tail = groupClass
         if(shorten) tail = Utils.splitOnCaps(groupClass).splice(1).join('')
         let newKey = `${parent?.key ?? 'New'} ${tail}`
-        let url = this.getUrl()
-        const response = await fetch(url, {
-            headers: await this.getHeader({groupClass, groupKey: newKey, nextGroupKey: true})
-        })
-        return response.ok ? await response.json() : undefined
+
+        const query = 'SELECT group_key AS `key` FROM json_store WHERE group_class = :group_class AND (group_key LIKE :group_key OR json_store.group_key LIKE :like_group_key);'
+        const params = {group_class: groupClass, group_key: newKey, like_group_key: `${newKey} %`}
+        const db = DatabaseSingleton.get(this.isTesting)
+        const result = db.queryValues<string>({query, params})
+
+        let output: string|undefined = newKey
+        if (result?.length) {
+            let maxSerial = 0
+            const keyLength = newKey.length
+            for(const key of result) {
+                if(key == newKey) {
+                    output = undefined
+                } else {
+                    const tail = key.substring(keyLength)
+                    const serial = parseInt(tail)
+                    if(!isNaN(serial) && serial > maxSerial) maxSerial = serial
+                }
+            }
+            if (output === undefined) {
+                const newSerial = maxSerial + 1
+                output = `${newKey} ${newSerial}`
+            }
+        }
+        return {key: output}
     }
     // endregion
 }

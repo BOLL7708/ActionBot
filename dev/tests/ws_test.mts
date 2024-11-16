@@ -8,6 +8,7 @@ Deno.test('init', () => {
     DataBaseHelper.isTesting = true
     Log.setOptions({
         logLevel: EEasyDebugLogLevel.Warning,
+        stackLevel: EEasyDebugLogLevel.Warning,
         useColors: true,
         capitalizeTag: false,
         tagPrefix: '[',

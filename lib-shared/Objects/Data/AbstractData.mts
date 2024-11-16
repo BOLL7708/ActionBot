@@ -90,7 +90,7 @@ export abstract class AbstractData {
                             if(dbItem?.data && dbItem?.filledData) newProp.dataArray.push(dbItem)
                             else if(id !== 0) Log.w(TAG, `Data.__apply: Unable to load instance for ${typeValues.class}:${id}, it might not exist anymore.`)
                         }
-                        (this as any)[propertyName] = newProp
+                        (this as unknown as any)[propertyName] = newProp
                     } else if (typeof propertyValue == 'object') {
                         // It is a dictionary of subclasses, instantiate.
                         newProp.type = EDataType.Dictionary
@@ -100,14 +100,14 @@ export abstract class AbstractData {
                             if(dbItem?.data && dbItem?.filledData) newProp.dataDictionary[k] = dbItem
                             else if(id !== 0) Log.w(TAG, `Data.__apply: Unable to load instance for ${typeValues.class}:${id}, it might not exist anymore.`)
                         }
-                        (this as any)[propertyName] = newProp
+                        (this as unknown as any)[propertyName] = newProp
                     } else {
                         // It is single instance
                         const dbItem = DataBaseHelper.loadById(propertyValue)
                         newProp.type = EDataType.Single
                         if(dbItem?.data && dbItem?.filledData) newProp.dataSingle = dbItem
                         else if(propertyValue !== 0) Log.w(TAG, `Data.__apply: Unable to load instance for ${typeValues.class}|${dbItem?.class} from (${propertyValue}), it might not exist anymore.`);
-                        (this as any)[propertyName] = newProp
+                        (this as unknown as any)[propertyName] = newProp
                     }
                 } else if(hasSubInstance && !typeValues.isIdReference) {
                     // Fill list with new instances filled with the incoming data.

@@ -19,6 +19,7 @@ export default class Temp {
     init() {
         Log.setOptions({
             logLevel: EEasyDebugLogLevel.Verbose,
+            stackLevel: EEasyDebugLogLevel.Warning,
             useColors: true,
             tagPrefix: '[',
             tagPostfix: '] ',

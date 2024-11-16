@@ -3,7 +3,7 @@ import Log, {EEasyDebugLogLevel} from '../../bot/EasyTSUtils/Log.mts'
 import DataBaseHelper, {IDataBaseItem} from '../../bot/Helpers/DataBaseHelper.mts'
 import DataBaseHelper_OLD from '../../bot/Helpers/DataBaseHelper_OLD.mts'
 import {IDictionary} from '../../bot/Interfaces/igeneral.mts'
-import {ActionCustom, ConfigMain, EnlistData} from '../../lib-shared/index.mts'
+import {ActionAudio, ActionCustom, ActionOBS, ConfigController, ConfigMain, ConfigSpeech, DataEntries, EnlistData, PresetAudioChannel} from '../../lib-shared/index.mts'
 
 Deno.test('init', () => {
     EnlistData.run()
@@ -12,6 +12,7 @@ Deno.test('init', () => {
     DataBaseHelper.isTesting = true
     Log.setOptions({
         logLevel: EEasyDebugLogLevel.Warning,
+        stackLevel: EEasyDebugLogLevel.Warning,
         useColors: true,
         capitalizeTag: false,
         tagPrefix: '[',
@@ -35,15 +36,24 @@ Deno.test('save & load', async (t) => {
     const a = DataBaseHelper_OLD
     const s = DataBaseHelper
     await t.step('save single', async () => {
-        await a.save(new ConfigMain(), DataBaseHelper.OBJECT_MAIN_KEY)
-        s.save(new ConfigMain(), DataBaseHelper.OBJECT_MAIN_KEY)
+        await a.saveMain(new ConfigMain())
+        s.saveMain(new ConfigMain())
     })
     await t.step('load single', async () => {
-        const configMain_a = await a.load(new ConfigMain(), DataBaseHelper.OBJECT_MAIN_KEY)
-        const configMain_s = s.load(new ConfigMain(), DataBaseHelper.OBJECT_MAIN_KEY)
+        const configMain_a = await a.loadMain(new ConfigMain())
+        const configMain_s = s.loadMain(new ConfigMain())
         assert(configMain_a)
         assert(configMain_s)
         assertEquals(configMain_s, configMain_a)
+    })
+    await t.step('save main & delete', async()=>{
+        const instance = new ConfigController()
+        const savedKey = s.saveMain(instance)
+        assert(savedKey)
+        const success = s.delete(instance, s.OBJECT_MAIN_KEY)
+        assert(success)
+        const item = s.loadItem(instance, s.OBJECT_MAIN_KEY)
+        assert(item === undefined)
     })
     await t.step('save multi', async () => {
         const saveMe = new ActionCustom()
@@ -75,16 +85,66 @@ Deno.test('save & load', async (t) => {
         assert(r_a)
         assert(r_s)
     })
-    await t.step('hello', async () => {
+    await t.step('load by ID', async () => {
+        const a_item = await a.loadById(1)
+        assert(a_item)
+        const s_item = s.loadById(1)
+        assert(s_item)
+        assertEquals(a_item, s_item)
+    })
+    await t.step('fill sub items', async () => {
+        // Create presets and load the row IDs for them
+        const ckey = 'Child'
+        const preset = new PresetAudioChannel()
+        preset.channel = 100
+        const a_ckey = await a.save(preset, ckey)
+        const s_ckey = s.save(preset, ckey)
+        assert(a_ckey)
+        assert(s_ckey)
+        assertEquals(ckey, a_ckey)
+        assertEquals(ckey, s_ckey)
+        assertEquals(a_ckey, s_ckey)
+        const a_cid = await a.loadID(preset.__getClass(), a_ckey)
+        const s_cid = s.loadID(preset.__getClass(), a_ckey)
+        assert(a_cid)
+        assert(s_cid)
+
+        // We don't test the async library, because it will use the new AbstractData and try to populate from the wrong database, thus failing.
+        const pkey = 'Parent'
+        const parent = new ActionAudio()
+        parent.channel = s_cid
+        const s_pkey = s.save(parent, pkey)
+
+        // Check so it saved and that the object fills properly with the right item
+        assert(s_pkey)
+        const s_item = DataBaseHelper.loadItem(parent, s_pkey, undefined, true)
+        const id = ((s_item?.filledData?.channel) as DataEntries<PresetAudioChannel>|undefined)?.dataSingle?.id
+        assert(id)
+        assertEquals(s_item?.data?.channel, id)
+    })
+    await t.step('get next key', async () => {
+        const childInstance = new ActionCustom()
+
+        await a.saveMain(new ConfigSpeech())
+        await a.save(childInstance, `${a.OBJECT_MAIN_KEY} Custom`)
+        const a_p = await a.loadItem(new ConfigSpeech(), a.OBJECT_MAIN_KEY)
+        assert(a_p)
+        const a_key = await a.getNextKey(childInstance.__getClass(), a_p?.id ?? 0, true)
+        assert(a_key)
+
+        s.saveMain(new ConfigSpeech())
+        s.save(childInstance, `${s.OBJECT_MAIN_KEY} Custom`)
+        const s_p = s.loadItem(new ConfigSpeech(), s.OBJECT_MAIN_KEY)
+        assert(s_p)
+        const s_key = s.getNextKey(childInstance.__getClass(), s_p?.id ?? 0, true)
+        assert(s_key)
+
+        assertEquals(a_key, s_key)
+    })
+    await t.step('get row IDs with labels', async () => {
 
     })
-    await t.step('hello', async () => {
-
-    })
-    await t.step('hello', async () => {
-
-    })
-    await t.step('hello', async () => {
+    await t.step('classes with counts using wildcard', async () => {
 
     })
 })

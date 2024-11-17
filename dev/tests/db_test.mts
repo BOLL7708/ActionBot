@@ -3,12 +3,12 @@ import Log, {EEasyDebugLogLevel} from '../../bot/EasyTSUtils/Log.mts'
 import DataBaseHelper, {IDataBaseItem} from '../../bot/Helpers/DataBaseHelper.mts'
 import DataBaseHelper_OLD from '../../bot/Helpers/DataBaseHelper_OLD.mts'
 import {IDictionary} from '../../bot/Interfaces/igeneral.mts'
-import {ActionAudio, ActionCustom, ActionOBS, ConfigController, ConfigMain, ConfigSpeech, DataEntries, EnlistData, PresetAudioChannel} from '../../lib-shared/index.mts'
+import DatabaseSingleton from '../../bot/Singletons/DatabaseSingleton.mts'
+import {ActionAudio, ActionChat, ActionCustom, ConfigController, ConfigMain, ConfigSpeech, DataEntries, EnlistData, PresetAudioChannel} from '../../lib-shared/index.mts'
 
-Deno.test('init', () => {
+Deno.test('init', async () => {
     EnlistData.run()
-    Deno.removeSync('./_user/db/test_old.sqlite')
-    Deno.removeSync('./_user/db/test.sqlite')
+    await resetDatabases()
     DataBaseHelper.isTesting = true
     Log.setOptions({
         logLevel: EEasyDebugLogLevel.Warning,
@@ -19,6 +19,50 @@ Deno.test('init', () => {
         tagPostfix: '] '
     })
 })
+
+/**
+ * Reset all data to make tests more predictable
+ */
+async function resetDatabases(): Promise<void> {
+    let doneOld = false
+    let count = 0
+    while(!doneOld) {
+        try {
+            Deno.removeSync('./_user/db/test_old.sqlite')
+            doneOld = true
+        } catch(e: any) {
+            if(e.name !== 'NotFound') {
+                console.warn('Unable to delete test_old.sqlite', e.name)
+            }
+        }
+        if(++count > 5) doneOld = true
+        await new Promise((resolve)=>{
+            setTimeout(resolve, 100)
+        })
+    }
+
+    const db = DatabaseSingleton.get(true)
+    await Promise.all([
+        new Promise((resolve)=>{
+            db.kill()
+            setTimeout(resolve, 100)
+        }),
+        new Promise((resolve)=>{
+            try {
+                Deno.removeSync('./_user/db/test.sqlite')
+            } catch(e: any) {
+                if(e.name !== 'NotFound') {
+                    console.warn('Unable to delete test.sqlite', e.name)
+                }
+            }
+            setTimeout(resolve, 100)
+        }),
+        new Promise((resolve)=>{
+            db.reconnect()
+            setTimeout(resolve, 100)
+        })
+    ])
+}
 
 function compareSets(a: IDictionary<IDataBaseItem<any>>|undefined, b: IDictionary<IDataBaseItem<any>>|undefined): void {
     if(a === undefined || b === undefined) return
@@ -36,10 +80,12 @@ Deno.test('save & load', async (t) => {
     const a = DataBaseHelper_OLD
     const s = DataBaseHelper
     await t.step('save single', async () => {
+        await resetDatabases()
         await a.saveMain(new ConfigMain())
         s.saveMain(new ConfigMain())
     })
     await t.step('load single', async () => {
+        await resetDatabases()
         const configMain_a = await a.loadMain(new ConfigMain())
         const configMain_s = s.loadMain(new ConfigMain())
         assert(configMain_a)
@@ -47,6 +93,7 @@ Deno.test('save & load', async (t) => {
         assertEquals(configMain_s, configMain_a)
     })
     await t.step('save main & delete', async()=>{
+        await resetDatabases()
         const instance = new ConfigController()
         const savedKey = s.saveMain(instance)
         assert(savedKey)
@@ -55,15 +102,14 @@ Deno.test('save & load', async (t) => {
         const item = s.loadItem(instance, s.OBJECT_MAIN_KEY)
         assert(item === undefined)
     })
-    await t.step('save multi', async () => {
+    await t.step('save & load multi', async () => {
+        await resetDatabases()
+        const c = 10
         const saveMe = new ActionCustom()
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < c; i++) {
             await a.save(saveMe, `actionCustom-${i}`)
             s.save(saveMe, `actionCustom-${i}`)
         }
-    })
-    await t.step('load all', async () => {
-        const c = 10
         const all_a = await a.loadAll(new ActionCustom())
         assertEquals(Object.keys(all_a ?? {}).length, c)
         const all_s = s.loadAll(new ActionCustom())
@@ -71,6 +117,7 @@ Deno.test('save & load', async (t) => {
         compareSets(all_a, all_s)
     })
     await t.step('update key', async () => {
+        await resetDatabases()
         const key1 = 'FirstKey', key2 = 'SecondKey'
         await a.save(new ActionCustom(), key1)
         s.save(new ActionCustom(), key1)
@@ -86,13 +133,17 @@ Deno.test('save & load', async (t) => {
         assert(r_s)
     })
     await t.step('load by ID', async () => {
+        await resetDatabases()
+        await a.saveMain(new ConfigMain())
         const a_item = await a.loadById(1)
         assert(a_item)
+        s.saveMain(new ConfigMain())
         const s_item = s.loadById(1)
         assert(s_item)
         assertEquals(a_item, s_item)
     })
     await t.step('fill sub items', async () => {
+        await resetDatabases()
         // Create presets and load the row IDs for them
         const ckey = 'Child'
         const preset = new PresetAudioChannel()
@@ -123,6 +174,7 @@ Deno.test('save & load', async (t) => {
         assertEquals(s_item?.data?.channel, id)
     })
     await t.step('get next key', async () => {
+        await resetDatabases()
         const childInstance = new ActionCustom()
 
         await a.saveMain(new ConfigSpeech())
@@ -142,10 +194,54 @@ Deno.test('save & load', async (t) => {
         assertEquals(a_key, s_key)
     })
     await t.step('get row IDs with labels', async () => {
-
+        await resetDatabases()
     })
     await t.step('classes with counts using wildcard', async () => {
+        await resetDatabases()
+        // Prepare
+        const count = 10
+        for(let i=0; i<count; i++) {
+            await a.save(new ActionCustom(), `Key${i}`)
+            await a.save(new ActionChat(), `Key${i}`)
+            s.save(new ActionCustom(), `Key${i}`)
+            s.save(new ActionChat(), `Key${i}`)
+        }
+        const clazz = new ActionCustom().__getClass()
 
+        // Just list counts on absolute match
+        const a_result = await a.loadClassesWithCounts(clazz)
+        assert(a_result)
+
+        const s_result = s.loadClassesWithCounts(clazz)
+        assert(s_result)
+
+        assertEquals(a_result[clazz], 10)
+        assertEquals(s_result[clazz], 10)
+        assertEquals(a_result, s_result)
+
+        // List with wildcard
+        const like = 'Action*'
+        const a_result2 = await a.loadClassesWithCounts(like)
+        assert(a_result)
+
+        const s_result2 = s.loadClassesWithCounts(like)
+        assert(s_result2)
+
+        assertEquals(Object.keys(a_result2).length, 2)
+        assertEquals(Object.keys(s_result2).length, 2)
+        assertEquals(a_result2, s_result2)
+
+        // Filter on parent, old lib cannot do this, not sure if actually used
+        const parent = new ConfigSpeech()
+        const parentKey = 'ParentForCounts'
+        const childKey = 'ChildForCounts'
+
+        s.save(parent, parentKey)
+        const s_pid = s.loadID(parent.__getClass(), parentKey)
+        assert(s_pid)
+        s.save(new ActionCustom(), childKey, undefined, s_pid)
+        const s_result3 = s.loadClassesWithCounts(clazz, s_pid)
+        assertEquals(s_result3, {[clazz]: 1})
     })
 })
 

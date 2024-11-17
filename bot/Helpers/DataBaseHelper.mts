@@ -1,7 +1,7 @@
 import {AbstractData, DataMap} from '../../lib-shared/index.mts'
 import Log from '../EasyTSUtils/Log.mts'
 import {IDictionary, INumberDictionary, IStringDictionary} from '../Interfaces/igeneral.mts'
-import DatabaseSingleton from '../Singletons/DatabaseSingleton.mts'
+import DatabaseSingleton, {TDatabaseQueryInput} from '../Singletons/DatabaseSingleton.mts'
 import Utils from '../Utils/Utils.mts'
 
 export default class DataBaseHelper {
@@ -376,12 +376,31 @@ export default class DataBaseHelper {
     /**
      * Load all available group classes registered in the database.
      */
-    static async loadClassesWithCounts(like: string): Promise<INumberDictionary> {
-        const url = this.getUrl()
-        const response = await fetch(url, {
-            headers: await this.getHeader({groupClass: like+'*'})
-        })
-        return response.ok ? await response.json() : {}
+    static loadClassesWithCounts(like?: string, parentId?: number): INumberDictionary {
+        const db = DatabaseSingleton.get()
+
+        const whereArr: string[] = []
+        const params: IDictionary<TDatabaseQueryInput> = {}
+        if (like && like.length) {
+            params['group_class'] = like.replaceAll('*', '%')
+            whereArr.push('group_class LIKE :group_class')
+        }
+        if (parentId) {
+            params['parent_id'] = parentId
+            whereArr.push('parent_id LIKE :parent_id')
+        }
+        const where = 'WHERE ' + whereArr.join(' AND ')
+
+        const query = `SELECT group_class, COUNT(*) count
+                       FROM json_store ${where}
+                       GROUP BY group_class;`
+        const result = db.queryDictionary<{ group_class: string, count: number }>({query, params})
+        if (!result) return {}
+        return Object.fromEntries(
+            Object.entries(result).map(
+                ([key, data]) => [data.group_class, data.count]
+            )
+        )
     }
 
     /**

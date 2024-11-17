@@ -142,6 +142,18 @@ export default class DatabaseSingleton {
         }
     }
 
+    queryDictionary<T>(options: IDatabaseQuery): IDictionary<T> | undefined {
+        try {
+            const dic = this._db.prepare(options.query).all(options.params)
+            if(dic) return Object.fromEntries(
+                Object.entries(dic)
+                    .map(([a, b])=>[a, b as T])
+            )
+        } catch(e) {
+            Log.e(this.TAG, '', e, options)
+        }
+    }
+
     // endregion
 }
 

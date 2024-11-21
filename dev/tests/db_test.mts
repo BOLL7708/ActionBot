@@ -1,10 +1,10 @@
 import {assert, assertEquals} from 'jsr:@std/assert'
 import Log, {EEasyDebugLogLevel} from '../../bot/EasyTSUtils/Log.mts'
 import DataBaseHelper, {IDataBaseItem} from '../../bot/Helpers/DataBaseHelper.mts'
-import DataBaseHelper_OLD from '../../bot/Helpers/DataBaseHelper_OLD.mts'
+import DataBaseHelper_OLD, {IDataBaseListItems, type IDataBaseListItem} from '../../bot/Helpers/DataBaseHelper_OLD.mts'
 import {IDictionary} from '../../bot/Interfaces/igeneral.mts'
 import DatabaseSingleton from '../../bot/Singletons/DatabaseSingleton.mts'
-import {ActionAudio, ActionChat, ActionCustom, ConfigController, ConfigMain, ConfigSpeech, DataEntries, EnlistData, PresetAudioChannel} from '../../lib-shared/index.mts'
+import {ActionAudio, ActionChat, ActionCustom, ActionLabel, ConfigController, ConfigMain, ConfigSpeech, DataEntries, EnlistData, PresetAudioChannel} from '../../lib-shared/index.mts'
 
 Deno.test('init', async () => {
     EnlistData.run()
@@ -64,15 +64,37 @@ async function resetDatabases(): Promise<void> {
     ])
 }
 
-function compareSets(a: IDictionary<IDataBaseItem<any>>|undefined, b: IDictionary<IDataBaseItem<any>>|undefined): void {
+function compareSets(
+    a: IDictionary<IDataBaseItem<any>>|IDictionary<IDataBaseListItem>|undefined,
+    b: IDictionary<IDataBaseItem<any>>|IDictionary<IDataBaseListItem>|undefined,
+    skipKeys: boolean = false,
+    sortBy: string|undefined = undefined
+): void {
     if(a === undefined || b === undefined) return
-    assertEquals(Object.keys(a), Object.keys(b))
-    for(const [key, item_a] of Object.entries(a)) {
-        const item_b = b[key]
-        // Deleting ID as it is for some reason a mismatch, as the old code increments ID twice per row, interestingly enough.
-        delete (item_a as any).id
-        delete (item_b as any).id
-        assertEquals(item_a, item_b)
+    if(skipKeys && sortBy) {
+        const sortValues = (a: any, b: any): number => {
+            const aVal = `${a[sortBy]}`
+            const bVal = `${b[sortBy]}`
+            return aVal.localeCompare(bVal)
+        }
+        const aValues = Object.values(a).sort(sortValues)
+        const bValues = Object.values(b).sort(sortValues)
+        for(let i=0; i<Object.keys(a).length; i++) {
+            const item_a = aValues[i]
+            const item_b = bValues[i]
+            delete (item_a as any).id
+            delete (item_b as any).id
+            assertEquals(item_a, item_b)
+        }
+    } else {
+        assertEquals(Object.keys(a), Object.keys(b))
+        for(const [key, item_a] of Object.entries(a)) {
+            const item_b = b[key]
+            // Deleting ID as it is for some reason a mismatch, as the old code increments ID twice per row, interestingly enough.
+            delete (item_a as any).id
+            delete (item_b as any).id
+            assertEquals(item_a, item_b)
+        }
     }
 }
 
@@ -195,6 +217,33 @@ Deno.test('save & load', async (t) => {
     })
     await t.step('get row IDs with labels', async () => {
         await resetDatabases()
+        const parent = new ConfigSpeech()
+        const parentKey = 'ParentForLabels'
+        await a.save(parent, parentKey)
+        s.save(parent, parentKey)
+        const a_pid = await a.loadID(parent.__getClass(), parentKey)
+        const s_pid = s.loadID(parent.__getClass(), parentKey)
+
+        const c = 10
+        const saveMe = new ActionLabel()
+        for (let i = 0; i < c; i++) {
+            saveMe.fileName = `UseMeAsLabel-${i}`
+            await a.save(saveMe, `actionLabel-${i}`, undefined, i < 5 ? undefined : a_pid)
+            s.save(saveMe, `actionLabel-${i}`, undefined, i < 5 ? undefined : s_pid)
+        }
+        const clazz = saveMe.__getClass()
+
+        const a_res = await a.loadIDsWithLabelForClass(clazz)
+        const s_res = s.loadIDsWithLabelForClass(clazz)
+        compareSets(a_res as IDictionary<IDataBaseListItem>, s_res, true, 'key')
+
+        const a_resl = await a.loadIDsWithLabelForClass(clazz, 'fileName', undefined)
+        const s_resl = s.loadIDsWithLabelForClass(clazz, 'fileName', undefined)
+        compareSets(a_resl as IDictionary<IDataBaseListItem>, s_resl, true, 'key')
+
+        const a_resp = await a.loadIDsWithLabelForClass(clazz, 'fileName', a_pid)
+        const s_resp = s.loadIDsWithLabelForClass(clazz, 'fileName', s_pid)
+        compareSets(a_resp as IDictionary<IDataBaseListItem>, s_resp, true, 'key')
     })
     await t.step('classes with counts using wildcard', async () => {
         await resetDatabases()

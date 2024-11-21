@@ -21,7 +21,7 @@ export default class DataBaseHelper {
     private static _dataStore: Map<string, IDictionary<IDataBaseItem<any>>> = new Map() // Used for storing keyed entries in memory before saving to disk
 
     // Editor specific storage
-    private static _idKeyLabelStore: Map<[string, number], IDataBaseListItems> = new Map() // Used to store ID reference lists used in the editor
+    private static _idKeyLabelStore: Map<[string, number], IDictionary<IDataBaseListItem>> = new Map() // Used to store ID reference lists used in the editor
 
     // Reference maps, if an object has been loaded once, it exists in these maps.
     private static _groupKeyTupleToMetaMap: Map<[string, string], IDataBaseItem<any>> = new Map()
@@ -406,24 +406,40 @@ export default class DataBaseHelper {
     /**
      * Load all available IDs for a group class registered in the database.
      */
-    static async loadIDsWithLabelForClass(groupClass: string, rowIdLabel?: string, parentId?: number): Promise<IDataBaseListItems> {
+    static loadIDsWithLabelForClass(groupClass: string, rowIdLabel?: string, parentId?: number): IDictionary<IDataBaseListItem> {
         const tuple: [string, number] = [groupClass, parentId ?? 0]
         if(this._idKeyLabelStore.has(tuple)) return this._idKeyLabelStore.get(tuple) ?? {}
 
-        const url = this.getUrl()
-        const options: IDataBaseHelperHeaders = {
-            groupClass,
-            rowIdList: true,
-            rowIdLabel,
-            parentId
-        }
-        const response = await fetch(url, {
-            headers: await this.getHeader(options)
-        })
-        const json = response.ok ? await response.json() : {}
-        this._idKeyLabelStore.set(tuple, json)
+        const db = DatabaseSingleton.get(this.isTesting)
 
-        return json
+        let where = 'WHERE group_class LIKE :group_class'
+        const params: IDictionary<TDatabaseQueryInput> = {'group_class': groupClass.replace(/\*/g, '%')}
+
+        if (parentId) {
+            where += ' AND (parent_id = :parent_id OR parent_id IS NULL)';
+            params['parent_id'] = parentId
+        }
+        let result: IDictionary<IDataBaseListItem>|undefined
+        if (rowIdLabel && rowIdLabel.length > 0) {
+            params['json_extract'] = `$.${rowIdLabel}`
+            const query = `SELECT row_id as id, group_key as \`key\`, json_extract(data_json, :json_extract) as label, parent_id as pid FROM json_store ${where};`
+            result = db.queryDictionary<IDataBaseListItem>({query, params})
+        } else {
+            const query = `SELECT row_id as id, group_key as \`key\`, '' as label, parent_id as pid FROM json_store ${where};`
+            result = db.queryDictionary<IDataBaseListItem>( {query, params});
+        }
+        if(result) {
+            result = Object.fromEntries(
+                Object.values(result)
+                    .map((item)=> {
+                        const id = item.id
+                        delete item.id
+                        return [id, item]
+                    })
+            )
+            if(result) this._idKeyLabelStore.set(tuple, result)
+        }
+        return result ?? {}
     }
 
     /**
@@ -744,10 +760,8 @@ export interface IDataBaseItem<T> {
 export interface IDataBaseItemRaw extends IDataBaseItem<any> {
     data: string
 }
-export interface IDataBaseListItems {
-    [id: string]: IDataBaseListItem
-}
 export interface IDataBaseListItem {
+    id?: number
     key: string
     label: string
     pid: number|null

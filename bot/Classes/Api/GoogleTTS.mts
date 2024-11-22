@@ -3,7 +3,7 @@ import {ConfigChat} from '../../../lib-shared/index.mts'
 import AudioPlayer, {AudioPlayerInstance, IAudioPlayedCallback} from '../Web/AudioPlayer.mts'
 import {ActionAudio} from '../../../lib-shared/index.mts'
 import Dictionary, {IDictionaryEntry} from '../Data/Dictionary.mts'
-import DataBaseHelper from '../../Helpers/DataBaseHelper.mts'
+import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 import Utils from '../../Utils/Utils.mts'
 import {IDictionary} from '../../Interfaces/igeneral.mts'
 import {OptionTTSType} from '../../../lib-shared/index.mts'
@@ -42,8 +42,8 @@ export default class GoogleTTS {
         this.init().then()
     }
     private async init() {
-        this._config = await DataBaseHelper.loadMain(new ConfigSpeech())
-        this._chatConfig = await DataBaseHelper.loadMain(new ConfigChat())
+        this._config = await DatabaseHelper.loadMain(new ConfigSpeech())
+        this._chatConfig = await DatabaseHelper.loadMain(new ConfigChat())
         this._speakerTimeoutMs = this._config.speakerTimeoutMs
     }
 
@@ -128,10 +128,10 @@ export default class GoogleTTS {
         clearRanges: ITwitchEmotePosition[]=[],
         skipDictionary: boolean = false
     ) {
-        if(userId == 0) userId = (await DataBaseHelper.load(new SettingTwitchTokens(), 'Chatbot'))?.userId ?? 0
+        if(userId == 0) userId = (await DatabaseHelper.load(new SettingTwitchTokens(), 'Chatbot'))?.userId ?? 0
         const serial = ++this._count
         this._preloadQueue[serial] = null
-        const user = await DataBaseHelper.loadOrEmpty(new SettingUser(), userId.toString())
+        const user = await DatabaseHelper.loadOrEmpty(new SettingUser(), userId.toString())
 
         // Check blacklist
         if(user.mute.active) {
@@ -151,7 +151,7 @@ export default class GoogleTTS {
         }
 
         // Will not even make empty message sound, so secret!
-        const controllerConfig = await DataBaseHelper.loadMain(new ConfigController())
+        const controllerConfig = await DatabaseHelper.loadMain(new ConfigController())
         if(Utils.matchFirstChar(input, controllerConfig.secretChatSymbols)) {
             console.warn(`GoogleTTS: User ${userId} sent secret message!`, input)
             delete this._preloadQueue[serial]
@@ -174,7 +174,7 @@ export default class GoogleTTS {
         if(!Utils.hasValidProps(user.voice)) {
             voice = await this.getDefaultVoice()
             user.voice = voice
-            await DataBaseHelper.save(user, userId.toString())
+            await DatabaseHelper.save(user, userId.toString())
         }
 
         // Get username
@@ -288,7 +288,7 @@ export default class GoogleTTS {
 
     async setVoiceForUser(userId: number, input:string, nonce:string=''):Promise<string> {
         await this.loadVoicesAndLanguages() // Fills caches
-        const user = await DataBaseHelper.loadOrEmpty(new SettingUser(), userId.toString())
+        const user = await DatabaseHelper.loadOrEmpty(new SettingUser(), userId.toString())
         const defaultVoice = await this.getDefaultVoice()
         let voice = defaultVoice
         if(Utils.hasValidProps(user.voice)) voice = user.voice
@@ -366,7 +366,7 @@ export default class GoogleTTS {
         })
         user.voice = voice
         user.voice.datetime = Utils.getISOTimestamp()
-        let success = await DataBaseHelper.save(user, userId.toString())
+        let success = await DatabaseHelper.save(user, userId.toString())
         Utils.log(`GoogleTTS: Voice saved: ${success}`, Color.BlueViolet)
         return voice.voiceName
     }

@@ -1,5 +1,5 @@
 import {ActionSpeech, DataUtils, IActionCallback, IActionUser, SettingTwitchTokens} from '../../../lib-shared/index.mts'
-import DataBaseHelper from '../../Helpers/DataBaseHelper.mts'
+import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 import TextHelper from '../../Helpers/TextHelper.mts'
 import TwitchHelixHelper from '../../Helpers/TwitchHelixHelper.mts'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.mts'
@@ -24,7 +24,7 @@ ActionSpeech.prototype.build = async function <T>(key: string, instance: T): Pro
          } else {
             entries = ArrayUtils.getAsType(clone.entries, clone.entries_use, index)
          }
-         const chatbotTokens = await DataBaseHelper.load<SettingTwitchTokens>(new SettingTwitchTokens(), 'Chatbot')
+         const chatbotTokens = await DatabaseHelper.load<SettingTwitchTokens>(new SettingTwitchTokens(), 'Chatbot')
 
          const userName = await TextHelper.replaceTagsInText(clone.voiceOfUser_orUsername, user)
          const voiceOfUserTwitchId = parseInt(DataUtils.ensureKey(clone.voiceOfUser))

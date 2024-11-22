@@ -2,7 +2,7 @@ import {ActionSystem, ActionSystemRewardState, ConfigCommands, DataUtils, EventD
 import {ActionHandler} from '../../Classes/Actions.mts'
 import ActionsCallbacks from '../../Classes/ActionsCallbacks.mts'
 import Color from '../../Constants/ColorConstants.mts'
-import DataBaseHelper from '../../Helpers/DataBaseHelper.mts'
+import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 import TwitchHelixHelper from '../../Helpers/TwitchHelixHelper.mts'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.mts'
 import ArrayUtils from '../../Utils/ArrayUtils.mts'
@@ -34,7 +34,7 @@ ActionSystem.prototype.build = async function <T>(key: string, instance: T): Pro
          }
 
          // Trigger Commands
-         const commandsConfig = await DataBaseHelper.loadMain<ConfigCommands>(new ConfigCommands())
+         const commandsConfig = await DatabaseHelper.loadMain<ConfigCommands>(new ConfigCommands())
          const commands = ArrayUtils.getAsType(clone.trigger.commandEntries, clone.trigger.commandEntries_use, index)
          for (let command of commands) {
             if (command.startsWith(commandsConfig.commandPrefix)) command = command.substring(1)

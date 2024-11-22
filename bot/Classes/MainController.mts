@@ -2,7 +2,7 @@ import {ConfigController, ConfigSteam, DataUtils, EnlistData, SettingAccumulatin
 import PasswordForm from '../../web_old/PasswordForm.mts'
 import Color from '../Constants/ColorConstants.mts'
 import Log from '../EasyTSUtils/Log.mts'
-import DataBaseHelper from '../Helpers/DataBaseHelper.mts'
+import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
 import TwitchHelixHelper from '../Helpers/TwitchHelixHelper.mts'
 import TwitchTokensHelper from '../Helpers/TwitchTokensHelper.mts'
 import ModulesSingleton from '../Singletons/ModulesSingleton.mts'
@@ -25,16 +25,15 @@ export default class MainController {
         }
 
         // Make sure settings are pre-cached
-        DataBaseHelper.loadAll(new SettingUser())
-        DataBaseHelper.loadAll(new SettingTwitchTokens())
-        DataBaseHelper.loadAll(new SettingTwitchReward())
-        DataBaseHelper.loadAll(new SettingTwitchRedemption())
-        const dictionarySettings = DataBaseHelper.loadAll(new SettingDictionaryEntry())
-        DataBaseHelper.loadAll(new SettingTwitchClip())
-        DataBaseHelper.loadAll(new SettingIncrementingCounter())
-        DataBaseHelper.loadAll(new SettingAccumulatingCounter())
-        DataBaseHelper.loadAll(new SettingStreamQuote())
-        return // TODO: Modules below use browser components, need to migrate/disablethose.
+        DatabaseHelper.loadAll(new SettingUser())
+        DatabaseHelper.loadAll(new SettingTwitchTokens())
+        DatabaseHelper.loadAll(new SettingTwitchReward())
+        DatabaseHelper.loadAll(new SettingTwitchRedemption())
+        const dictionarySettings = DatabaseHelper.loadAll(new SettingDictionaryEntry())
+        DatabaseHelper.loadAll(new SettingTwitchClip())
+        DatabaseHelper.loadAll(new SettingIncrementingCounter())
+        DatabaseHelper.loadAll(new SettingAccumulatingCounter())
+        DatabaseHelper.loadAll(new SettingStreamQuote())
 
         const modules = ModulesSingleton.getInstance()
         modules.tts.setDictionary(DataUtils.getKeyDataDictionary(dictionarySettings ?? {}))
@@ -45,7 +44,7 @@ export default class MainController {
         // region Init
         await StatesSingleton.initInstance() // Init states
         await this.startTwitchTokenRefreshInterval() // Init Twitch tokens
-        const controllerConfig = await DataBaseHelper.loadMain<ConfigController>(new ConfigController())
+        const controllerConfig = await DatabaseHelper.loadMain<ConfigController>(new ConfigController())
         if(controllerConfig.useWebsockets.twitchEventSub) modules.twitchEventSub.init().then()
 
         modules.pipe.setOverlayTitle("desbot").then()
@@ -58,7 +57,7 @@ export default class MainController {
         // TODO: Should not the player summary be active at all time in case the user has websockets on but not playing VR?
         if(!controllerConfig.useWebsockets.openvr2ws) {
             MainController.startSteamPlayerSummaryInterval().then()
-            const steamConfig = await DataBaseHelper.loadMain<ConfigSteam>(new ConfigSteam())
+            const steamConfig = await DatabaseHelper.loadMain<ConfigSteam>(new ConfigSteam())
             if(steamConfig.playerSummaryIntervalMs > 0) {
                 await Functions.loadPlayerSummary()
             }
@@ -95,7 +94,7 @@ export default class MainController {
 
     public static async startSteamPlayerSummaryInterval() {
         const states = StatesSingleton.getInstance()
-        const steamConfig = await DataBaseHelper.loadMain<ConfigSteam>(new ConfigSteam())
+        const steamConfig = await DatabaseHelper.loadMain<ConfigSteam>(new ConfigSteam())
         if(
             steamConfig.playerSummaryIntervalMs
             && states.steamPlayerSummaryIntervalHandle == -1 
@@ -110,7 +109,7 @@ export default class MainController {
     }
 
     public static async startSteamAchievementsInterval() {
-        const steamConfig = await DataBaseHelper.loadMain<ConfigSteam>(new ConfigSteam())
+        const steamConfig = await DatabaseHelper.loadMain<ConfigSteam>(new ConfigSteam())
         if(steamConfig.achievementsIntervalMs) {
             Utils.log('Starting Steam achievements interval', Color.Green)
             const states = StatesSingleton.getInstance()

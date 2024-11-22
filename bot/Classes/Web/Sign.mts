@@ -1,6 +1,6 @@
 import {ActionSign} from '../../../lib-shared/index.mts'
 import {ConfigSign} from '../../../lib-shared/index.mts'
-import DataBaseHelper from '../../Helpers/DataBaseHelper.mts'
+import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 import Utils from '../../Utils/Utils.mts'
 import Color from '../../Constants/ColorConstants.mts'
 
@@ -25,7 +25,7 @@ export default class Sign {
     }
 
     private async init() {
-        this._config = await DataBaseHelper.loadMain(new ConfigSign())
+        this._config = await DatabaseHelper.loadMain(new ConfigSign())
         // this._div.className = 'sign'
         // this._div.style.width = `${this._config.sizeWidth}px`
         // this._div.style.height = `${this._config.sizeHeight}px`

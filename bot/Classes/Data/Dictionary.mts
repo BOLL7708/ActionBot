@@ -1,6 +1,6 @@
 import {ConfigSpeech} from '../../../lib-shared/index.mts'
 import {IGoogleAudio} from '../Api/GoogleTTS.mts'
-import DataBaseHelper from '../../Helpers/DataBaseHelper.mts'
+import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 import Utils from '../../Utils/Utils.mts'
 
 export default class Dictionary {
@@ -24,7 +24,7 @@ export default class Dictionary {
 
     private async init() {
         // Load config
-        this._config = await DataBaseHelper.loadMain(new ConfigSpeech())
+        this._config = await DatabaseHelper.loadMain(new ConfigSpeech())
 
         // Build audio dictionary from Config
         for(const [word, config] of Object.entries(this._config.dictionaryConfig.wordToAudioConfig)) {

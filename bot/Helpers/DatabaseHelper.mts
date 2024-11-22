@@ -4,7 +4,7 @@ import {IDictionary, INumberDictionary, IStringDictionary} from '../Interfaces/i
 import DatabaseSingleton, {TDatabaseQueryInput} from '../Singletons/DatabaseSingleton.mts'
 import Utils from '../Utils/Utils.mts'
 
-export default class DataBaseHelper {
+export default class DatabaseHelper {
     private static readonly TAG = this.name
     static readonly OBJECT_MAIN_KEY: string = 'Main'
     static isTesting: boolean = false
@@ -18,14 +18,14 @@ export default class DataBaseHelper {
     */
 
     // Main storage
-    private static _dataStore: Map<string, IDictionary<IDataBaseItem<any>>> = new Map() // Used for storing keyed entries in memory before saving to disk
+    private static _dataStore: Map<string, IDictionary<IDatabaseItem<any>>> = new Map() // Used for storing keyed entries in memory before saving to disk
 
     // Editor specific storage
-    private static _idKeyLabelStore: Map<[string, number], IDictionary<IDataBaseListItem>> = new Map() // Used to store ID reference lists used in the editor
+    private static _idKeyLabelStore: Map<[string, number], IDictionary<IDatabaseListItem>> = new Map() // Used to store ID reference lists used in the editor
 
     // Reference maps, if an object has been loaded once, it exists in these maps.
-    private static _groupKeyTupleToMetaMap: Map<[string, string], IDataBaseItem<any>> = new Map()
-    private static _idToMetaMap: Map<number, IDataBaseItem<any>> = new Map()
+    private static _groupKeyTupleToMetaMap: Map<[string, string], IDatabaseItem<any>> = new Map()
+    private static _idToMetaMap: Map<number, IDatabaseItem<any>> = new Map()
 
     static testConnection(): boolean {
         return DatabaseSingleton.get(this.isTesting).test()
@@ -47,7 +47,7 @@ export default class DataBaseHelper {
         parentId: number|null = null,
         rowId: number|string|null = null,
         noData: boolean = false
-    ): IDataBaseItem<any>[]|undefined {
+    ): IDatabaseItem<any>[]|undefined {
         const db = DatabaseSingleton.get(this.isTesting)
         const fieldsStr = this.getFieldsString(!noData)
 
@@ -114,7 +114,7 @@ export default class DataBaseHelper {
         }
 
         // If key is still missing, generate one
-        if (!groupKey) groupKey = this.getUUID(groupClass) ?? null
+        if (!groupKey) groupKey = this.getUuid(groupClass) ?? null
 
         // Upsert
         const result = db.queryRun({
@@ -164,7 +164,7 @@ export default class DataBaseHelper {
         return typeof result === 'number' ? result : -1
     }
 
-    static search(searchQuery: string, surroundWithWildcards: boolean = true): IDataBaseItemRaw[] {
+    static search(searchQuery: string, surroundWithWildcards: boolean = true): IDatabaseItemRaw[] {
         const pattern = searchQuery
            .replace(/\*/g, '?')
            .replace(/%/g, '_')
@@ -176,7 +176,7 @@ export default class DataBaseHelper {
         if(!Array.isArray(output)) return []
 
         return output.map((row) => {
-            const raw: IDataBaseItemRaw = {
+            const raw: IDatabaseItemRaw = {
                 id: row.row_id,
                 class: row.group_class,
                 key: row.group_key,
@@ -196,8 +196,8 @@ export default class DataBaseHelper {
      * @param item
      * @private
      */
-    private static handleDataBaseItem<T>(item: IDataBaseItem<T>):T|undefined {
-        const itemClone = Utils.clone<IDataBaseItem<T>>(item)
+    private static handleDataBaseItem<T>(item: IDatabaseItem<T>):T|undefined {
+        const itemClone = Utils.clone<IDatabaseItem<T>>(item)
         itemClone.data = null
 
         // We cache things so we can quickly list them later, thus data is nulled.
@@ -222,19 +222,19 @@ export default class DataBaseHelper {
     static loadAll<T>(
         emptyInstance: T&AbstractData,
         parentId?: number,
-    ): IDictionary<IDataBaseItem<T>>|undefined {
+    ): IDictionary<IDatabaseItem<T>>|undefined {
         const className = emptyInstance.constructor.name
         if(this.checkAndReportClassError(className, 'loadDictionary')) return undefined
 
         // Cache
         if(this._dataStore.has(className)) {
-            return this._dataStore.get(className) as IDictionary<IDataBaseItem<T>>
+            return this._dataStore.get(className) as IDictionary<IDatabaseItem<T>>
         }
 
         // DB
-        const jsonResult = this.loadJson(className) as IDataBaseItem<T>[]|undefined
+        const jsonResult = this.loadJson(className) as IDatabaseItem<T>[]|undefined
         if(Array.isArray(jsonResult)) {
-            const cacheDictionary: IDictionary<IDataBaseItem<T>> = {}
+            const cacheDictionary: IDictionary<IDatabaseItem<T>> = {}
 
             // Convert plain objects to class instances and cache them
             for(const item of jsonResult) {
@@ -307,7 +307,7 @@ export default class DataBaseHelper {
         key: string,
         parentId?: number,
         ignoreCache?: boolean
-    ): IDataBaseItem<T>|undefined {
+    ): IDatabaseItem<T>|undefined {
         const className = emptyInstance.constructor.name
         if (this.checkAndReportClassError(className, 'loadSingle')) return undefined
 
@@ -320,7 +320,7 @@ export default class DataBaseHelper {
         }
 
         // DB
-        const jsonResult = this.loadJson(className, key, parentId) as IDataBaseItem<T>[]|undefined
+        const jsonResult = this.loadJson(className, key, parentId) as IDatabaseItem<T>[]|undefined
         if(jsonResult && jsonResult.length == 1) {
             this.fillItemsInPlace(
                 className,
@@ -336,11 +336,11 @@ export default class DataBaseHelper {
     static loadById(
         rowId?: string|number,
         parentId?: number
-    ): IDataBaseItem<unknown>|undefined {
+    ): IDatabaseItem<unknown>|undefined {
         if(!rowId) return undefined
 
         const result = this.loadJson(null, null, parentId, rowId)
-        const item: IDataBaseItem<any>|undefined = result?.[0]
+        const item: IDatabaseItem<any>|undefined = result?.[0]
         if(item) {
             this.fillItemsInPlace(item.class, item.key, null, [item])
         }
@@ -351,7 +351,7 @@ export default class DataBaseHelper {
         className: string,
         key: string,
         emptyInstance: AbstractData|null,
-        items: IDataBaseItem<any>[]
+        items: IDatabaseItem<any>[]
     ): void {
         if(emptyInstance === null) {
             emptyInstance = DataMap.getInstance({ className, fill: false }) as AbstractData
@@ -363,7 +363,7 @@ export default class DataBaseHelper {
 
             // Ensure dictionary exists
             if (!this._dataStore.has(className)) {
-                const newDic: IDictionary<IDataBaseItem<any>> = {}
+                const newDic: IDictionary<IDatabaseItem<any>> = {}
                 this._dataStore.set(className, newDic)
             }
             const cacheDictionary = this._dataStore.get(className)
@@ -406,7 +406,7 @@ export default class DataBaseHelper {
     /**
      * Load all available IDs for a group class registered in the database.
      */
-    static loadIDsWithLabelForClass(groupClass: string, rowIdLabel?: string, parentId?: number): IDictionary<IDataBaseListItem> {
+    static loadIdsWithLabelForClass(groupClass: string, rowIdLabel?: string, parentId?: number): IDictionary<IDatabaseListItem> {
         const tuple: [string, number] = [groupClass, parentId ?? 0]
         if(this._idKeyLabelStore.has(tuple)) return this._idKeyLabelStore.get(tuple) ?? {}
 
@@ -419,14 +419,14 @@ export default class DataBaseHelper {
             where += ' AND (parent_id = :parent_id OR parent_id IS NULL)';
             params['parent_id'] = parentId
         }
-        let result: IDictionary<IDataBaseListItem>|undefined
+        let result: IDictionary<IDatabaseListItem>|undefined
         if (rowIdLabel && rowIdLabel.length > 0) {
             params['json_extract'] = `$.${rowIdLabel}`
             const query = `SELECT row_id as id, group_key as \`key\`, json_extract(data_json, :json_extract) as label, parent_id as pid FROM json_store ${where};`
-            result = db.queryDictionary<IDataBaseListItem>({query, params})
+            result = db.queryDictionary<IDatabaseListItem>({query, params})
         } else {
             const query = `SELECT row_id as id, group_key as \`key\`, '' as label, parent_id as pid FROM json_store ${where};`
-            result = db.queryDictionary<IDataBaseListItem>( {query, params});
+            result = db.queryDictionary<IDatabaseListItem>( {query, params});
         }
         if(result) {
             result = Object.fromEntries(
@@ -445,7 +445,7 @@ export default class DataBaseHelper {
     /**
      * Loads raw JSON a group class and key, will use cache if that is set.
      */
-    static async loadRawItem(groupClass: string, groupKey: string): Promise<IDataBaseItem<any>|undefined> {
+    static async loadRawItem(groupClass: string, groupKey: string): Promise<IDatabaseItem<any>|undefined> {
         const tuple: [string, string] = [groupClass, groupKey]
 
         // Return cache if it is set
@@ -481,7 +481,7 @@ export default class DataBaseHelper {
      * Used to get which classes a reference list of IDs has in the editor.
      * @param idArr
      */
-    static loadIDClasses(idArr: string[]|number[]): IStringDictionary {
+    static loadIdClasses(idArr: string[]|number[]): IStringDictionary {
         const output: IStringDictionary = {}
         const toLoad: string[] = []
         for(const idVal of idArr) {
@@ -507,7 +507,7 @@ export default class DataBaseHelper {
         return output
     }
 
-    static loadID(groupClass: string, groupKey: string): number {
+    static loadId(groupClass: string, groupKey: string): number {
         const db = DatabaseSingleton.get(this.isTesting)
         const query = `SELECT row_id AS id FROM json_store WHERE group_class = :group_class AND group_key = :group_key LIMIT 1;`
         const params = {group_class: groupClass, group_key: groupKey}
@@ -533,7 +533,7 @@ export default class DataBaseHelper {
         // Update cache
         if(key) {
             // Loading an item here while ignoring the cache will also update the cache.
-            const _item = this.loadItem(setting, key, parentId, true) as IDataBaseItem<T>
+            const _item = this.loadItem(setting, key, parentId, true) as IDatabaseItem<T>
         }
 
         // Result
@@ -602,12 +602,12 @@ export default class DataBaseHelper {
      * Load entries from the DB and return a list if they exist.
      * @param entries
      */
-    static outputEntries(entries: IDatabaseRow[]): IDataBaseItem<any>[] | undefined {
-        let output: IDataBaseItem<any>[] | undefined = undefined
+    static outputEntries(entries: IDatabaseRow[]): IDatabaseItem<any>[] | undefined {
+        let output: IDatabaseItem<any>[] | undefined = undefined
         if (Array.isArray(entries)) {
             output = []
             for (const row of entries) {
-                const item: IDataBaseItem<any> = {
+                const item: IDatabaseItem<any> = {
                     key: row.group_key,
                     class: row.group_class,
                     id: row.row_id,
@@ -634,7 +634,7 @@ export default class DataBaseHelper {
         }
     }
 
-    private static getUUID(groupClass: string): string|undefined {
+    private static getUuid(groupClass: string): string|undefined {
         const db = DatabaseSingleton.get()
         let notUniqueYet = true
         let groupKey: string|undefined
@@ -642,7 +642,7 @@ export default class DataBaseHelper {
             // UUID() does not exist in Sqlite so this is a substitute.
             const hexResult = db.queryValue<string>({query: 'SELECT lower(hex(randomblob(18))) as hex;'});
             if(!hexResult) return undefined
-            const id = this.loadID(groupClass, hexResult)
+            const id = this.loadId(groupClass, hexResult)
             if(id === 0) notUniqueYet = false
         }
         return groupKey
@@ -654,7 +654,7 @@ export default class DataBaseHelper {
      * @private
      */
     private static getHeader(
-        options: IDataBaseHelperHeaders
+        options: IDatabaseHelperHeaders
     ): HeadersInit {
         const headers = new Headers()
         // TODO: Auth will break here, but we can do the initial DB implementation unauthed
@@ -687,7 +687,7 @@ export default class DataBaseHelper {
         return isProblem
     }
 
-    static getNextKey(groupClass: string, parentId: number, shorten: boolean): IDataBaseNextKeyItem|undefined {
+    static getNextKey(groupClass: string, parentId: number, shorten: boolean): IDatabaseNextKeyItem|undefined {
         const parent = this.loadById(parentId)
         let tail = groupClass
         if(shorten) tail = Utils.splitOnCaps(groupClass).splice(1).join('')
@@ -722,7 +722,7 @@ export default class DataBaseHelper {
 }
 
 // region Interfaces
-interface IDataBaseHelperHeaders {
+interface IDatabaseHelperHeaders {
     groupClass?: string
     groupKey?: string
     newGroupKey?: string
@@ -738,7 +738,7 @@ interface IDataBaseHelperHeaders {
     categoryId?: number
 }
 
-export interface IDataBaseItem<T> {
+export interface IDatabaseItem<T> {
     id: number
     class: string
     key: string
@@ -746,16 +746,16 @@ export interface IDataBaseItem<T> {
     data: (T&AbstractData)|null
     filledData: (T&AbstractData)|null // Bonus property not from the DB, it's the data property but with references filled in.
 }
-export interface IDataBaseItemRaw extends IDataBaseItem<any> {
+export interface IDatabaseItemRaw extends IDatabaseItem<any> {
     data: string
 }
-export interface IDataBaseListItem {
+export interface IDatabaseListItem {
     id?: number
     key: string
     label: string
     pid: number|null
 }
-export interface IDataBaseNextKeyItem {
+export interface IDatabaseNextKeyItem {
     key: string
 }
 

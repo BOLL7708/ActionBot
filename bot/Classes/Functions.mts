@@ -1,6 +1,6 @@
 import ModulesSingleton from '../Singletons/ModulesSingleton.mts'
 import StatesSingleton from '../Singletons/StatesSingleton.mts'
-import DataBaseHelper from '../Helpers/DataBaseHelper.mts'
+import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
 import {DataUtils} from '../../lib-shared/index.mts'
 import Utils from '../Utils/Utils.mts'
 import SteamWebHelper from '../Helpers/SteamWebHelper.mts'
@@ -21,18 +21,18 @@ export default class Functions {
     public static async setEmptySoundForTTS() {
         const modules = ModulesSingleton.getInstance()
         const states = StatesSingleton.getInstance()
-        const twitchChatConfig = await DataBaseHelper.loadMain<ConfigChat>(new ConfigChat())
+        const twitchChatConfig = await DatabaseHelper.loadMain<ConfigChat>(new ConfigChat())
         const audio = states.pingForChat ? DataUtils.ensureData(twitchChatConfig.soundEffectOnEmptyMessage) : undefined
         if(audio) modules.tts.setEmptyMessageSound(audio)
     }
 
     public static async appIdCallback(appId: string, isVr: boolean) {
         // Skip if we should ignore this app ID.
-        const steamConfig = await DataBaseHelper.loadMain<ConfigSteam>(new ConfigSteam())
+        const steamConfig = await DatabaseHelper.loadMain<ConfigSteam>(new ConfigSteam())
         const ignoredAppIds = DataUtils.ensureKeyArray(steamConfig.ignoredAppIds) ?? []
         if(ignoredAppIds.indexOf(appId) !== -1) return console.log(`Steam: Ignored AppId: ${appId}`)
-        const twitchConfig = await DataBaseHelper.loadMain<ConfigTwitch>(new ConfigTwitch())
-        const controllerConfig = await DataBaseHelper.loadMain(new ConfigController())
+        const twitchConfig = await DatabaseHelper.loadMain<ConfigTwitch>(new ConfigTwitch())
+        const controllerConfig = await DatabaseHelper.loadMain(new ConfigController())
 
 		// Init
 		const modules = ModulesSingleton.getInstance()
@@ -48,7 +48,7 @@ export default class Functions {
             states.lastSteamAppId = appId
             
 			// Load achievements before we update the ID for everything else, so we don't overwrite them by accident. (2022-10-01: Not sure if this is still needed)
-            await DataBaseHelper.load(new SettingSteamAchievements(), appId)
+            await DatabaseHelper.load(new SettingSteamAchievements(), appId)
             await SteamWebHelper.getGameSchema(appId)
             await SteamWebHelper.getGlobalAchievementStats(appId)
             await Functions.loadAchievements()
@@ -300,8 +300,8 @@ export default class Functions {
         const lastSteamAppId = StatesSingleton.getInstance().lastSteamAppId // Storing this in case it could change during execution?!
         if(lastSteamAppId && lastSteamAppId.length > 0) {
             // Local
-            const steamConfig = await DataBaseHelper.loadMain<ConfigSteam>(new ConfigSteam())
-            const steamAchievements = await DataBaseHelper.load<SettingSteamAchievements>(new SettingSteamAchievements(), lastSteamAppId) ?? new SettingSteamAchievements()
+            const steamConfig = await DatabaseHelper.loadMain<ConfigSteam>(new ConfigSteam())
+            const steamAchievements = await DatabaseHelper.load<SettingSteamAchievements>(new SettingSteamAchievements(), lastSteamAppId) ?? new SettingSteamAchievements()
             const doneAchievements = steamAchievements.achieved.length
 
             // Remote
@@ -379,7 +379,7 @@ export default class Functions {
             }
             if(steamAchievements.achieved.length > doneAchievements) {
                 console.log("Save Achievements", steamAchievements, lastSteamAppId)
-                await DataBaseHelper.save(steamAchievements, lastSteamAppId) // Update states in DataBaseHelper
+                await DatabaseHelper.save(steamAchievements, lastSteamAppId) // Update states in DataBaseHelper
             }
             this._isLoadingAchievements = false
         } else {

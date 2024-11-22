@@ -3,7 +3,7 @@ import TwitchHelixHelper from '../../Helpers/TwitchHelixHelper.mts'
 import {DataUtils} from '../../../lib-shared/index.mts'
 import Utils from '../../Utils/Utils.mts'
 import TwitchFactory, {ITwitchMessageCmd} from '../Data/TwitchFactory.mts'
-import DataBaseHelper from '../../Helpers/DataBaseHelper.mts'
+import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 import {SettingTwitchTokens} from '../../../lib-shared/index.mts'
 
 export default class TwitchChat {
@@ -45,7 +45,7 @@ export default class TwitchChat {
 
     private async onOpen(evt: any) {
         const userData = await TwitchHelixHelper.getUserByLogin(this._userName)
-        const tokens = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll<SettingTwitchTokens>(new SettingTwitchTokens()) ?? {})
+        const tokens = DataUtils.getKeyDataDictionary(await DatabaseHelper.loadAll<SettingTwitchTokens>(new SettingTwitchTokens()) ?? {})
         const tokenData = tokens
             ? Object.values(tokens)?.find((t)=>{ return t.userId === parseInt(userData?.id ?? '') })
             : undefined

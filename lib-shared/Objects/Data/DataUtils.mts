@@ -1,7 +1,7 @@
 import {AbstractData, DataEntries, DataRefValues} from './AbstractData.mts'
 import {DataMap} from './DataMap.mts'
 import {IDictionary, INumberDictionary, IStringDictionary} from '../../../bot/Interfaces/igeneral.mts'
-import {IDataBaseItem} from '../../../bot/Helpers/DataBaseHelper.mts'
+import {IDatabaseItem} from '../../../bot/Helpers/DatabaseHelper.mts'
 import Utils from '../../../bot/Utils/Utils.mts'
 
 export class DataUtils {
@@ -91,7 +91,7 @@ export class DataUtils {
      * Filters out empty data entries.
      * @param items
      */
-    static getKeyDataDictionary<T>(items: IDictionary<IDataBaseItem<T>>): IDictionary<T> {
+    static getKeyDataDictionary<T>(items: IDictionary<IDatabaseItem<T>>): IDictionary<T> {
         return Object.fromEntries(
             Object.values(items).map(
                 item => [item.key, item.filledData]
@@ -104,7 +104,7 @@ export class DataUtils {
      * Filters out empty data entries.
      * @param items
      */
-    static getIdDataDictionary<T>(items: IDictionary<IDataBaseItem<T>>): IDictionary<T> {
+    static getIdDataDictionary<T>(items: IDictionary<IDatabaseItem<T>>): IDictionary<T> {
         return Object.fromEntries(
             Object.values(items).map(
                 item => [item.id.toString(), item.filledData]

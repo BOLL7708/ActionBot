@@ -1,7 +1,7 @@
 import WebSockets from '../Web/WebSockets.mts'
 import {IScreenshotRequestData} from '../../../lib-shared/index.mts'
 import {ConfigScreenshots} from '../../../lib-shared/index.mts'
-import DataBaseHelper from '../../Helpers/DataBaseHelper.mts'
+import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 import {IActionUser} from '../../../lib-shared/index.mts'
 
 export default class SuperScreenShotterVR {
@@ -12,7 +12,7 @@ export default class SuperScreenShotterVR {
     private _config = new ConfigScreenshots()
     constructor() {}
     async init() {
-        this._config = await DataBaseHelper.loadMain(new ConfigScreenshots())
+        this._config = await DatabaseHelper.loadMain(new ConfigScreenshots())
         this._socket = new WebSockets(`ws://localhost:${this._config.SSSVRPort}`, 10, true)
         this._socket._onMessage = this.onMessage.bind(this)
         this._socket._onError = this.onError.bind(this)

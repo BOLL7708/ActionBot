@@ -1,6 +1,6 @@
 import {assert, assertEquals} from 'jsr:@std/assert'
 import Log, {EEasyDebugLogLevel} from '../../bot/EasyTSUtils/Log.mts'
-import DataBaseHelper, {IDataBaseItem} from '../../bot/Helpers/DataBaseHelper.mts'
+import DatabaseHelper, {IDatabaseItem} from '../../bot/Helpers/DatabaseHelper.mts'
 import DataBaseHelper_OLD, {IDataBaseListItems, type IDataBaseListItem} from '../../bot/Helpers/DataBaseHelper_OLD.mts'
 import {IDictionary} from '../../bot/Interfaces/igeneral.mts'
 import DatabaseSingleton from '../../bot/Singletons/DatabaseSingleton.mts'
@@ -9,7 +9,7 @@ import {ActionAudio, ActionChat, ActionCustom, ActionLabel, ConfigController, Co
 Deno.test('init', async () => {
     EnlistData.run()
     await resetDatabases()
-    DataBaseHelper.isTesting = true
+    DatabaseHelper.isTesting = true
     Log.setOptions({
         logLevel: EEasyDebugLogLevel.Warning,
         stackLevel: EEasyDebugLogLevel.Warning,
@@ -65,8 +65,8 @@ async function resetDatabases(): Promise<void> {
 }
 
 function compareSets(
-    a: IDictionary<IDataBaseItem<any>> | IDictionary<IDataBaseListItem> | undefined,
-    b: IDictionary<IDataBaseItem<any>> | IDictionary<IDataBaseListItem> | undefined,
+    a: IDictionary<IDatabaseItem<any>> | IDictionary<IDataBaseListItem> | undefined,
+    b: IDictionary<IDatabaseItem<any>> | IDictionary<IDataBaseListItem> | undefined,
     skipKeys: boolean = false,
     sortBy: string | undefined = undefined
 ): void {
@@ -100,7 +100,7 @@ function compareSets(
 
 Deno.test('save & load', async (t) => {
     const a = DataBaseHelper_OLD
-    const s = DataBaseHelper
+    const s = DatabaseHelper
     await t.step('save single', async () => {
         await resetDatabases()
         await a.saveMain(new ConfigMain())
@@ -178,7 +178,7 @@ Deno.test('save & load', async (t) => {
         assertEquals(ckey, s_ckey)
         assertEquals(a_ckey, s_ckey)
         const a_cid = await a.loadID(preset.__getClass(), a_ckey)
-        const s_cid = s.loadID(preset.__getClass(), a_ckey)
+        const s_cid = s.loadId(preset.__getClass(), a_ckey)
         assert(a_cid)
         assert(s_cid)
 
@@ -190,7 +190,7 @@ Deno.test('save & load', async (t) => {
 
         // Check so it saved and that the object fills properly with the right item
         assert(s_pkey)
-        const s_item = DataBaseHelper.loadItem(parent, s_pkey, undefined, true)
+        const s_item = DatabaseHelper.loadItem(parent, s_pkey, undefined, true)
         const id = ((s_item?.filledData?.channel) as DataEntries<PresetAudioChannel> | undefined)?.dataSingle?.id
         assert(id)
         assertEquals(s_item?.data?.channel, id)
@@ -222,7 +222,7 @@ Deno.test('save & load', async (t) => {
         await a.save(parent, parentKey)
         s.save(parent, parentKey)
         const a_pid = await a.loadID(parent.__getClass(), parentKey)
-        const s_pid = s.loadID(parent.__getClass(), parentKey)
+        const s_pid = s.loadId(parent.__getClass(), parentKey)
 
         const c = 10
         const saveMe = new ActionLabel()
@@ -234,15 +234,15 @@ Deno.test('save & load', async (t) => {
         const clazz = saveMe.__getClass()
 
         const a_res = await a.loadIDsWithLabelForClass(clazz)
-        const s_res = s.loadIDsWithLabelForClass(clazz)
+        const s_res = s.loadIdsWithLabelForClass(clazz)
         compareSets(a_res as IDictionary<IDataBaseListItem>, s_res, true, 'key')
 
         const a_resl = await a.loadIDsWithLabelForClass(clazz, 'fileName', undefined)
-        const s_resl = s.loadIDsWithLabelForClass(clazz, 'fileName', undefined)
+        const s_resl = s.loadIdsWithLabelForClass(clazz, 'fileName', undefined)
         compareSets(a_resl as IDictionary<IDataBaseListItem>, s_resl, true, 'key')
 
         const a_resp = await a.loadIDsWithLabelForClass(clazz, 'fileName', a_pid)
-        const s_resp = s.loadIDsWithLabelForClass(clazz, 'fileName', s_pid)
+        const s_resp = s.loadIdsWithLabelForClass(clazz, 'fileName', s_pid)
         compareSets(a_resp as IDictionary<IDataBaseListItem>, s_resp, true, 'key')
     })
     await t.step('classes with counts using wildcard', async () => {
@@ -286,7 +286,7 @@ Deno.test('save & load', async (t) => {
         const childKey = 'ChildForCounts'
 
         s.save(parent, parentKey)
-        const s_pid = s.loadID(parent.__getClass(), parentKey)
+        const s_pid = s.loadId(parent.__getClass(), parentKey)
         assert(s_pid)
         s.save(new ActionCustom(), childKey, undefined, s_pid)
         const s_result3 = s.loadClassesWithCounts(clazz, s_pid)
@@ -304,10 +304,10 @@ Deno.test('save & load', async (t) => {
         const s_key1 = s.saveMain(new ConfigController())
         const s_key2 = s.saveMain(new ActionCustom())
         const s_key3 = s.saveMain(new EventDefault())
-        const s_id1 = s.loadID(ConfigController.name, s_key1 ?? '')
-        const s_id2 = s.loadID(ActionCustom.name, s_key2 ?? '')
-        const s_id3 = s.loadID(EventDefault.name, s_key3 ?? '')
-        const s_classes = s.loadIDClasses([s_id1, s_id2, s_id3])
+        const s_id1 = s.loadId(ConfigController.name, s_key1 ?? '')
+        const s_id2 = s.loadId(ActionCustom.name, s_key2 ?? '')
+        const s_id3 = s.loadId(EventDefault.name, s_key3 ?? '')
+        const s_classes = s.loadIdClasses([s_id1, s_id2, s_id3])
 
         assertEquals(Object.values(a_classes), Object.values(s_classes))
     })
@@ -323,5 +323,5 @@ Deno.test('save & load', async (t) => {
 // })
 
 Deno.test('close db', () => {
-    DataBaseHelper.closeConnection()
+    DatabaseHelper.closeConnection()
 })

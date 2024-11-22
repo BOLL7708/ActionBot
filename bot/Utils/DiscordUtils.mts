@@ -1,4 +1,4 @@
-import DataBaseHelper from '../Helpers/DataBaseHelper.mts'
+import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
 import {DataUtils} from '../../lib-shared/index.mts'
 import Utils from './Utils.mts'
 import {ConfigDiscord} from '../../lib-shared/index.mts'
@@ -75,7 +75,7 @@ export default class DiscordUtils {
      */
     private static async send(url: string, item: DiscordQueueItem): Promise<EResponseState> {
         // Override for testing/debugging
-        const config = await DataBaseHelper.loadMain<ConfigDiscord>(new ConfigDiscord())
+        const config = await DatabaseHelper.loadMain<ConfigDiscord>(new ConfigDiscord())
         if(config.webhookOverride_enabled && config.webhookOverride) {
             url = DataUtils.ensureData(config.webhookOverride)?.url ?? url
         }

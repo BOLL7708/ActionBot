@@ -2,10 +2,10 @@ import {assert, assertEquals} from 'jsr:@std/assert'
 import Log, {EEasyDebugLogLevel} from '../../bot/EasyTSUtils/Log.mts'
 import WebSocketClient from '../../bot/EasyTSUtils/WebSocketClient.mts'
 import WebSocketServer, {EWebSocketServerState} from '../../bot/EasyTSUtils/WebSocketServer.mts'
-import DataBaseHelper from '../../bot/Helpers/DataBaseHelper.mts'
+import DatabaseHelper from '../../bot/Helpers/DatabaseHelper.mts'
 
 Deno.test('init', () => {
-    DataBaseHelper.isTesting = true
+    DatabaseHelper.isTesting = true
     Log.setOptions({
         logLevel: EEasyDebugLogLevel.Warning,
         stackLevel: EEasyDebugLogLevel.Warning,

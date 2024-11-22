@@ -1,7 +1,7 @@
 import WebSockets from '../Web/WebSockets.mts'
 import {ConfigOBS} from '../../../lib-shared/index.mts'
 import {IScreenshotRequestData} from '../../../lib-shared/index.mts'
-import DataBaseHelper from '../../Helpers/DataBaseHelper.mts'
+import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 import Utils from '../../Utils/Utils.mts'
 import {ActionOBS} from '../../../lib-shared/index.mts'
 import ArrayUtils from '../../Utils/ArrayUtils.mts'
@@ -18,7 +18,7 @@ export default class OBS {
 
     }
     async init() {
-        this._config = await DataBaseHelper.loadMain(new ConfigOBS())
+        this._config = await DatabaseHelper.loadMain(new ConfigOBS())
         this._socket = new WebSockets(`ws://localhost:${this._config.port}`, 10, false)
         this._socket._onOpen = this.onOpen.bind(this)
         this._socket._onMessage = this.onMessage.bind(this)

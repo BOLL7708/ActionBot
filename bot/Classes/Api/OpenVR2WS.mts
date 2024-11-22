@@ -1,6 +1,6 @@
 import {ConfigOpenVR2WS} from '../../../lib-shared/index.mts'
 import WebSockets from '../Web/WebSockets.mts'
-import DataBaseHelper from '../../Helpers/DataBaseHelper.mts'
+import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 import Utils from '../../Utils/Utils.mts'
 import {ActionSettingVR} from '../../../lib-shared/index.mts'
 import Color from '../../Constants/ColorConstants.mts'
@@ -20,7 +20,7 @@ export default class OpenVR2WS {
     constructor() {}
 
     async init() { // Init function as we want to set the callbacks before the first messages arrive.
-        this._config = await DataBaseHelper.loadMain(new ConfigOpenVR2WS())
+        this._config = await DatabaseHelper.loadMain(new ConfigOpenVR2WS())
         this._password = await Utils.hashPassword(this._config.password)
         this._socket = new WebSockets(
             `ws://localhost:${this._config.port}`,

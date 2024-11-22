@@ -2,7 +2,7 @@ import {IActionsCallbackStack, IActionUser} from './Objects/Data/Action/Abstract
 import {OptionSystemActionType} from './Objects/Options/OptionSystemActionType.mts'
 import ModulesSingleton from '../Singletons/ModulesSingleton.mts'
 import StatesSingleton from '../Singletons/StatesSingleton.mts'
-import DataBaseHelper from '../Helpers/DataBaseHelper.mts'
+import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
 import Functions from './Functions.mts'
 import TwitchHelixHelper, {ITwitchHelixClipResponseData} from '../Helpers/TwitchHelixHelper.mts'
 import TextHelper from '../Helpers/TextHelper.mts'
@@ -50,7 +50,7 @@ export default class ActionsCallbacks {
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()
                 states.pipeAllChat = true
-                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.ChatOn.valueOf().toString())
+                const textPreset = await DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.ChatOn.valueOf().toString())
                 const speech = textPreset?.filledData?.speech[0] ?? ''
                 modules.tts.enqueueSpeakSentence(speech).then()
             }
@@ -61,7 +61,7 @@ export default class ActionsCallbacks {
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()
                 states.pipeAllChat = false
-                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.ChatOff.valueOf().toString())
+                const textPreset = await DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.ChatOff.valueOf().toString())
                 const speech = textPreset?.filledData?.speech[0] ?? ''
                 modules.tts.enqueueSpeakSentence(speech).then()
             }
@@ -73,7 +73,7 @@ export default class ActionsCallbacks {
                 const states = StatesSingleton.getInstance()
                 states.pingForChat = true
                 await Functions.setEmptySoundForTTS()
-                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.PingOn.valueOf().toString())
+                const textPreset = await DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.PingOn.valueOf().toString())
                 const speech = textPreset?.filledData?.speech[0] ?? ''
                 modules.tts.enqueueSpeakSentence(speech).then()
             }
@@ -85,7 +85,7 @@ export default class ActionsCallbacks {
                 const states = StatesSingleton.getInstance()
                 states.pingForChat = false
                 await Functions.setEmptySoundForTTS()
-                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.PingOff.valueOf().toString())
+                const textPreset = await DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.PingOff.valueOf().toString())
                 const speech = textPreset?.filledData?.speech[0] ?? ''
                 modules.tts.enqueueSpeakSentence(speech).then()
             }
@@ -98,7 +98,7 @@ export default class ActionsCallbacks {
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const result = await TwitchHelixHelper.makeUserModerator(parseInt(await TextHelper.replaceTagsInText('%targetId', user)))
-                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.Mod.valueOf().toString())
+                const textPreset = await DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.Mod.valueOf().toString())
                 const speechArr = textPreset?.filledData?.speech ?? []
                 if(Array.isArray(speechArr)) {
                     const speech = result ? speechArr[0] : speechArr[1]
@@ -111,7 +111,7 @@ export default class ActionsCallbacks {
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const result = await TwitchHelixHelper.removeUserModerator(parseInt(await TextHelper.replaceTagsInText('%targetId', user)))
-                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.UnMod.valueOf().toString())
+                const textPreset = await DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.UnMod.valueOf().toString())
                 const speechArr = textPreset?.filledData?.speech ?? []
                 if(Array.isArray(speechArr)) {
                     const speech = result ? speechArr[0] : speechArr[1]
@@ -124,7 +124,7 @@ export default class ActionsCallbacks {
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const result = await TwitchHelixHelper.makeUserVIP(parseInt(await TextHelper.replaceTagsInText('%targetId', user)))
-                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.Vip.valueOf().toString())
+                const textPreset = await DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.Vip.valueOf().toString())
                 const speechArr = textPreset?.filledData?.speech ?? []
                 if(Array.isArray(speechArr)) {
                     const speech = result ? speechArr[0] : speechArr[1]
@@ -137,7 +137,7 @@ export default class ActionsCallbacks {
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const result = await TwitchHelixHelper.removeUserVIP(parseInt(await TextHelper.replaceTagsInText('%targetId', user)))
-                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.UnVip.valueOf().toString())
+                const textPreset = await DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.UnVip.valueOf().toString())
                 const speechArr = textPreset?.filledData?.speech ?? []
                 if(Array.isArray(speechArr)) {
                     const speech = result ? speechArr[0] : speechArr[1]
@@ -156,7 +156,7 @@ export default class ActionsCallbacks {
                 if(user.input.length > 0 && (possibleUserTag.length > 0 || quote.length > 0)) {
                     // Get login or use channel name
                     const isTag = possibleUserTag.includes('@')
-                    const channelTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Channel')
+                    const channelTokens = await DatabaseHelper.load(new SettingTwitchTokens(), 'Channel')
                     const userLogin = isTag
                         ? TextHelper.cleanUserName(possibleUserTag)
                         : channelTokens?.userLogin ?? ''
@@ -175,8 +175,8 @@ export default class ActionsCallbacks {
                         quoteSetting.quoteeUserId = parseInt(userData?.id ?? '')
                         quoteSetting.datetime = Utils.getISOTimestamp()
                         quoteSetting.game = gameData?.name ?? ''
-                        await DataBaseHelper.save(quoteSetting)
-                        const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.Quote.valueOf().toString())
+                        await DatabaseHelper.save(quoteSetting)
+                        const textPreset = await DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.Quote.valueOf().toString())
                         const speech = textPreset?.filledData?.speech[0] ?? ''
                         modules.tts.enqueueSpeakSentence(
                             await TextHelper.replaceTagsInText(
@@ -188,12 +188,12 @@ export default class ActionsCallbacks {
                     } else Utils.log(`Could not find user: ${possibleUserTag}`, Color.Red)
                 } else {
                     // Grab quote and write it in chat.
-                    const quotes = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(new SettingStreamQuote()) ?? {})
+                    const quotes = DataUtils.getKeyDataDictionary(await DatabaseHelper.loadAll(new SettingStreamQuote()) ?? {})
                     const quote = Utils.randomFromArray(Object.values(quotes))
                     if(quote) {
                         const date = new Date(quote.datetime)
                         const userData = await TwitchHelixHelper.getUserById(quote.quoteeUserId)
-                        const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.Quote.valueOf().toString())
+                        const textPreset = await DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.Quote.valueOf().toString())
                         const chat = textPreset?.filledData?.chat[0] ?? ''
                         modules.twitch._twitchChatOut.sendMessageToChannel(
                             await TextHelper.replaceTagsInText(
@@ -219,7 +219,7 @@ export default class ActionsCallbacks {
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()
                 states.logChatToDiscord = true
-                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.LogOn.valueOf().toString())
+                const textPreset = await DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.LogOn.valueOf().toString())
                 const speech = textPreset?.filledData?.speech[0] ?? ''
                 modules.tts.enqueueSpeakSentence(speech).then()
             }
@@ -230,7 +230,7 @@ export default class ActionsCallbacks {
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()
                 states.logChatToDiscord = false
-                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.LogOff.valueOf().toString())
+                const textPreset = await DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.LogOff.valueOf().toString())
                 const speech = textPreset?.filledData?.speech[0] ?? ''
                 modules.tts.enqueueSpeakSentence(speech).then()
             }
@@ -244,7 +244,7 @@ export default class ActionsCallbacks {
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()
                 const parts = user.input.split(' ')
-                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.Scale.valueOf().toString())
+                const textPreset = await DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.Scale.valueOf().toString())
                 const speechArr = textPreset?.filledData?.speech ?? []
                 const fileName = 'word_scale_label.txt'
                 if(parts.length == 3) {
@@ -253,7 +253,7 @@ export default class ActionsCallbacks {
                     const forMinutes = parseInt(parts[2])
                     const intervalMs = 10000 // 10s
                     const steps = forMinutes*60*1000/intervalMs
-                    const chatbotTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Chatbot')
+                    const chatbotTokens = await DatabaseHelper.load(new SettingTwitchTokens(), 'Chatbot')
                     if(isNaN(fromScale) || isNaN(toScale) || isNaN(forMinutes)) {
                         // Fail to start interval
                         modules.tts.enqueueSpeakSentence(
@@ -337,7 +337,7 @@ export default class ActionsCallbacks {
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const brightness = Utils.toInt(user.input, 130)
-                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.Brightness.valueOf().toString())
+                const textPreset = await DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.Brightness.valueOf().toString())
                 const speech = textPreset?.filledData?.speech[0] ?? ''
                 const value = Math.max(0, Math.min(160, brightness)) // TODO: There are properties in SteamVR to read out for safe min/max values or if available at all! https://github.com/ValveSoftware/openvr/blob/4c85abcb7f7f1f02adaf3812018c99fc593bc341/headers/openvr.h#L475
                 modules.tts.enqueueSpeakSentence(TextHelper.replaceTags(speech, {value: value.toString()})).then()
@@ -356,7 +356,7 @@ export default class ActionsCallbacks {
                 const validRefreshRates = [80, 90, 120, 144] // TODO: Load from OpenVR2WS so we don't set unsupported frame-rates as it breaks the headset.
                 const possibleRefreshRate = Utils.toInt(user.input, 120)
                 const refreshRate = (validRefreshRates.indexOf(possibleRefreshRate) != -1) ? possibleRefreshRate : 120
-                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.RefreshRate.valueOf().toString())
+                const textPreset = await DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.RefreshRate.valueOf().toString())
                 const speech = textPreset?.filledData?.speech[0] ?? ''
                 const value = Math.max(0, Math.min(160, refreshRate)) // TODO: Are there also properties for supported frame-rates?! https://github.com/ValveSoftware/openvr/blob/4c85abcb7f7f1f02adaf3812018c99fc593bc341/headers/openvr.h#L470
                 modules.tts.enqueueSpeakSentence(TextHelper.replaceTags(speech, {value: value.toString()})).then()
@@ -373,7 +373,7 @@ export default class ActionsCallbacks {
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const eyeMode = Utils.toInt(user.input, 4)
-                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.VrViewEye.valueOf().toString())
+                const textPreset = await DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.VrViewEye.valueOf().toString())
                 const speech = textPreset?.filledData?.speech[0] ?? ''
                 const value = Math.max(0, Math.min(5, eyeMode))
                 modules.tts.enqueueSpeakSentence(TextHelper.replaceTags(speech, {value: value.toString()})).then()
@@ -390,8 +390,8 @@ export default class ActionsCallbacks {
             description: 'Update the properties of the channel rewards managed by the widget.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
-                const allEvents = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(new EventDefault()) ?? {})
-                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.UpdateRewards.valueOf().toString())
+                const allEvents = DataUtils.getKeyDataDictionary(await DatabaseHelper.loadAll(new EventDefault()) ?? {})
+                const textPreset = await DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.UpdateRewards.valueOf().toString())
                 const speechArr = textPreset?.filledData?.speech ?? []
                 modules.tts.enqueueSpeakSentence(speechArr[0]).then()
                 const result = await TwitchHelixHelper.updateRewards(allEvents)
@@ -409,7 +409,7 @@ export default class ActionsCallbacks {
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()
                 states.useGameSpecificRewards = true
-                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.GameRewardsOn.valueOf().toString())
+                const textPreset = await DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.GameRewardsOn.valueOf().toString())
                 const speech = textPreset?.filledData?.speech[0] ?? ''
                 modules.tts.enqueueSpeakSentence(speech).then()
                 Functions.appIdCallback(states.lastSteamAppId ?? '', StatesSingleton.getInstance().lastSteamAppIsVR).then()
@@ -421,7 +421,7 @@ export default class ActionsCallbacks {
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()
                 states.useGameSpecificRewards = false
-                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.GameRewardsOff.valueOf().toString())
+                const textPreset = await DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.GameRewardsOff.valueOf().toString())
                 const speech = textPreset?.filledData?.speech[0] ?? ''
                 modules.tts.enqueueSpeakSentence(speech).then()
                 Functions.appIdCallback('', false).then()
@@ -432,7 +432,7 @@ export default class ActionsCallbacks {
             call: async (user) => {
                 // TODO: Still broken, appears we're not getting new redemptions to register.
                 const modules = ModulesSingleton.getInstance()
-                const redemptions = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(new SettingTwitchRedemption()) ?? {})
+                const redemptions = DataUtils.getKeyDataDictionary(await DatabaseHelper.loadAll(new SettingTwitchRedemption()) ?? {})
                 const userName = TextHelper.getFirstUserTagInText(user.input)
                 if(!userName) return
                 const userTag = `@${userName}`
@@ -440,7 +440,7 @@ export default class ActionsCallbacks {
                 const userRedemptions = Object.fromEntries(Object.entries(redemptions).filter(
                     row => (row[1].userId.toString() == userData?.id ?? '') && (row[1].status.toLowerCase() == 'unfulfilled')
                 ))
-                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.RefundRedemption.valueOf().toString())
+                const textPreset = await DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.RefundRedemption.valueOf().toString())
                 const chatArr = textPreset?.filledData?.chat ?? []
                 console.log('REFUND', userName, userTag, userData, userRedemptions, redemptions )
                 if(userRedemptions && Object.keys(userRedemptions).length > 0) {
@@ -453,7 +453,7 @@ export default class ActionsCallbacks {
                         const result = await TwitchHelixHelper.updateRedemption(lastRedemptionId, lastRedemption)
                         console.log('REFUND', result)
                         if(result) {
-                            await DataBaseHelper.save(lastRedemption, lastRedemptionId)
+                            await DatabaseHelper.save(lastRedemption, lastRedemptionId)
                             modules.twitch._twitchChatOut.sendMessageToChannel(await TextHelper.replaceTags( chatArr[0], {targetTag: userTag, cost: lastRedemption.cost.toString()}))
                         } else {
                             modules.twitch._twitchChatOut.sendMessageToChannel(await TextHelper.replaceTags( chatArr[1], {targetTag: userTag}))
@@ -466,8 +466,8 @@ export default class ActionsCallbacks {
             description: 'Clear redemptions from the queue for the channel, except ignored ones.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
-                const redemptions = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(new SettingTwitchRedemption()) ?? {})
-                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.ClearRedemptions.valueOf().toString())
+                const redemptions = DataUtils.getKeyDataDictionary(await DatabaseHelper.loadAll(new SettingTwitchRedemption()) ?? {})
+                const textPreset = await DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.ClearRedemptions.valueOf().toString())
                 const speechArr = textPreset?.filledData?.speech ?? []
                 modules.tts.enqueueSpeakSentence(speechArr[0]).then()
                 let totalClearable = 0
@@ -479,14 +479,14 @@ export default class ActionsCallbacks {
                         redemptionClone.status = 'FULFILLED'
                         const result = await TwitchHelixHelper.updateRedemption(key, redemptionClone)
                         if(result) {
-                            await DataBaseHelper.delete(new SettingTwitchRedemption(), key)
+                            await DatabaseHelper.delete(new SettingTwitchRedemption(), key)
                             totalCleared++
                         } else if (result === null) { // Not found, so should be deleted.
-                            await DataBaseHelper.delete(new SettingTwitchRedemption(), key)
+                            await DatabaseHelper.delete(new SettingTwitchRedemption(), key)
                         }
                     } else {
                         // It has a good state already, clear from list.
-                        await DataBaseHelper.delete(new SettingTwitchRedemption(), key)
+                        await DatabaseHelper.delete(new SettingTwitchRedemption(), key)
                     }
                 }
 
@@ -506,7 +506,7 @@ export default class ActionsCallbacks {
             description: 'A user grabbed the Channel Trophy.',
             call: async (user: IActionUser) => {
                 const modules = ModulesSingleton.getInstance()
-                const controllerConfig = await DataBaseHelper.loadMain(new ConfigController())
+                const controllerConfig = await DatabaseHelper.loadMain(new ConfigController())
 
                 // Save stat
                 const cost = user.rewardMessage?.reward.cost ?? 0
@@ -516,7 +516,7 @@ export default class ActionsCallbacks {
                 // TODO: This is not available in EventSub
                 setting.index = 0 //  user.rewardMessage?.data?.redemption.reward.redemptions_redeemed_current_stream
 
-                const settingsUpdated = await DataBaseHelper.save(setting, cost.toString())
+                const settingsUpdated = await DatabaseHelper.save(setting, cost.toString())
                 if(!settingsUpdated) return Utils.log('ChannelTrophy: Could not write settings reward', Color.Red)
 
                 const userData = await TwitchHelixHelper.getUserById(user.id)
@@ -586,11 +586,11 @@ export default class ActionsCallbacks {
             description: 'Reset the incremental reward counter for those rewards, unless ignored.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
-                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.ResetIncrementingEvents.valueOf().toString())
+                const textPreset = await DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.ResetIncrementingEvents.valueOf().toString())
                 const speechArr = textPreset?.filledData?.speech ?? []
                 modules.tts.enqueueSpeakSentence(speechArr[0]).then()
                 // Reset rewards with multiple steps
-                const allEvents = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(new EventDefault()) ?? {})
+                const allEvents = DataUtils.getKeyDataDictionary(await DatabaseHelper.loadAll(new EventDefault()) ?? {})
                 let totalCount = 0
                 let totalResetCount = 0
                 let totalSkippedCount = 0
@@ -599,7 +599,7 @@ export default class ActionsCallbacks {
                         eventConfig.behavior == OptionEventBehavior.Incrementing
                         && eventConfig.incrementingOptions.resetOnCommand
                     ) {
-                        const eventID = await DataBaseHelper.loadID(EventDefault.ref.build(), key)
+                        const eventID = await DatabaseHelper.loadId(EventDefault.ref.build(), key)
                         if(!eventID) {
                             totalSkippedCount++
                             continue
@@ -608,14 +608,14 @@ export default class ActionsCallbacks {
                         // We check if the reward counter is at zero because then we should not update as it enables
                         // the reward while it could have been disabled by profiles.
                         // To update settings for the widget reward, we update it as any normal reward, using !update.
-                        const counter = await DataBaseHelper.loadOrEmpty(new SettingIncrementingCounter(), eventID.toString())
+                        const counter = await DatabaseHelper.loadOrEmpty(new SettingIncrementingCounter(), eventID.toString())
                         if(counter.count == 0) {
                             totalSkippedCount++
                             continue
                         }
 
                         // Moved the reset out here as it should reset regardless if we have any reward triggers
-                        await DataBaseHelper.save(new SettingIncrementingCounter(), eventID.toString())
+                        await DatabaseHelper.save(new SettingIncrementingCounter(), eventID.toString())
 
                         const triggers = eventConfig.getTriggers(new TriggerReward())
                         for(const trigger of triggers) {
@@ -647,11 +647,11 @@ export default class ActionsCallbacks {
             description: 'Reset the accumulating reward counter for those rewards, unless ignored.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
-                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.ResetAccumulatingEvents.valueOf().toString())
+                const textPreset = await DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.ResetAccumulatingEvents.valueOf().toString())
                 const speechArr = textPreset?.filledData?.speech ?? []
                 modules.tts.enqueueSpeakSentence(speechArr[0]).then()
                 // Reset rewards with multiple steps
-                const allEvents = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(new EventDefault()) ?? {})
+                const allEvents = DataUtils.getKeyDataDictionary(await DatabaseHelper.loadAll(new EventDefault()) ?? {})
                 let totalCount = 0
                 let totalResetCount = 0
                 let totalSkippedCount = 0
@@ -660,7 +660,7 @@ export default class ActionsCallbacks {
                         eventConfig.behavior == OptionEventBehavior.Accumulating
                         && eventConfig.accumulatingOptions.resetOnCommand
                     ) {
-                        const eventID = await DataBaseHelper.loadID(EventDefault.ref.build(), key)
+                        const eventID = await DatabaseHelper.loadId(EventDefault.ref.build(), key)
                         if(!eventID) {
                             totalSkippedCount++
                             continue
@@ -669,14 +669,14 @@ export default class ActionsCallbacks {
                         // We check if the reward counter is at zero because then we should not update as it enables
                         // the reward while it could have been disabled by profiles.
                         // To update settings for the widget reward, we update it as any normal reward, using !update.
-                        const counter = await DataBaseHelper.loadOrEmpty(new SettingAccumulatingCounter(), eventID.toString())
+                        const counter = await DatabaseHelper.loadOrEmpty(new SettingAccumulatingCounter(), eventID.toString())
                         if(counter.count == 0) {
                             totalSkippedCount++
                             continue
                         }
 
                         // Moved the reset out here as it should reset regardless if we have any reward triggers
-                        await DataBaseHelper.save(new SettingAccumulatingCounter(), eventID.toString())
+                        await DatabaseHelper.save(new SettingAccumulatingCounter(), eventID.toString())
 
                         const triggers = eventConfig.getTriggers(new TriggerReward())
                         for(const trigger of triggers) {
@@ -721,11 +721,11 @@ export default class ActionsCallbacks {
             description: 'Posts the last Channel Trophy stats to DiscordUtils.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
-                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.ChannelTrophyStats.valueOf().toString())
+                const textPreset = await DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.ChannelTrophyStats.valueOf().toString())
                 const speechArr = textPreset?.filledData?.speech ?? []
                 const numberOfStreams = await ChannelTrophyUtils.getNumberOfStreams()
                 const streamNumber = Utils.toInt(user.input)
-                const controllerConfig = await DataBaseHelper.loadMain(new ConfigController())
+                const controllerConfig = await DatabaseHelper.loadMain(new ConfigController())
                 /* TODO move this to a separate module
                 const webhook = DataUtils.ensureDataSingle(controllerConfig.channelTrophySettings.discordStatistics)?.data
                 if(user.input == "all") {
@@ -767,7 +767,7 @@ export default class ActionsCallbacks {
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()
-                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.GameReset.valueOf().toString())
+                const textPreset = await DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.GameReset.valueOf().toString())
                 const speech = textPreset?.filledData?.speech[0] ?? ''
                 modules.tts.enqueueSpeakSentence(speech).then()
                 Functions.appIdCallback('', false).then()
@@ -782,7 +782,7 @@ export default class ActionsCallbacks {
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()
                 states.runRemoteCommands = true
-                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.RemoteOn.valueOf().toString())
+                const textPreset = await DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.RemoteOn.valueOf().toString())
                 const speech = textPreset?.filledData?.speech[0] ?? ''
                 modules.tts.enqueueSpeakSentence(
                     await TextHelper.replaceTagsInText(
@@ -798,7 +798,7 @@ export default class ActionsCallbacks {
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()
                 states.runRemoteCommands = false
-                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.RemoteOff.valueOf().toString())
+                const textPreset = await DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.RemoteOff.valueOf().toString())
                 const speech = textPreset?.filledData?.speech[0] ?? ''
                 modules.tts.enqueueSpeakSentence(
                     await TextHelper.replaceTagsInText(speech, user)
@@ -810,7 +810,7 @@ export default class ActionsCallbacks {
             call: async (user) => {
                 let messageText = ''
 
-                const commandsConfig = await DataBaseHelper.loadMain(new ConfigCommands())
+                const commandsConfig = await DatabaseHelper.loadMain(new ConfigCommands())
                 const url = DataUtils.ensureData(commandsConfig.postCommandHelpToDiscord)?.url // TODO use full preset?
                 if(!url) return console.warn('No Discord webhook URL specified for posting command help.')
 
@@ -887,11 +887,11 @@ export default class ActionsCallbacks {
             description: 'Posts new channel clips to Discord.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
-                const config = await DataBaseHelper.loadMain(new ConfigTwitch())
+                const config = await DatabaseHelper.loadMain(new ConfigTwitch())
                 const pageCount = 20
                 let lastCount = pageCount
-                const oldClips = await DataBaseHelper.loadAll(new SettingTwitchClip())
-                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.Clips.valueOf().toString())
+                const oldClips = await DatabaseHelper.loadAll(new SettingTwitchClip())
+                const textPreset = await DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.Clips.valueOf().toString())
                 const speechArr = textPreset?.filledData?.speech ?? []
                 modules.tts.enqueueSpeakSentence(speechArr[0]).then()
 
@@ -942,7 +942,7 @@ export default class ActionsCallbacks {
                             `**Link**: ${clip.url}`
                         ].join("\n")
                     }, (success)=>{
-                        if(success) DataBaseHelper.save(new SettingTwitchClip(), clip.id)
+                        if(success) DatabaseHelper.save(new SettingTwitchClip(), clip.id)
                     })
                 }
                 modules.tts.enqueueSpeakSentence(
@@ -966,7 +966,7 @@ export default class ActionsCallbacks {
                 if(channel.includes('https://')) channel = channel.split('/').pop() ?? ''
                 Utils.log(`Command Raid: ${user.input} -> ${channel}`, Color.Blue, true, true)
                 const channelData = await TwitchHelixHelper.getChannelByName(channel)
-                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.Raid.valueOf().toString())
+                const textPreset = await DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.Raid.valueOf().toString())
                 const chatArr = textPreset?.filledData?.chat ?? []
                 if(channelData) {
                     user.input = `@${channel}` // TODO: Temporary to fix text replacement! In the future we will generate the FULL set of text replacements ONCE per EVENT.
@@ -986,7 +986,7 @@ export default class ActionsCallbacks {
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const result = await TwitchHelixHelper.cancelRaid()
-                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.Unraid.valueOf().toString())
+                const textPreset = await DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.Unraid.valueOf().toString())
                 const chatArr = textPreset?.filledData?.chat ?? []
                 if(chatArr) {
                     if(result) modules.twitch._twitchChatOut.sendMessageToChannel(chatArr[0])

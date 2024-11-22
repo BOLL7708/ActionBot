@@ -1,5 +1,5 @@
 import {ConfigPhilipsHue} from '../../lib-shared/index.mts'
-import DataBaseHelper from './DataBaseHelper.mts'
+import DatabaseHelper from './DatabaseHelper.mts'
 import {INumberDictionary} from '../Interfaces/igeneral.mts'
 
 import Utils from '../Utils/Utils.mts'
@@ -9,7 +9,7 @@ import { PresetPhilipsHueBulb, PresetPhilipsHuePlug } from '../../lib-shared/ind
 
 export default class PhilipsHueHelper {
     private static async getBaseUrl() {
-        const config = await DataBaseHelper.loadMain(new ConfigPhilipsHue())
+        const config = await DatabaseHelper.loadMain(new ConfigPhilipsHue())
         return `${config.serverPath}/api/${config.username}`
     }
     static async loadLights(): Promise<INumberDictionary> {
@@ -36,7 +36,7 @@ export default class PhilipsHueHelper {
                 }
                 if(preset != undefined) {
                     preset.name = light.name
-                    await DataBaseHelper.save(preset, key)
+                    await DatabaseHelper.save(preset, key)
                 }
             }
         } else {

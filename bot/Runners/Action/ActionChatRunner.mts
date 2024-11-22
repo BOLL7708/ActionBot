@@ -1,6 +1,6 @@
 import SessionVars from '../../../bot/Classes/Data/SessionVars.mts'
 import {ActionChat, IActionCallback, IActionUser, SettingTwitchTokens} from '../../../lib-shared/index.mts'
-import DataBaseHelper from '../../Helpers/DataBaseHelper.mts'
+import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 import TextHelper from '../../Helpers/TextHelper.mts'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.mts'
 import ArrayUtils from '../../Utils/ArrayUtils.mts'
@@ -27,7 +27,7 @@ ActionChat.prototype.build = async function <T>(
                entry == SessionVars.lastTwitchChatMessage
             ) continue
             if (clone.onlySendAfterUserMessage) {
-               const userId = (await DataBaseHelper.load<SettingTwitchTokens>(
+               const userId = (await DatabaseHelper.load<SettingTwitchTokens>(
                   new SettingTwitchTokens(),
                   "Chatbot"
                ))?.userId ?? 0

@@ -3,7 +3,7 @@ import WebSockets from '../Web/WebSockets.mts'
 import Utils from '../../Utils/Utils.mts'
 import TwitchHelixHelper from '../../Helpers/TwitchHelixHelper.mts'
 import {SettingTwitchRedemption} from '../../../lib-shared/index.mts'
-import DataBaseHelper from '../../Helpers/DataBaseHelper.mts'
+import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 import {ActionHandler, Actions} from '../Actions.mts'
 
 export default class TwitchEventSub {
@@ -297,7 +297,7 @@ export default class TwitchEventSub {
                     redemptionStatus.time = event.redeemed_at
                     redemptionStatus.status = event.status
                     redemptionStatus.cost = event.reward.cost
-                    await DataBaseHelper.save(redemptionStatus, event.id)
+                    await DatabaseHelper.save(redemptionStatus, event.id)
                 }
                 Utils.log(`TwitchEventSub: Reward redeemed! (${event.reward.id})`, this.LOG_COLOR)
                 if(event.reward.id !== null) this._onRewardCallback(event)

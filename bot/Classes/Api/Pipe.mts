@@ -1,7 +1,7 @@
 import {ConfigPipe} from '../../../lib-shared/index.mts'
 import {ConfigChat} from '../../../lib-shared/index.mts'
 import WebSockets from '../Web/WebSockets.mts'
-import DataBaseHelper from '../../Helpers/DataBaseHelper.mts'
+import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 import {ITwitchMessageData} from './Twitch.mts'
 import {IActionUser} from '../../../lib-shared/index.mts'
 import {ITwitchHelixUsersResponseData} from '../../Helpers/TwitchHelixHelper.mts'
@@ -28,8 +28,8 @@ export default class Pipe {
     private _socket?: WebSockets = undefined
     constructor() {}
     async init() {
-        this._config = await DataBaseHelper.loadMain(new ConfigPipe())
-        this._chatConfig = await DataBaseHelper.loadMain(new ConfigChat())
+        this._config = await DatabaseHelper.loadMain(new ConfigPipe())
+        this._chatConfig = await DatabaseHelper.loadMain(new ConfigChat())
         this._socket = new WebSockets(`ws://localhost:${this._config.port}`, 10, true)
         this._socket._onMessage = this.onMessage.bind(this)
         this._socket._onError = this.onError.bind(this)
@@ -88,7 +88,7 @@ export default class Pipe {
         if(!this._socket?.isConnected()) console.warn('Pipe.sendBasic: Websockets instance not initiated.')
 
         // Skip if supposed to be skipped
-        const controllerConfig = await DataBaseHelper.loadMain<ConfigController>(new ConfigController())
+        const controllerConfig = await DatabaseHelper.loadMain<ConfigController>(new ConfigController())
         if(Utils.matchFirstChar(message, controllerConfig.secretChatSymbols)) return console.warn(`Pipe: Skipping secret chat: ${message}`)
         const hasBits = (messageData?.bits ?? 0) > 0
         const cleanTextConfig = Utils.clone(this._config.cleanTextConfig)

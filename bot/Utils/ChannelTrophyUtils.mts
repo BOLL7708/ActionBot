@@ -1,4 +1,4 @@
-import DataBaseHelper from '../Helpers/DataBaseHelper.mts'
+import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
 import DataUtils from '../Objects/Data/DataUtils.mts'
 import SettingChannelTrophyStat from '../Objects/Data/Setting/SettingChannel.mts'
 import TwitchHelixHelper from '../Helpers/TwitchHelixHelper.mts'
@@ -10,7 +10,7 @@ import {IDiscordEmbed, IDiscordEmbedField} from './DiscordUtils.mts'
 
 export default class ChannelTrophyUtils {
     static async getNumberOfStreams():Promise<number> {
-        const statsEntries = await DataBaseHelper.loadAll(new SettingChannelTrophyStat()) ?? {}
+        const statsEntries = await DatabaseHelper.loadAll(new SettingChannelTrophyStat()) ?? {}
         const stats = DataUtils.getKeyDataDictionary(statsEntries)
         let numberOfStreams = 0
         let lastIndex = Number.MAX_SAFE_INTEGER
@@ -23,7 +23,7 @@ export default class ChannelTrophyUtils {
     }
 
     static async createStatisticsEmbedsForDiscord(_twitchHelix:TwitchHelixHelper, stopAfterIndex: number = Number.MAX_SAFE_INTEGER) {
-        const statsEntries = await DataBaseHelper.loadAll(new SettingChannelTrophyStat()) ?? {}
+        const statsEntries = await DatabaseHelper.loadAll(new SettingChannelTrophyStat()) ?? {}
         const stats = DataUtils.getKeyDataDictionary(statsEntries)
 
         /* GENERATE DATA */
@@ -282,7 +282,7 @@ export default class ChannelTrophyUtils {
             userId: userId
         }
         // if(n < 10) return null
-        const controllerConfig = await DataBaseHelper.loadMain(new ConfigController())
+        const controllerConfig = await DatabaseHelper.loadMain(new ConfigController())
         const nameForDiscord = `%userName (**${n}**)`
         const nameForTTS = 'temp' // TODO controllerConfig.channelTrophySettings.ttsName
         const nStr = n.toString()

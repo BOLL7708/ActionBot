@@ -1,7 +1,7 @@
 import Log from '../../../bot/EasyTSUtils/Log.mts'
 import {DataUtils} from './DataUtils.mts'
 import {DataMap} from './DataMap.mts'
-import DataBaseHelper, {IDataBaseItem} from '../../../bot/Helpers/DataBaseHelper.mts'
+import DatabaseHelper, {IDatabaseItem} from '../../../bot/Helpers/DatabaseHelper.mts'
 import Utils from '../../../bot/Utils/Utils.mts'
 
 export type TDataCategory =
@@ -86,7 +86,7 @@ export abstract class AbstractData {
                                 Log.w(TAG,`Data: ID was not a number nor string, skipping:`, id)
                                 continue
                             }
-                            const dbItem = DataBaseHelper.loadById(id.toString())
+                            const dbItem = DatabaseHelper.loadById(id.toString())
                             if(dbItem?.data && dbItem?.filledData) newProp.dataArray.push(dbItem)
                             else if(id !== 0) Log.w(TAG, `Data.__apply: Unable to load instance for ${typeValues.class}:${id}, it might not exist anymore.`)
                         }
@@ -96,14 +96,14 @@ export abstract class AbstractData {
                         newProp.type = EDataType.Dictionary
                         for (const [k, idValue] of Object.entries(propertyValue)) {
                             const id = Utils.ensureNumber(idValue)
-                            const dbItem = DataBaseHelper.loadById(id.toString())
+                            const dbItem = DatabaseHelper.loadById(id.toString())
                             if(dbItem?.data && dbItem?.filledData) newProp.dataDictionary[k] = dbItem
                             else if(id !== 0) Log.w(TAG, `Data.__apply: Unable to load instance for ${typeValues.class}:${id}, it might not exist anymore.`)
                         }
                         (this as unknown as any)[propertyName] = newProp
                     } else {
                         // It is single instance
-                        const dbItem = DataBaseHelper.loadById(propertyValue)
+                        const dbItem = DatabaseHelper.loadById(propertyValue)
                         newProp.type = EDataType.Single
                         if(dbItem?.data && dbItem?.filledData) newProp.dataSingle = dbItem
                         else if(propertyValue !== 0) Log.w(TAG, `Data.__apply: Unable to load instance for ${typeValues.class}|${dbItem?.class} from (${propertyValue}), it might not exist anymore.`);
@@ -243,7 +243,7 @@ export enum EDataType {
 
 export class DataEntries<T>{
     type: EDataType = EDataType.Single
-    dataSingle: IDataBaseItem<T> = {id: 0, key: '', class: '', pid: null, data: null, filledData: null}
-    dataArray: IDataBaseItem<T>[] = []
-    dataDictionary: { [key:string]: IDataBaseItem<T>} = {}
+    dataSingle: IDatabaseItem<T> = {id: 0, key: '', class: '', pid: null, data: null, filledData: null}
+    dataArray: IDatabaseItem<T>[] = []
+    dataDictionary: { [key:string]: IDatabaseItem<T>} = {}
 }

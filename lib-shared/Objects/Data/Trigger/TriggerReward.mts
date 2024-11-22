@@ -4,7 +4,7 @@ import {DataMap, RootToolResult} from '../DataMap.mts'
 import {PresetPermissions} from '../Preset/PresetPermissions.mts'
 import {SettingTwitchReward} from '../Setting/SettingTwitch.mts'
 import TwitchHelixHelper from '../../../../bot/Helpers/TwitchHelixHelper.mts'
-import DataBaseHelper from '../../../../bot/Helpers/DataBaseHelper.mts'
+import DatabaseHelper from '../../../../bot/Helpers/DatabaseHelper.mts'
 import ModulesSingleton from '../../../../bot/Singletons/ModulesSingleton.mts'
 import {ActionHandler} from '../../../../bot/Classes/Actions.mts'
 import {DataUtils} from '../DataUtils.mts'
@@ -57,9 +57,9 @@ export class TriggerReward extends AbstractTrigger {
                                 const rewardData = response.data[0]
                                 const settingReward = new SettingTwitchReward()
                                 settingReward.key = rewardData.title
-                                const saved = await DataBaseHelper.save(settingReward, rewardData.id)
+                                const saved = DatabaseHelper.save(settingReward, rewardData.id)
                                 if(saved !== undefined) {
-                                    const item = await DataBaseHelper.loadItem(new SettingTwitchReward(), saved)
+                                    const item = DatabaseHelper.loadItem(new SettingTwitchReward(), saved)
                                     if(item !== undefined) {
                                         result.message = 'Created the reward on Twitch and saved it to the database.'
                                         result.success = true

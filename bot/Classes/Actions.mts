@@ -1,6 +1,6 @@
 import {AbstractAction, AbstractTrigger, ActionSystemRewardState, DataUtils, EventActionContainer, EventDefault, IActionCallback, IActionsExecutor, IActionsMainCallback, IActionUser, OptionEntryUsage, OptionEventBehavior, OptionEventRun, OptionTwitchRewardUsable, OptionTwitchRewardVisible, PresetReward, SettingAccumulatingCounter, SettingIncrementingCounter, SettingTwitchTokens, TriggerReward} from '../../lib-shared/index.mts'
 import Color from '../Constants/ColorConstants.mts'
-import DataBaseHelper from '../Helpers/DataBaseHelper.mts'
+import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
 import TextHelper from '../Helpers/TextHelper.mts'
 import TwitchHelixHelper from '../Helpers/TwitchHelixHelper.mts'
 import StatesSingleton from '../Singletons/StatesSingleton.mts'
@@ -15,7 +15,7 @@ export class ActionHandler {
         public appId: string = ''
     ) {}
     public async call(user: IActionUser) {
-        let event = await DataBaseHelper.loadOrEmpty<EventDefault>(new EventDefault(), this.key)
+        let event = await DatabaseHelper.loadOrEmpty<EventDefault>(new EventDefault(), this.key)
 
         /* TODO: REIMPLEMENT GAME EVENTS LATER WHEN WE ACTUALLY CAN STORE GAME EVENTS
         if(this.appId.length > 0) {
@@ -69,14 +69,14 @@ export class ActionHandler {
             case OptionEventBehavior.Incrementing: {
                 // Load incremental counter
                 const options = event.incrementingOptions
-                const eventId = await DataBaseHelper.loadID(EventDefault.ref.build(), this.key)
-                const counter = await DataBaseHelper.loadOrEmpty<SettingIncrementingCounter>(new SettingIncrementingCounter(), eventId.toString())
+                const eventId = await DatabaseHelper.loadId(EventDefault.ref.build(), this.key)
+                const counter = await DatabaseHelper.loadOrEmpty<SettingIncrementingCounter>(new SettingIncrementingCounter(), eventId.toString())
                 if(counter.reachedMax && !options.loop) return console.warn(`Incrementing Event: Max reached for ${eventId}, not triggering.`)
 
                 // Increase incremental counter
                 counter.count++
                 if(counter.count >= (options.maxValue > 0 ? options.maxValue : Infinity)) counter.reachedMax = true
-                await DataBaseHelper.save(counter, eventId.toString())
+                await DatabaseHelper.save(counter, eventId.toString())
                 entryIndex = counter.count-1
 
                 // Switch to the next incremental reward if it has more configs available
@@ -120,8 +120,8 @@ export class ActionHandler {
             case OptionEventBehavior.Accumulating: {
                 // Load accumulating counter
                 const options = event.accumulatingOptions
-                const eventId = await DataBaseHelper.loadID(EventDefault.ref.build(), this.key)
-                const counter = await DataBaseHelper.loadOrEmpty<SettingAccumulatingCounter>(new SettingAccumulatingCounter(), eventId.toString())
+                const eventId = await DatabaseHelper.loadId(EventDefault.ref.build(), this.key)
+                const counter = await DatabaseHelper.loadOrEmpty<SettingAccumulatingCounter>(new SettingAccumulatingCounter(), eventId.toString())
                 if(counter.reachedGoal) return console.warn(`Accumulating Event: Goal already reached for ${eventId}, not triggering.`)
                 const goalCount = options.goal
                 const isFirstCount = counter.count == 0
@@ -130,7 +130,7 @@ export class ActionHandler {
                 counter.count += (user.rewardCost > 0 ? user.rewardCost : options.nonRewardIncrease)
                 const goalIsMet = counter.count >= goalCount
                 if(counter.count >= goalCount) counter.reachedGoal = true
-                await DataBaseHelper.save(counter, eventId.toString())
+                await DatabaseHelper.save(counter, eventId.toString())
                 entryIndex = counter.count-1
 
                 // Switch to the next accumulating reward if it has more configs available
@@ -186,7 +186,7 @@ export class ActionHandler {
             case OptionEventBehavior.MultiTier: {
                 // Increase multi-tier counter
                 const options = event.multiTierOptions
-                const eventId = await DataBaseHelper.loadID(EventDefault.ref.build(), this.key)
+                const eventId = await DatabaseHelper.loadId(EventDefault.ref.build(), this.key)
                 const counter = states.multiTierEventCounters.get(eventId.toString()) ?? {count: 0, timeoutHandle: 0, reachedMax: false}
                 counter.count++
                 const maxLevel = event.multiTierOptions.maxLevel
@@ -303,7 +303,7 @@ export class ActionHandler {
 export class Actions {
     public static async init() {
         Utils.log('=== Registering Triggers for Events ===', Color.DarkGreen)
-        const events = DataUtils.getKeyDataDictionary<EventDefault>(await DataBaseHelper.loadAll(new EventDefault()) ?? {})
+        const events = DataUtils.getKeyDataDictionary<EventDefault>(await DatabaseHelper.loadAll(new EventDefault()) ?? {})
         if(events) {
             for(const [key, event] of Object.entries(events)) {
                 const triggers = DataUtils.ensureDataArray(event.triggers) ?? []
@@ -390,7 +390,7 @@ export class Actions {
      */
     public static async buildEmptyUserData(source: EEventSource, key: string, userName?: string, userInput?: string, userMessage?: string): Promise<IActionUser> {
         // TODO: Make this use the user ID instead of username?
-        const channelTokens = await DataBaseHelper.load<SettingTwitchTokens>(new SettingTwitchTokens(), 'Channel')
+        const channelTokens = await DatabaseHelper.load<SettingTwitchTokens>(new SettingTwitchTokens(), 'Channel')
         const user = await TwitchHelixHelper.getUserByLogin(userName ?? channelTokens?.userLogin ?? '')
         const input = userInput ?? ''
         return {

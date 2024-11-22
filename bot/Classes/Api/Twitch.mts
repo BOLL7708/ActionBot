@@ -1,6 +1,6 @@
 import {ConfigChat, ConfigCommands, ConfigTwitch, DataUtils, IActionUser, SettingTwitchTokens, TriggerCommand, TriggerRemoteCommand} from '../../../lib-shared/index.mts'
 import Color from '../../Constants/ColorConstants.mts'
-import DataBaseHelper from '../../Helpers/DataBaseHelper.mts'
+import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 import TextHelper from '../../Helpers/TextHelper.mts'
 import TwitchHelixHelper from '../../Helpers/TwitchHelixHelper.mts'
 import StatesSingleton from '../../Singletons/StatesSingleton.mts'
@@ -28,13 +28,13 @@ export default class Twitch{
     private LOG_COLOR_COMMAND: string = 'maroon'
 
     async init(initChat: boolean = true) {
-        this._config = await DataBaseHelper.loadMain(new ConfigTwitch())
-        this._configChat = await DataBaseHelper.loadMain(new ConfigChat())
-        this._configCommands = await DataBaseHelper.loadMain(new ConfigCommands())
+        this._config = await DatabaseHelper.loadMain(new ConfigTwitch())
+        this._configChat = await DatabaseHelper.loadMain(new ConfigChat())
+        this._configCommands = await DatabaseHelper.loadMain(new ConfigCommands())
         if(initChat) {
             // In/out for chat in the main channel
-            const channelTokens = await DataBaseHelper.load<SettingTwitchTokens>(new SettingTwitchTokens(), 'Channel')
-            const chatbotTokens = await DataBaseHelper.load<SettingTwitchTokens>(new SettingTwitchTokens(), 'Chatbot')
+            const channelTokens = await DatabaseHelper.load<SettingTwitchTokens>(new SettingTwitchTokens(), 'Channel')
+            const chatbotTokens = await DatabaseHelper.load<SettingTwitchTokens>(new SettingTwitchTokens(), 'Chatbot')
             this._twitchChatIn.init(channelTokens?.userLogin, channelTokens?.userLogin)
             this._twitchChatOut.init(chatbotTokens?.userLogin, channelTokens?.userLogin, true)
 
@@ -153,7 +153,7 @@ export default class Twitch{
         let text: string = msg.text?.trim() ?? ''
         if(text.length == 0) return
         const isBroadcaster = (messageCmd.properties?.badges ?? [] as string[]).indexOf('broadcaster/1') > -1
-            || userName === (await DataBaseHelper.load<SettingTwitchTokens>(new SettingTwitchTokens(), 'channel'))?.userLogin
+            || userName === (await DatabaseHelper.load<SettingTwitchTokens>(new SettingTwitchTokens(), 'channel'))?.userLogin
         const isModerator = (
             messageCmd.properties?.mod == '1'
             || (await TwitchHelixHelper.isUserModerator(userId)) // Fallback
@@ -206,7 +206,7 @@ export default class Twitch{
 
         // Commands
         if(text && text.indexOf(this._configCommands.commandPrefix) == 0) {
-            const chatbotTokens = await DataBaseHelper.load<SettingTwitchTokens>(new SettingTwitchTokens(), 'Chatbot')
+            const chatbotTokens = await DatabaseHelper.load<SettingTwitchTokens>(new SettingTwitchTokens(), 'Chatbot')
             if(user.login.toLowerCase() == chatbotTokens?.userLogin) {
                 Utils.log(`Twitch Chat: Skipped command as it was from the chat bot account. (${user.login} == ${chatbotTokens?.userLogin})`, this.LOG_COLOR_COMMAND)
                 return

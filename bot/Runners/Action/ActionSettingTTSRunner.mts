@@ -1,7 +1,7 @@
 import {ActionSettingTTS, DataUtils, IActionCallback, IActionUser, OptionTTSFunctionType, SettingDictionaryEntry, SettingUser, SettingUserMute, SettingUserName} from '../../../lib-shared/index.mts'
 import {EEventSource} from '../../Classes/Enums.mts'
 import Color from '../../Constants/ColorConstants.mts'
-import DataBaseHelper from '../../Helpers/DataBaseHelper.mts'
+import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 import TextHelper from '../../Helpers/TextHelper.mts'
 import TwitchHelixHelper from '../../Helpers/TwitchHelixHelper.mts'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.mts'
@@ -27,7 +27,7 @@ ActionSettingTTS.prototype.build = async function <T>(key: string, instance: T):
          const userInputRest = await TextHelper.replaceTagsInText('%userInputRest', user)
          const userInputNoTags = await TextHelper.replaceTagsInText('%userInputNoTags', user)
          const canSetThingsForOthers = user.isBroadcaster || user.isModerator
-         const targetUser = await DataBaseHelper.loadOrEmpty<SettingUser>(new SettingUser(), targetOrUserId.toString())
+         const targetUser = await DatabaseHelper.loadOrEmpty<SettingUser>(new SettingUser(), targetOrUserId.toString())
          switch (clone.functionType) {
             case OptionTTSFunctionType.Enable:
                states.ttsForAll = true
@@ -49,7 +49,7 @@ ActionSettingTTS.prototype.build = async function <T>(key: string, instance: T):
                setting.moderatorUserId = user.id
                setting.datetime = Utils.getISOTimestamp()
                targetUser.mute = setting
-               await DataBaseHelper.save(targetUser, targetId.toString())
+               await DatabaseHelper.save(targetUser, targetId.toString())
                break
             }
             case OptionTTSFunctionType.SetUserDisabled: {
@@ -60,7 +60,7 @@ ActionSettingTTS.prototype.build = async function <T>(key: string, instance: T):
                setting.moderatorUserId = user.id
                setting.datetime = Utils.getISOTimestamp()
                targetUser.mute = setting
-               await DataBaseHelper.save(targetUser, targetId.toString())
+               await DatabaseHelper.save(targetUser, targetId.toString())
                break
             }
             case OptionTTSFunctionType.SetUserNick: {
@@ -90,7 +90,7 @@ ActionSettingTTS.prototype.build = async function <T>(key: string, instance: T):
                   setting.editorUserId = id
                   setting.datetime = Utils.getISOTimestamp()
                   targetUser.name = setting
-                  await DataBaseHelper.save(targetUser, id.toString())
+                  await DatabaseHelper.save(targetUser, id.toString())
                } else {
                   // We do nothing
                   states.textTagCache.lastTTSSetNickLogin = ''
@@ -131,7 +131,7 @@ ActionSettingTTS.prototype.build = async function <T>(key: string, instance: T):
                   setting.editorUserId = user.id
                   setting.datetime = Utils.getISOTimestamp()
                   targetUser.name = setting
-                  await DataBaseHelper.save(targetUser, id.toString())
+                  await DatabaseHelper.save(targetUser, id.toString())
                }
                break
             }
@@ -155,7 +155,7 @@ ActionSettingTTS.prototype.build = async function <T>(key: string, instance: T):
                word = ['+', '-'].includes(firstChar) ? word.substring(1) : word
                const substitute = TextHelper.cleanSetting(userInputRest).toLowerCase()
 
-               let entry = await DataBaseHelper.load<SettingDictionaryEntry>(new SettingDictionaryEntry(), word)
+               let entry = await DatabaseHelper.load<SettingDictionaryEntry>(new SettingDictionaryEntry(), word)
                if (!entry) {
                   entry = new SettingDictionaryEntry()
                   entry.substitute = ''
@@ -180,15 +180,15 @@ ActionSettingTTS.prototype.build = async function <T>(key: string, instance: T):
                states.textTagCache.lastDictionarySubstitute = entry.substitute
                // Set substitute for word
                if (word.length && substitute.length) {
-                  await DataBaseHelper.save(entry, word)
+                  await DatabaseHelper.save(entry, word)
                }
                // Clearing a word by setting it to itself
                else if (word.length) {
                   entry.substitute = word
                   states.textTagCache.lastDictionarySubstitute = word
-                  await DataBaseHelper.save(entry, word)
+                  await DatabaseHelper.save(entry, word)
                }
-               const fullDictionaryItems = await DataBaseHelper.loadAll(new SettingDictionaryEntry()) ?? {}
+               const fullDictionaryItems = await DatabaseHelper.loadAll(new SettingDictionaryEntry()) ?? {}
                const fullDictionary = DataUtils.getKeyDataDictionary(fullDictionaryItems)
 
                Object.fromEntries(
@@ -205,7 +205,7 @@ ActionSettingTTS.prototype.build = async function <T>(key: string, instance: T):
             }
             case OptionTTSFunctionType.GetDictionaryEntry: {
                const word = userInputHead.trim().toLowerCase()
-               const entry = await DataBaseHelper.load<SettingDictionaryEntry>(new SettingDictionaryEntry(), word)
+               const entry = await DatabaseHelper.load<SettingDictionaryEntry>(new SettingDictionaryEntry(), word)
                if (entry) {
                   states.textTagCache.lastDictionaryWord = word
                   states.textTagCache.lastDictionarySubstitute = entry.substitute

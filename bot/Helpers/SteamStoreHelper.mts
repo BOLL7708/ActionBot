@@ -1,5 +1,5 @@
 import Utils from '../Utils/Utils.mts'
-import DataBaseHelper from './DataBaseHelper.mts'
+import DatabaseHelper from './DatabaseHelper.mts'
 import {SettingSteamGame} from '../../lib-shared/index.mts'
 
 export default class SteamStoreHelper {
@@ -15,9 +15,9 @@ export default class SteamStoreHelper {
                 const data = response[id]?.data
                 if(data) {
                     if(data.name) { // Update name in database, also happens in SteamWebHelper
-                        const setting = await DataBaseHelper.loadOrEmpty<SettingSteamGame>(new SettingSteamGame(), appId)
+                        const setting = await DatabaseHelper.loadOrEmpty<SettingSteamGame>(new SettingSteamGame(), appId)
                         setting.title = data.name
-                        await DataBaseHelper.save(setting, appId)
+                        await DatabaseHelper.save(setting, appId)
                     }
                     this._gameCache.set(id, data)
                     return data

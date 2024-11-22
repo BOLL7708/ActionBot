@@ -1,4 +1,4 @@
-import DataBaseHelper from './DataBaseHelper.mts'
+import DatabaseHelper from './DatabaseHelper.mts'
 import Utils from '../Utils/Utils.mts'
 import {ConfigSteam} from '../../lib-shared/index.mts'
 import Color from '../Constants/ColorConstants.mts'
@@ -12,7 +12,7 @@ import {SettingSteamGame} from '../../lib-shared/index.mts'
 export default class SteamWebHelper {
     private static _profileTag: string = ''
     static async getPlayerSummary(): Promise<ISteamWebApiPlayerSummaryData|undefined> {
-        const config = await DataBaseHelper.loadMain(new ConfigSteam())
+        const config = DatabaseHelper.loadMain(new ConfigSteam())
         if(config.steamWebApiKey.length == 0) {
             Utils.log(`SteamWebApi: Cannot fetch player summary as API key is not set.`, Color.Red)
             return undefined
@@ -39,7 +39,7 @@ export default class SteamWebHelper {
 
     // TODO: Check to see if we have full response definitions in the online docs and create interfaces.
     static async getAchievements(appId: string): Promise<ISteamWebApiPlayerAchievementData[]|undefined> {
-        const config = await DataBaseHelper.loadMain(new ConfigSteam())
+        const config = DatabaseHelper.loadMain(new ConfigSteam())
         if(config.steamWebApiKey.length == 0) {
             Utils.log(`SteamWebApi: Cannot fetch achievements as API key is not set.`, Color.Red)
             return undefined
@@ -65,7 +65,7 @@ export default class SteamWebHelper {
 
     static _gameSchemas: Map<number, ISteamWebApiGameSchema> = new Map()
     static async getGameSchema(appId: string): Promise<ISteamWebApiGameSchema|undefined> {
-        const config = await DataBaseHelper.loadMain(new ConfigSteam())
+        const config = DatabaseHelper.loadMain(new ConfigSteam())
         if(config.steamWebApiKey.length == 0) {
             Utils.log(`SteamWebApi: Cannot fetch game schema as API key is not set.`, Color.Red)
             return undefined
@@ -79,9 +79,9 @@ export default class SteamWebHelper {
                 const json: ISteamWebApiGameSchema = await response.json()
                 this._gameSchemas.set(id, json)
                 if(json.game.gameName) { // Update name in database, also happens in SteamStoreHelper
-                    const setting = await DataBaseHelper.loadOrEmpty(new SettingSteamGame(), appId)
+                    const setting = await DatabaseHelper.loadOrEmpty(new SettingSteamGame(), appId)
                     setting.title = json.game.gameName
-                    await DataBaseHelper.save(setting, appId)
+                    await DatabaseHelper.save(setting, appId)
                 }
                 return json
             } else {
@@ -93,7 +93,7 @@ export default class SteamWebHelper {
 
     static _globalAchievementStats: Map<number, IStreamWebApiGlobalAchievementData[]> = new Map()
     static async getGlobalAchievementStats(appId: string): Promise<IStreamWebApiGlobalAchievementData[]|undefined> {
-        const config = await DataBaseHelper.loadMain(new ConfigSteam())
+        const config = await DatabaseHelper.loadMain(new ConfigSteam())
         if(config.steamWebApiKey.length == 0) {
             Utils.log(`SteamWebApi: Cannot fetch global achievements stats as API key is not set.`, Color.Red)
             return undefined
@@ -116,7 +116,7 @@ export default class SteamWebHelper {
     }
 
     private static async getEncodedUrl(interfaceMethodVersion: string, appId?: number): Promise<string> {
-        const config = await DataBaseHelper.loadMain(new ConfigSteam())
+        const config = DatabaseHelper.loadMain(new ConfigSteam())
         const urlObj = new URL(`https://api.steampowered.com/${interfaceMethodVersion}`)
         urlObj.searchParams.append('key', config.steamWebApiKey)
         urlObj.searchParams.append('steamid', config.steamUserId)

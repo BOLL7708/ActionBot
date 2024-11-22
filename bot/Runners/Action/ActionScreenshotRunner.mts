@@ -1,5 +1,5 @@
 import {ActionScreenshot, ConfigScreenshots, DataUtils, IActionCallback, IActionUser, OptionScreenshotType} from '../../../lib-shared/index.mts'
-import DataBaseHelper from '../../Helpers/DataBaseHelper.mts'
+import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.mts'
 import StatesSingleton from '../../Singletons/StatesSingleton.mts'
 import Utils from '../../Utils/Utils.mts'
@@ -12,7 +12,7 @@ ActionScreenshot.prototype.build = async function <T>(key: string, instance: T):
          const states = StatesSingleton.getInstance()
          const modules = ModulesSingleton.getInstance()
          const userInput = user.input
-         const screenshotsConfig = await DataBaseHelper.loadMain<ConfigScreenshots>(new ConfigScreenshots())
+         const screenshotsConfig = await DatabaseHelper.loadMain<ConfigScreenshots>(new ConfigScreenshots())
 
          // OBS screenshot audio is done outside the OBS class as that is an instance stored in modules, and we don't want to make a circular dependency.
          const soundConfig = DataUtils.ensureData(screenshotsConfig.callback.captureSoundEffect)

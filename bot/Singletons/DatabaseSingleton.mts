@@ -1,6 +1,6 @@
 import {Database} from '@db/sqlite'
 import Log from '../EasyTSUtils/Log.mts'
-import {IDatabaseRow} from '../Helpers/DataBaseHelper.mts'
+import {IDatabaseRow} from '../Helpers/DatabaseHelper.mts'
 import {IDictionary} from '../Interfaces/igeneral.mts'
 
 export default class DatabaseSingleton {

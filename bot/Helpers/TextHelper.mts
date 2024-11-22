@@ -3,7 +3,7 @@ import {ITwitchEmotePosition} from '../Classes/Data/TwitchFactory.mts'
 import ModulesSingleton from '../Singletons/ModulesSingleton.mts'
 import StatesSingleton from '../Singletons/StatesSingleton.mts'
 import Utils from '../Utils/Utils.mts'
-import DataBaseHelper from './DataBaseHelper.mts'
+import DatabaseHelper from './DatabaseHelper.mts'
 import SteamStoreHelper from './SteamStoreHelper.mts'
 import TwitchHelixHelper, {ITwitchHelixUsersResponseData} from './TwitchHelixHelper.mts'
 
@@ -19,7 +19,7 @@ export default class TextHelper {
         }
         const userId = userData?.id ?? ''
         const userName = userData?.login ?? ''
-        const user = await DataBaseHelper.loadOrEmpty<SettingUser>(new SettingUser(), userId)
+        const user = await DatabaseHelper.loadOrEmpty<SettingUser>(new SettingUser(), userId)
         let cleanName = Utils.getFirstValidString(user.name.shortName, userName)
         if(cleanName.length == 0) {
             cleanName = this.cleanName(userName)
@@ -27,7 +27,7 @@ export default class TextHelper {
             cleanNameSetting.shortName = cleanName
             cleanNameSetting.datetime = Utils.getISOTimestamp()
             user.name = cleanNameSetting
-            await DataBaseHelper.save(user, userId)
+            await DatabaseHelper.save(user, userId)
         }
         return cleanName
     }
@@ -74,7 +74,7 @@ export default class TextHelper {
         let text = textInput ?? ''
 
         if(!config) {
-            const ttsConfig = await DataBaseHelper.loadMain<ConfigSpeech>(new ConfigSpeech())
+            const ttsConfig = await DatabaseHelper.loadMain<ConfigSpeech>(new ConfigSpeech())
             config = ttsConfig.cleanTextConfig
         }
         if(!config?.keepCase) text = text.toLowerCase()
@@ -217,7 +217,7 @@ export default class TextHelper {
             // If we have a possible login, get the user data, if they exist
             const channelData = await TwitchHelixHelper.getChannelByName(userLogin)
             if(channelData) {
-                const voice = await DataBaseHelper.load<SettingUserVoice>(new SettingUserVoice(), channelData.broadcaster_id)
+                const voice = await DatabaseHelper.load<SettingUserVoice>(new SettingUserVoice(), channelData.broadcaster_id)
                 tags.targetId = channelData.broadcaster_id
                 tags.targetLogin = channelData.broadcaster_login
                 tags.targetName = channelData.broadcaster_name
@@ -246,17 +246,17 @@ export default class TextHelper {
     private static async getDefaultTags(userData?: IActionUser): Promise<ITextTags> {
         const states = StatesSingleton.getInstance()
         const userIdStr = userData?.id?.toString() ?? ''
-        const user = await DataBaseHelper.loadOrEmpty<SettingUser>(new SettingUser(), userIdStr)
+        const user = await DatabaseHelper.loadOrEmpty<SettingUser>(new SettingUser(), userIdStr)
         const subs = user.sub
         const cheers = user.cheer
         const voice = user.voice
         const now = new Date()
 
-        const eventConfig = await DataBaseHelper.loadOrEmpty<EventDefault>(new EventDefault(), userData?.eventKey ?? '')
-        const eventID = await DataBaseHelper.loadID(EventDefault.ref.build(), userData?.eventKey ?? '')
+        const eventConfig = await DatabaseHelper.loadOrEmpty<EventDefault>(new EventDefault(), userData?.eventKey ?? '')
+        const eventID = await DatabaseHelper.loadId(EventDefault.ref.build(), userData?.eventKey ?? '')
         const eventLevel = states.multiTierEventCounters.get(eventID.toString())?.count ?? 0
         const eventLevelMax = eventConfig.multiTierOptions.maxLevel
-        const eventCount = (await DataBaseHelper.load<SettingAccumulatingCounter>(new SettingAccumulatingCounter(), eventID.toString()))?.count ?? 0
+        const eventCount = (await DatabaseHelper.load<SettingAccumulatingCounter>(new SettingAccumulatingCounter(), eventID.toString()))?.count ?? 0
         const eventGoal = eventConfig.accumulatingOptions.goal
 
         const userBits = (userData?.bits ?? 0) > 0

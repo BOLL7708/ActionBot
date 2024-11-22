@@ -481,7 +481,7 @@ export default class DataBaseHelper {
      * Used to get which classes a reference list of IDs has in the editor.
      * @param idArr
      */
-    static async loadIDClasses(idArr: string[]|number[]): Promise<IStringDictionary> {
+    static loadIDClasses(idArr: string[]|number[]): IStringDictionary {
         const output: IStringDictionary = {}
         const toLoad: string[] = []
         for(const idVal of idArr) {
@@ -494,22 +494,13 @@ export default class DataBaseHelper {
             }
         }
         if(toLoad.length > 0) {
-            const url = this.getUrl()
-            const response = await fetch(url, {
-                headers: await this.getHeader({
-                    rowIds: toLoad.join(','),
-                    noData: true
-                })
-            })
-            if(response.ok) {
-                const jsonResult = await response.json()
-                if(jsonResult && jsonResult.length > 0) {
-                    for(const item of jsonResult) {
-                        // this.handleDataBaseItem(item).then()
-                        if(item) {
-                            output[item.id] = item.class
-                        }
-                    }
+            const db = DatabaseSingleton.get(this.isTesting)
+            const query = `SELECT row_id, group_class FROM json_store WHERE row_id IN :row_ids;`
+            const params: IDictionary<TDatabaseQueryInput> = {row_ids: toLoad}
+            const result = db.queryDictionary<IDatabaseClassItem>({query, params})
+            if(result) {
+                for(const row of Object.values(result)) {
+                    output[`${row.row_id}`] = row.group_class
                 }
             }
         }
@@ -657,8 +648,6 @@ export default class DataBaseHelper {
         return groupKey
     }
 
-    static getUrl() { return '' } // TODO: TEMPORARY TO ENABLE BUILDING
-
     /**
      * Get authorization header with optional JSON content type.
      * @param options
@@ -778,5 +767,10 @@ export interface IDatabaseRow {
     group_key: string
     parent_id: number|null
     data_json: string
+}
+
+export interface IDatabaseClassItem {
+    row_id: number
+    group_class: string
 }
 // endregion

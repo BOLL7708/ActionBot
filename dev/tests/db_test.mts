@@ -4,7 +4,7 @@ import DataBaseHelper, {IDataBaseItem} from '../../bot/Helpers/DataBaseHelper.mt
 import DataBaseHelper_OLD, {IDataBaseListItems, type IDataBaseListItem} from '../../bot/Helpers/DataBaseHelper_OLD.mts'
 import {IDictionary} from '../../bot/Interfaces/igeneral.mts'
 import DatabaseSingleton from '../../bot/Singletons/DatabaseSingleton.mts'
-import {ActionAudio, ActionChat, ActionCustom, ActionLabel, ConfigController, ConfigMain, ConfigSpeech, DataEntries, EnlistData, PresetAudioChannel} from '../../lib-shared/index.mts'
+import {ActionAudio, ActionChat, ActionCustom, ActionLabel, ConfigController, ConfigMain, ConfigSpeech, DataEntries, EnlistData, EventDefault, PresetAudioChannel} from '../../lib-shared/index.mts'
 
 Deno.test('init', async () => {
     EnlistData.run()
@@ -26,38 +26,38 @@ Deno.test('init', async () => {
 async function resetDatabases(): Promise<void> {
     let doneOld = false
     let count = 0
-    while(!doneOld) {
+    while (!doneOld) {
         try {
             Deno.removeSync('./_user/db/test_old.sqlite')
             doneOld = true
-        } catch(e: any) {
-            if(e.name !== 'NotFound') {
+        } catch (e: any) {
+            if (e.name !== 'NotFound') {
                 console.warn('Unable to delete test_old.sqlite', e.name)
             }
         }
-        if(++count > 5) doneOld = true
-        await new Promise((resolve)=>{
+        if (++count > 5) doneOld = true
+        await new Promise((resolve) => {
             setTimeout(resolve, 100)
         })
     }
 
     const db = DatabaseSingleton.get(true)
     await Promise.all([
-        new Promise((resolve)=>{
+        new Promise((resolve) => {
             db.kill()
             setTimeout(resolve, 100)
         }),
-        new Promise((resolve)=>{
+        new Promise((resolve) => {
             try {
                 Deno.removeSync('./_user/db/test.sqlite')
-            } catch(e: any) {
-                if(e.name !== 'NotFound') {
+            } catch (e: any) {
+                if (e.name !== 'NotFound') {
                     console.warn('Unable to delete test.sqlite', e.name)
                 }
             }
             setTimeout(resolve, 100)
         }),
-        new Promise((resolve)=>{
+        new Promise((resolve) => {
             db.reconnect()
             setTimeout(resolve, 100)
         })
@@ -65,13 +65,13 @@ async function resetDatabases(): Promise<void> {
 }
 
 function compareSets(
-    a: IDictionary<IDataBaseItem<any>>|IDictionary<IDataBaseListItem>|undefined,
-    b: IDictionary<IDataBaseItem<any>>|IDictionary<IDataBaseListItem>|undefined,
+    a: IDictionary<IDataBaseItem<any>> | IDictionary<IDataBaseListItem> | undefined,
+    b: IDictionary<IDataBaseItem<any>> | IDictionary<IDataBaseListItem> | undefined,
     skipKeys: boolean = false,
-    sortBy: string|undefined = undefined
+    sortBy: string | undefined = undefined
 ): void {
-    if(a === undefined || b === undefined) return
-    if(skipKeys && sortBy) {
+    if (a === undefined || b === undefined) return
+    if (skipKeys && sortBy) {
         const sortValues = (a: any, b: any): number => {
             const aVal = `${a[sortBy]}`
             const bVal = `${b[sortBy]}`
@@ -79,7 +79,7 @@ function compareSets(
         }
         const aValues = Object.values(a).sort(sortValues)
         const bValues = Object.values(b).sort(sortValues)
-        for(let i=0; i<Object.keys(a).length; i++) {
+        for (let i = 0; i < Object.keys(a).length; i++) {
             const item_a = aValues[i]
             const item_b = bValues[i]
             delete (item_a as any).id
@@ -88,7 +88,7 @@ function compareSets(
         }
     } else {
         assertEquals(Object.keys(a), Object.keys(b))
-        for(const [key, item_a] of Object.entries(a)) {
+        for (const [key, item_a] of Object.entries(a)) {
             const item_b = b[key]
             // Deleting ID as it is for some reason a mismatch, as the old code increments ID twice per row, interestingly enough.
             delete (item_a as any).id
@@ -114,7 +114,7 @@ Deno.test('save & load', async (t) => {
         assert(configMain_s)
         assertEquals(configMain_s, configMain_a)
     })
-    await t.step('save main & delete', async()=>{
+    await t.step('save main & delete', async () => {
         await resetDatabases()
         const instance = new ConfigController()
         const savedKey = s.saveMain(instance)
@@ -191,7 +191,7 @@ Deno.test('save & load', async (t) => {
         // Check so it saved and that the object fills properly with the right item
         assert(s_pkey)
         const s_item = DataBaseHelper.loadItem(parent, s_pkey, undefined, true)
-        const id = ((s_item?.filledData?.channel) as DataEntries<PresetAudioChannel>|undefined)?.dataSingle?.id
+        const id = ((s_item?.filledData?.channel) as DataEntries<PresetAudioChannel> | undefined)?.dataSingle?.id
         assert(id)
         assertEquals(s_item?.data?.channel, id)
     })
@@ -249,7 +249,7 @@ Deno.test('save & load', async (t) => {
         await resetDatabases()
         // Prepare
         const count = 10
-        for(let i=0; i<count; i++) {
+        for (let i = 0; i < count; i++) {
             await a.save(new ActionCustom(), `Key${i}`)
             await a.save(new ActionChat(), `Key${i}`)
             s.save(new ActionCustom(), `Key${i}`)
@@ -291,6 +291,25 @@ Deno.test('save & load', async (t) => {
         s.save(new ActionCustom(), childKey, undefined, s_pid)
         const s_result3 = s.loadClassesWithCounts(clazz, s_pid)
         assertEquals(s_result3, {[clazz]: 1})
+    })
+    await t.step('Load ID classes', async () => {
+        const a_key1 = await a.saveMain(new ConfigController())
+        const a_key2 = await a.saveMain(new ActionCustom())
+        const a_key3 = await a.saveMain(new EventDefault())
+        const a_id1 = await a.loadID(ConfigController.name, a_key1 ?? '')
+        const a_id2 = await a.loadID(ActionCustom.name, a_key2 ?? '')
+        const a_id3 = await a.loadID(EventDefault.name, a_key3 ?? '')
+        const a_classes = await a.loadIDClasses([a_id1, a_id2, a_id3])
+
+        const s_key1 = s.saveMain(new ConfigController())
+        const s_key2 = s.saveMain(new ActionCustom())
+        const s_key3 = s.saveMain(new EventDefault())
+        const s_id1 = s.loadID(ConfigController.name, s_key1 ?? '')
+        const s_id2 = s.loadID(ActionCustom.name, s_key2 ?? '')
+        const s_id3 = s.loadID(EventDefault.name, s_key3 ?? '')
+        const s_classes = s.loadIDClasses([s_id1, s_id2, s_id3])
+
+        assertEquals(Object.values(a_classes), Object.values(s_classes))
     })
 })
 

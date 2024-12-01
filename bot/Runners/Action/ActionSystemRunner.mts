@@ -1,4 +1,4 @@
-import {ActionSystem, ActionSystemRewardState, ConfigCommands, DataUtils, EventDefault, IActionCallback, IActionUser, TriggerReward} from '../../../lib-shared/index.mts'
+import {ActionSystem, ActionSystemRewardState, ConfigCommands, DataUtils, EventDefault, IActionCallback, IActionUser, TriggerReward} from '../../../lib/index.mts'
 import {ActionHandler} from '../../Classes/Actions.mts'
 import ActionsCallbacks from '../../Classes/ActionsCallbacks.mts'
 import Color from '../../Constants/ColorConstants.mts'

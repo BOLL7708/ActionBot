@@ -1,5 +1,5 @@
-import {IActionCallback, IActionUser} from '../../../lib-shared/index.mts'
-import {ActionLabel} from '../../../lib-shared/index.mts'
+import {IActionCallback, IActionUser} from '../../../lib/index.mts'
+import {ActionLabel} from '../../../lib/index.mts'
 import TextHelper from '../../Helpers/TextHelper.mts'
 import ArrayUtils from '../../Utils/ArrayUtils.mts'
 import DataFileUtils from '../../Utils/DataFileUtils.mts'

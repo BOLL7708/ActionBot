@@ -1,6 +1,6 @@
 import Utils from '../Utils/Utils.mts'
 import DatabaseHelper from './DatabaseHelper.mts'
-import {SettingSteamGame} from '../../lib-shared/index.mts'
+import {SettingSteamGame} from '../../lib/index.mts'
 
 export default class SteamStoreHelper {
     static _gameCache: Map<number, ISteamStoreGameData> = new Map()

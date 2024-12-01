@@ -2,9 +2,9 @@ import {assert, assertEquals} from 'jsr:@std/assert'
 import Log, {EEasyDebugLogLevel} from '../EasyTSUtils/Log.mts'
 import DatabaseHelper, {IDatabaseItem} from '../Helpers/DatabaseHelper.mts'
 import DataBaseHelper_OLD, {IDataBaseListItems, type IDataBaseListItem} from '../Helpers/DataBaseHelper_OLD.mts'
-import {IDictionary} from '../../lib-shared/Types/Dictionary.mts'
+import {IDictionary} from '../../lib/Types/Dictionary.mts'
 import DatabaseSingleton from '../Singletons/DatabaseSingleton.mts'
-import {ActionAudio, ActionChat, ActionCustom, ActionLabel, ConfigController, ConfigMain, ConfigSpeech, DataEntries, EnlistData, EventDefault, PresetAudioChannel} from '../../lib-shared/index.mts'
+import {ActionAudio, ActionChat, ActionCustom, ActionLabel, ConfigController, ConfigMain, ConfigSpeech, DataEntries, EnlistData, EventDefault, PresetAudioChannel} from '../../lib/index.mts'
 
 Deno.test('init', async () => {
     EnlistData.run()

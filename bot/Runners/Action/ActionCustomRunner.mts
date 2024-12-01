@@ -1,6 +1,6 @@
 import ModulesSingleton from '../../../bot/Singletons/ModulesSingleton.mts'
 import Utils from '../../../bot/Utils/Utils.mts'
-import {ActionCustom, IActionCallback, IActionUser} from '../../../lib-shared/index.mts'
+import {ActionCustom, IActionCallback, IActionUser} from '../../../lib/index.mts'
 
 // deno-lint-ignore require-await
 ActionCustom.prototype.build = async function <T>(key: string, instance: T): Promise<IActionCallback> {

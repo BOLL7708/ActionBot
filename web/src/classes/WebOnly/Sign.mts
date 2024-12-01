@@ -1,5 +1,5 @@
-import {ActionSign} from '../../../../lib-shared/index.mts'
-import {ConfigSign} from '../../../../lib-shared/index.mts'
+import {ActionSign} from '../../../../lib/index.mts'
+import {ConfigSign} from '../../../../lib/index.mts'
 import DatabaseHelper from '../../../../bot/Helpers/DatabaseHelper.mts'
 import Utils from '../../../../bot/Utils/Utils.mts'
 import Color from '../../../../bot/Constants/ColorConstants.mts'

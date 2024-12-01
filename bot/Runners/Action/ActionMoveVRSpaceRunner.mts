@@ -1,4 +1,4 @@
-import {ActionMoveVRSpace, IActionCallback, IActionUser} from '../../../lib-shared/index.mts'
+import {ActionMoveVRSpace, IActionCallback, IActionUser} from '../../../lib/index.mts'
 import {IOpenVR2WSMoveSpace, IOpenVR2WSMoveSpaceEntry} from '../../Classes/Api/OpenVR2WS.mts'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.mts'
 import Utils from '../../Utils/Utils.mts'

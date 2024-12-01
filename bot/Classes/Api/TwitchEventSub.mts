@@ -2,7 +2,7 @@ import Color from '../../Constants/ColorConstants.mts'
 import WebSockets from '../Client/WebSockets.mts'
 import Utils from '../../Utils/Utils.mts'
 import TwitchHelixHelper from '../../Helpers/TwitchHelixHelper.mts'
-import {SettingTwitchRedemption} from '../../../lib-shared/index.mts'
+import {SettingTwitchRedemption} from '../../../lib/index.mts'
 import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 import {ActionHandler, Actions} from '../Actions.mts'
 

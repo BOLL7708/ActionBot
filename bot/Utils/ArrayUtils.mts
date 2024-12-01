@@ -1,4 +1,4 @@
-import {OptionEntryUsage} from '../../lib-shared/index.mts'
+import {OptionEntryUsage} from '../../lib/index.mts'
 
 export default class ArrayUtils {
     /**

@@ -1,4 +1,4 @@
-import {ConfigServer} from '../../../lib-shared/Objects/Data/Config/ConfigServer.mts'
+import {ConfigServer} from '../../../lib/Objects/Data/Config/ConfigServer.mts'
 import HttpServer from '../../EasyTSUtils/HttpServer.mts'
 import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 

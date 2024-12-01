@@ -1,4 +1,4 @@
-import { ActionSign, ConfigSign } from '../../../lib-shared/index.mts'
+import { ActionSign, ConfigSign } from '../../../lib/index.mts'
 import Color from '../../Constants/ColorConstants.mts'
 import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 import Utils from '../../Utils/Utils.mts'

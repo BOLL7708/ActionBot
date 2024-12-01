@@ -1,4 +1,4 @@
-import { ActionAudio, DataUtils, PresetAudioChannel } from '../../../lib-shared/index.mts'
+import { ActionAudio, DataUtils, PresetAudioChannel } from '../../../lib/index.mts'
 import Utils from '../../Utils/Utils.mts'
 
 export default class AudioPlayer {

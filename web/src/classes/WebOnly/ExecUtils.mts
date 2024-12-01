@@ -1,8 +1,8 @@
-import {TRunType} from '../../../../lib-shared/Types/Exec.mts'
+import {TRunType} from '../../../../lib/Types/Exec.mts'
 import BrowserUtils from '../Client/BrowserUtils.mts'
 import Utils from '../../../../bot/Utils/Utils.mts'
-import {OptionCommandType} from '../../../../lib-shared/index.mts'
-import {ActionInput} from '../../../../lib-shared/index.mts'
+import {OptionCommandType} from '../../../../lib/index.mts'
+import {ActionInput} from '../../../../lib/index.mts'
 
 export default class ExecUtils {
     static runCommand(window: string, type: TRunType, command: string, postfixEnterStroke: boolean = true) {

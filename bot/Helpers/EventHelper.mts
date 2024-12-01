@@ -1,9 +1,9 @@
-import {AbstractTrigger} from '../../lib-shared/index.mts'
-import {DataUtils} from '../../lib-shared/index.mts'
-import {TriggerReward} from '../../lib-shared/index.mts'
+import {AbstractTrigger} from '../../lib/index.mts'
+import {DataUtils} from '../../lib/index.mts'
+import {TriggerReward} from '../../lib/index.mts'
 import DatabaseHelper from './DatabaseHelper.mts'
-import {IDictionary} from '../../lib-shared/Types/Dictionary.mts'
-import {EventDefault} from '../../lib-shared/index.mts'
+import {IDictionary} from '../../lib/Types/Dictionary.mts'
+import {EventDefault} from '../../lib/index.mts'
 
 export default class EventHelper {
     static async getAllTriggersOfType<T>(triggerInstance: T&AbstractTrigger): Promise<(T&AbstractTrigger)[]> {

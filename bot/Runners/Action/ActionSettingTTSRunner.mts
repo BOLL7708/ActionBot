@@ -1,4 +1,4 @@
-import {ActionSettingTTS, DataUtils, IActionCallback, IActionUser, OptionTTSFunctionType, SettingDictionaryEntry, SettingUser, SettingUserMute, SettingUserName} from '../../../lib-shared/index.mts'
+import {ActionSettingTTS, DataUtils, IActionCallback, IActionUser, OptionTTSFunctionType, SettingDictionaryEntry, SettingUser, SettingUserMute, SettingUserName} from '../../../lib/index.mts'
 import {EEventSource} from '../../Classes/Enums.mts'
 import Color from '../../Constants/ColorConstants.mts'
 import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'

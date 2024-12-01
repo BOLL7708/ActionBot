@@ -1,3 +1,4 @@
+// TODO: Migrate bot dependencies to shared
 import Color from '../../../bot/Constants/ColorConstants.mts'
 import {IStringDictionary} from '../../Types/Dictionary.mts'
 import Utils from '../../../bot/Utils/Utils.mts'

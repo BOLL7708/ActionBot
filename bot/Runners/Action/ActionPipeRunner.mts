@@ -1,4 +1,4 @@
-import {ActionPipe, DataUtils, IActionCallback, IActionUser} from '../../../lib-shared/index.mts'
+import {ActionPipe, DataUtils, IActionCallback, IActionUser} from '../../../lib/index.mts'
 import AssetsHelper from '../../Helpers/AssetsHelper.mts'
 import TextHelper from '../../Helpers/TextHelper.mts'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.mts'

@@ -1,4 +1,4 @@
 import IndexGenerator from './Tools/IndexGenerator.mts'
 
-IndexGenerator.run('../lib-shared')
+IndexGenerator.run('../lib')
 IndexGenerator.run('../bot/Runners')

@@ -1,4 +1,4 @@
-import {ActionURI, IActionCallback, IActionUser} from '../../../lib-shared/index.mts'
+import {ActionURI, IActionCallback, IActionUser} from '../../../lib/index.mts'
 import TextHelper from '../../Helpers/TextHelper.mts'
 import ArrayUtils from '../../Utils/ArrayUtils.mts'
 import Utils from '../../Utils/Utils.mts'

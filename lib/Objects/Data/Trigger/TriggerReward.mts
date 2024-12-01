@@ -53,7 +53,7 @@ export class TriggerReward extends AbstractTrigger {
                         if(entries.length > 0) {
                             const entry = entries[0]
                             const response = await TwitchHelixHelper.createReward(entry)
-                            if(response.data && response.data.length > 0) {
+                            if(response?.data && response.data.length > 0) {
                                 const rewardData = response.data[0]
                                 const settingReward = new SettingTwitchReward()
                                 settingReward.key = rewardData.title
@@ -66,7 +66,7 @@ export class TriggerReward extends AbstractTrigger {
                                         result.data = item.id
                                     } else result.message = 'Failed to load the reward from the database.'
                                 } else result.message = 'Failed to save the reward to the database.'
-                            } else result.message = `Failed to create the reward on Twitch, [${response.error}]: ${response.message}`
+                            } else result.message = `Failed to create the reward on Twitch, [${response?.error}]: ${response?.message}`
                         } else result.message = 'No reward entries found, this is needed to create the reward.'
                         return result
                     }

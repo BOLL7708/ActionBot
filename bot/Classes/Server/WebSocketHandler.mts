@@ -1,4 +1,4 @@
-import {ConfigServer} from '../../../lib-shared/Objects/Data/Config/ConfigServer.mts'
+import {ConfigServer} from '../../../lib/Objects/Data/Config/ConfigServer.mts'
 import Log from '../../EasyTSUtils/Log.mts'
 import WebSocketServer, {IWebSocketServerSession} from '../../EasyTSUtils/WebSocketServer.mts'
 import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'

@@ -1,7 +1,7 @@
 import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
-import {DataUtils} from '../../lib-shared/index.mts'
+import {DataUtils} from '../../lib/index.mts'
 import Utils from './Utils.mts'
-import {ConfigDiscord} from '../../lib-shared/index.mts'
+import {ConfigDiscord} from '../../lib/index.mts'
 
 enum EResponseState {
     OK,

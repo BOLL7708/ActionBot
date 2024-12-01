@@ -1,6 +1,7 @@
 import {AbstractData, DataEntries, DataRefValues} from './AbstractData.mts'
 import {DataMap} from './DataMap.mts'
 import {IDictionary, INumberDictionary, IStringDictionary} from '../../Types/Dictionary.mts'
+// TODO: Migrate bot dependencies to shared (or something... oh cheese we use DB here wut)
 import {IDatabaseItem} from '../../../bot/Helpers/DatabaseHelper.mts'
 import Utils from '../../../bot/Utils/Utils.mts'
 

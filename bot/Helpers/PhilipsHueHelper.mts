@@ -1,11 +1,11 @@
-import {ConfigPhilipsHue} from '../../lib-shared/index.mts'
+import {ConfigPhilipsHue} from '../../lib/index.mts'
 import DatabaseHelper from './DatabaseHelper.mts'
-import {INumberDictionary} from '../../lib-shared/Types/Dictionary.mts'
+import {INumberDictionary} from '../../lib/Types/Dictionary.mts'
 
 import Utils from '../Utils/Utils.mts'
 
 import Color from '../Constants/ColorConstants.mts'
-import { PresetPhilipsHueBulb, PresetPhilipsHuePlug } from '../../lib-shared/index.mts'
+import { PresetPhilipsHueBulb, PresetPhilipsHuePlug } from '../../lib/index.mts'
 
 export default class PhilipsHueHelper {
     private static async getBaseUrl() {

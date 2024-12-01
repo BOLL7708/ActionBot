@@ -1,5 +1,5 @@
 import SessionVars from '../../../bot/Classes/Data/SessionVars.mts'
-import {ActionChat, IActionCallback, IActionUser, SettingTwitchTokens} from '../../../lib-shared/index.mts'
+import {ActionChat, IActionCallback, IActionUser, SettingTwitchTokens} from '../../../lib/index.mts'
 import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 import TextHelper from '../../Helpers/TextHelper.mts'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.mts'

@@ -1,4 +1,4 @@
-import {ConfigController, ConfigSteam, DataUtils, EnlistData, SettingAccumulatingCounter, SettingDictionaryEntry, SettingIncrementingCounter, SettingStreamQuote, SettingTwitchClip, SettingTwitchRedemption, SettingTwitchReward, SettingTwitchTokens, SettingUser} from '../../lib-shared/index.mts'
+import {ConfigController, ConfigSteam, DataUtils, EnlistData, SettingAccumulatingCounter, SettingDictionaryEntry, SettingIncrementingCounter, SettingStreamQuote, SettingTwitchClip, SettingTwitchRedemption, SettingTwitchReward, SettingTwitchTokens, SettingUser} from '../../lib/index.mts'
 // import PasswordForm from '../../web/src/classes/PasswordForm.mts'
 import Color from '../Constants/ColorConstants.mts'
 import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
@@ -37,7 +37,7 @@ export default class MainController {
         const modules = ModulesSingleton.getInstance()
         modules.tts.setDictionary(DataUtils.getKeyDataDictionary(dictionarySettings ?? {}))
 
-
+        return // TODO: Modules below use browser components, need to migrate/disable those.
         await TwitchHelixHelper.loadNamesForUsersWhoLackThem()
 
         // region Init

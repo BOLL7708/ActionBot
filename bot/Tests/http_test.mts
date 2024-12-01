@@ -1,5 +1,5 @@
 import {assert} from 'jsr:@std/assert'
-import {EnlistData} from '../../lib-shared/index.mts'
+import {EnlistData} from '../../lib/index.mts'
 import HttpServer from '../EasyTSUtils/HttpServer.mts'
 import Log, {EEasyDebugLogLevel} from '../EasyTSUtils/Log.mts'
 

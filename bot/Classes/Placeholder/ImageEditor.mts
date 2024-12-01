@@ -1,4 +1,4 @@
-import { ConfigImageEditorFontSettings, ConfigImageEditorOutline, ConfigImageEditorRect } from '../../../lib-shared/index.mts'
+import { ConfigImageEditorFontSettings, ConfigImageEditorOutline, ConfigImageEditorRect } from '../../../lib/index.mts'
 import Utils from '../../Utils/Utils.mts'
 import {ITwitchMessageData} from '../Api/Twitch.mts'
 

@@ -1,4 +1,4 @@
-import {ActionSpeech, DataUtils, IActionCallback, IActionUser, SettingTwitchTokens} from '../../../lib-shared/index.mts'
+import {ActionSpeech, DataUtils, IActionCallback, IActionUser, SettingTwitchTokens} from '../../../lib/index.mts'
 import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 import TextHelper from '../../Helpers/TextHelper.mts'
 import TwitchHelixHelper from '../../Helpers/TwitchHelixHelper.mts'

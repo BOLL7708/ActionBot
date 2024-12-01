@@ -1,7 +1,7 @@
 import DatabaseHelper from './DatabaseHelper.mts'
 import Utils from '../Utils/Utils.mts'
 import Color from '../Constants/ColorConstants.mts'
-import {SettingTwitchClient, SettingTwitchTokens} from '../../lib-shared/index.mts'
+import {SettingTwitchClient, SettingTwitchTokens} from '../../lib/index.mts'
 
 export default class TwitchTokensHelper {
     /**

@@ -1,4 +1,4 @@
-import Chalk from '../../../lib-core/Constants/Chalk.mts'
+import Chalk from '../../../bot/Constants/Chalk.mts'
 import * as index from '../../index.mts'
 import {AbstractData} from './AbstractData.mts'
 

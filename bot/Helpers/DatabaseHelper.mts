@@ -1,6 +1,6 @@
-import {AbstractData, DataMap} from '../../lib-shared/index.mts'
+import {AbstractData, DataMap} from '../../lib/index.mts'
 import Log from '../EasyTSUtils/Log.mts'
-import {IDictionary, INumberDictionary, IStringDictionary} from '../../lib-shared/Types/Dictionary.mts'
+import {IDictionary, INumberDictionary, IStringDictionary} from '../../lib/Types/Dictionary.mts'
 import DatabaseSingleton, {TDatabaseQueryInput} from '../Singletons/DatabaseSingleton.mts'
 import Utils from '../Utils/Utils.mts'
 

@@ -15,7 +15,7 @@ import {
     SettingStreamQuote, SettingTwitchClip,
     SettingTwitchRedemption,
     SettingTwitchTokens, TriggerCommand, TriggerReward
-} from '../../lib-shared/index.mts'
+} from '../../lib/index.mts'
 import ModulesSingleton from '../Singletons/ModulesSingleton.mts'
 import StatesSingleton from '../Singletons/StatesSingleton.mts'
 import DatabaseHelper from '../Helpers/DatabaseHelper.mts'

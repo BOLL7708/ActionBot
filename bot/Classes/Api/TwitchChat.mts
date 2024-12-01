@@ -1,10 +1,10 @@
 import WebSockets from '../Client/WebSockets.mts'
 import TwitchHelixHelper from '../../Helpers/TwitchHelixHelper.mts'
-import {DataUtils} from '../../../lib-shared/index.mts'
+import {DataUtils} from '../../../lib/index.mts'
 import Utils from '../../Utils/Utils.mts'
 import TwitchFactory, {ITwitchMessageCmd} from '../Data/TwitchFactory.mts'
 import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
-import {SettingTwitchTokens} from '../../../lib-shared/index.mts'
+import {SettingTwitchTokens} from '../../../lib/index.mts'
 
 export default class TwitchChat {
     private LOG_COLOR: string = 'purple'

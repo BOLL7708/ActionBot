@@ -1,4 +1,4 @@
-import {ConfigImageEditorFontSettings, ConfigImageEditorOutline, ConfigImageEditorRect} from '../../../../lib-shared/index.mts'
+import {ConfigImageEditorFontSettings, ConfigImageEditorOutline, ConfigImageEditorRect} from '../../../../lib/index.mts'
 import BrowserUtils from '../Client/BrowserUtils.mts'
 import Color from '../../../../bot/Constants/ColorConstants.mts'
 import ImageHelper from '../../../../bot/Helpers/ImageHelper.mts'

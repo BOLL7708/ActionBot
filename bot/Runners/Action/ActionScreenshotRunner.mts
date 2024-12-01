@@ -1,4 +1,4 @@
-import {ActionScreenshot, ConfigScreenshots, DataUtils, IActionCallback, IActionUser, OptionScreenshotType} from '../../../lib-shared/index.mts'
+import {ActionScreenshot, ConfigScreenshots, DataUtils, IActionCallback, IActionUser, OptionScreenshotType} from '../../../lib/index.mts'
 import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.mts'
 import StatesSingleton from '../../Singletons/StatesSingleton.mts'

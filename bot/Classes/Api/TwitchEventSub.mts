@@ -1,5 +1,5 @@
 import Color from '../../Constants/ColorConstants.mts'
-import WebSockets from '../Web/WebSockets.mts'
+import WebSockets from '../Client/WebSockets.mts'
 import Utils from '../../Utils/Utils.mts'
 import TwitchHelixHelper from '../../Helpers/TwitchHelixHelper.mts'
 import {SettingTwitchRedemption} from '../../../lib-shared/index.mts'

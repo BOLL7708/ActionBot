@@ -1,5 +1,5 @@
 import {ConfigOpenVR2WS} from '../../../lib-shared/index.mts'
-import WebSockets from '../Web/WebSockets.mts'
+import WebSockets from '../Client/WebSockets.mts'
 import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 import Utils from '../../Utils/Utils.mts'
 import {ActionSettingVR} from '../../../lib-shared/index.mts'

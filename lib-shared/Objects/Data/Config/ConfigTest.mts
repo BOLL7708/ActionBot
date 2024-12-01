@@ -1,5 +1,5 @@
 import {AbstractData, DataEntries} from '../AbstractData.mts'
-import {IBooleanDictionary, IDictionary, INumberDictionary, IStringDictionary} from '../../../../bot/Interfaces/igeneral.mts'
+import {IBooleanDictionary, IDictionary, INumberDictionary, IStringDictionary} from '../../../Types/Dictionary.mts'
 import {DataMap} from '../DataMap.mts'
 import {PresetText} from '../Preset/PresetText.mts'
 

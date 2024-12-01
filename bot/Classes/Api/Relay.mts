@@ -1,6 +1,6 @@
 import Color from '../../Constants/ColorConstants.mts'
 import {ActionHandler} from '../Actions.mts'
-import WebSockets from '../Web/WebSockets.mts'
+import WebSockets from '../Client/WebSockets.mts'
 import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 import Utils from '../../Utils/Utils.mts'
 import {ConfigRelay} from '../../../lib-shared/index.mts'

@@ -1,0 +1,32 @@
+{
+  "lock": true,
+  "nodeModulesDir": "auto",
+  "compilerOptions": {
+    "strict": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+    "strictBindCallApply": true
+  },
+  "tasks": {
+    "install": "deno install",
+    "generate": "cd ../dev && deno run --allow-read --allow-write generate.mts",
+    "test": "deno task generate && deno test --allow-all --trace-leaks --watch",
+    "dev": "deno run -A --watch main.mts",
+    "run": "todo",
+    "first-run": "deno task install && deno task generate && deno task run"
+  },
+  "imports": {
+    "@std/assert": "jsr:@std/assert@1",
+    "@std/http": "jsr:@std/http@1",
+    "$std/": "https://deno.land/std@0.216.0/",
+    "@db/sqlite": "jsr:@db/sqlite@^0.12.0",
+    "chalk": "npm:chalk@^5.3.0"
+  },
+  "fmt": {
+    "lineWidth": 120,
+    "semiColons": false,
+    "singleQuote": true,
+    "indentWidth": 4
+  }
+}

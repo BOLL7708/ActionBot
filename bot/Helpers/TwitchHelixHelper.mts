@@ -16,7 +16,7 @@ export default class TwitchHelixHelper {
     static _channelVIPCache: Map<number, boolean> = new Map()
     static _channelModeratorCache: Map<number, boolean> = new Map()
 
-    private static async getAuthHeaders(addJsonHeader: boolean = false): Promise<Headers> {
+    private static getAuthHeaders(addJsonHeader: boolean = false): Headers {
         const tokens = DatabaseHelper.load<SettingTwitchTokens>(new SettingTwitchTokens(), 'Channel')
         const client = DatabaseHelper.load<SettingTwitchClient>(new SettingTwitchClient(), 'Main')
         const headers = new Headers()

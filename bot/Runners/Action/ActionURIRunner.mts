@@ -1,8 +1,6 @@
-import {IActionCallback, IActionUser} from '../../../lib-shared/index.mts'
-import {ActionURI} from '../../../lib-shared/index.mts'
+import {ActionURI, IActionCallback, IActionUser} from '../../../lib-shared/index.mts'
 import TextHelper from '../../Helpers/TextHelper.mts'
 import ArrayUtils from '../../Utils/ArrayUtils.mts'
-import ExecUtils from '../../Utils/ExecUtils.mts'
 import Utils from '../../Utils/Utils.mts'
 
 // deno-lint-ignore require-await
@@ -30,7 +28,8 @@ ActionURI.prototype.build = async function <T>(key: string, instance: T): Promis
                await fetch(uri, {mode: 'no-cors'})
                console.log(`ActionURI: Loaded URL: ${uri}`)
             } else {
-               ExecUtils.loadCustomURI(uri)
+               // TODO: Do something about this.
+               // ExecUtils.loadCustomURI(uri)
                console.log(`ActionURI: Loaded URI: ${uri}`)
             }
          }

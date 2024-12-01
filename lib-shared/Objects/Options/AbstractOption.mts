@@ -1,4 +1,4 @@
-import {IStringDictionary} from '../../../bot/Interfaces/igeneral.mts'
+import {IStringDictionary} from '../../Types/Dictionary.mts'
 
 export abstract class AbstractOption {
     /**

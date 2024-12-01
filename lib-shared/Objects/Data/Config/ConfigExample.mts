@@ -1,6 +1,6 @@
 import {AbstractData, DataEntries} from '../AbstractData.mts'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.mts'
-import {IBooleanDictionary, IDictionary, INumberDictionary, IStringDictionary} from '../../../../bot/Interfaces/igeneral.mts'
+import {IBooleanDictionary, IDictionary, INumberDictionary, IStringDictionary} from '../../../Types/Dictionary.mts'
 import {DataMap} from '../DataMap.mts'
 import {DataUtils} from '../DataUtils.mts'
 import {PresetPipeBasic} from '../Preset/PresetPipe.mts'

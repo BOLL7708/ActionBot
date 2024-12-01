@@ -13,9 +13,9 @@ ActionLabel.prototype.build = async function <T>(key: string, instance: T): Prom
          const clone = Utils.clone(instance as ActionLabel)
          for (const text of ArrayUtils.getAsType(clone.textEntries, clone.textEntries_use)) {
             if (clone.append) {
-               await DataFileUtils.appendText(clone.fileName, await TextHelper.replaceTagsInText(text, user))
+               DataFileUtils.appendText(clone.fileName, await TextHelper.replaceTagsInText(text, user))
             } else {
-               await DataFileUtils.writeText(clone.fileName, await TextHelper.replaceTagsInText(text, user))
+               DataFileUtils.writeText(clone.fileName, await TextHelper.replaceTagsInText(text, user))
             }
          }
       }

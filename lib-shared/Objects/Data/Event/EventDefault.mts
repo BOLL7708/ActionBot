@@ -4,7 +4,7 @@ import {DataMap} from '../DataMap.mts'
 import {PresetEventCategory} from '../Preset/PresetEventCategory.mts'
 import {AbstractTrigger} from '../Trigger/AbstractTrigger.mts'
 import {DataUtils} from '../DataUtils.mts'
-import {IDictionary} from '../../../../bot/Interfaces/igeneral.mts'
+import {IDictionary} from '../../../Types/Dictionary.mts'
 import {OptionEventRun} from '../../Options/OptionEventRun.mts'
 import {AbstractAction} from '../Action/AbstractAction.mts'
 

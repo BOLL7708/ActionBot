@@ -2,7 +2,7 @@ import {AbstractTrigger} from '../../lib-shared/index.mts'
 import {DataUtils} from '../../lib-shared/index.mts'
 import {TriggerReward} from '../../lib-shared/index.mts'
 import DatabaseHelper from './DatabaseHelper.mts'
-import {IDictionary} from '../Interfaces/igeneral.mts'
+import {IDictionary} from '../../lib-shared/Types/Dictionary.mts'
 import {EventDefault} from '../../lib-shared/index.mts'
 
 export default class EventHelper {

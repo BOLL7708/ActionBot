@@ -1,4 +1,4 @@
-import {INumberDictionary} from '../../../../bot/Interfaces/igeneral.mts'
+import {INumberDictionary} from '../../../Types/Dictionary.mts'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.mts'
 import {OptionSystemActionType} from '../../Options/OptionSystemActionType.mts'
 import {OptionTwitchRewardUsable, OptionTwitchRewardVisible} from '../../Options/OptionTwitch.mts'

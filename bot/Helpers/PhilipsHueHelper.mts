@@ -1,6 +1,6 @@
 import {ConfigPhilipsHue} from '../../lib-shared/index.mts'
 import DatabaseHelper from './DatabaseHelper.mts'
-import {INumberDictionary} from '../Interfaces/igeneral.mts'
+import {INumberDictionary} from '../../lib-shared/Types/Dictionary.mts'
 
 import Utils from '../Utils/Utils.mts'
 

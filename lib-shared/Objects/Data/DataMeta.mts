@@ -1,4 +1,4 @@
-import {IDictionary, IStringDictionary} from '../../../bot/Interfaces/igeneral.mts'
+import {IDictionary, IStringDictionary} from '../../Types/Dictionary.mts'
 
 export class DataMeta {
     public description?: string

@@ -1,7 +1,7 @@
 import {AbstractData} from '../AbstractData.mts'
 import {ConfigCleanText} from './ConfigCleanText.mts'
 import {DataMap} from '../DataMap.mts'
-import {IDictionary} from '../../../../bot/Interfaces/igeneral.mts'
+import {IDictionary} from '../../../Types/Dictionary.mts'
 
 export class ConfigSpeech extends AbstractData {
     googleApiKey: string = ''

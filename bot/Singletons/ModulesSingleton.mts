@@ -7,8 +7,9 @@ import SuperScreenShotterVR from '../Classes/Api/SuperScreenShotterVR.mts'
 import Twitch from '../Classes/Api/Twitch.mts'
 import TwitchEventSub from '../Classes/Api/TwitchEventSub.mts'
 import StreamDeckRelay from '../Classes/Data/StreamDeckRelay.mts'
-import AudioPlayer from '../Classes/Web/AudioPlayer.mts'
-import Sign from '../Classes/Web/Sign.mts'
+import AudioPlayer from '../Classes/Placeholder/AudioPlayer.mts'
+import Sign from '../Classes/Placeholder/Sign.mts'
+import Http from '../Classes/Server/Http.mts'
 
 /**
  * Contains instances of various modules
@@ -20,7 +21,12 @@ export default class ModulesSingleton {
         if (!this._instance) this._instance = new ModulesSingleton();
         return this._instance;
     }
+    // region Servers
+    public http = new Http()
 
+    // endregion
+
+    // region Clients
     public twitch = new Twitch()
     public twitchEventSub = new TwitchEventSub()
     public tts = new GoogleTTS()
@@ -32,4 +38,6 @@ export default class ModulesSingleton {
     public sign = new Sign()
     public relay = new Relay()
     public streamDeckRelay = new StreamDeckRelay()
+
+    // endregion
 }

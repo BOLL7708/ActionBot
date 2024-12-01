@@ -1,4 +1,4 @@
-import WebSockets from '../Web/WebSockets.mts'
+import WebSockets from '../Client/WebSockets.mts'
 import {ConfigOBS} from '../../../lib-shared/index.mts'
 import {IScreenshotRequestData} from '../../../lib-shared/index.mts'
 import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'

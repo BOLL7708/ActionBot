@@ -1,6 +1,6 @@
 import {AbstractData, DataMap} from '../../lib-shared/index.mts'
 import Log from '../EasyTSUtils/Log.mts'
-import {IDictionary, INumberDictionary, IStringDictionary} from '../Interfaces/igeneral.mts'
+import {IDictionary, INumberDictionary, IStringDictionary} from '../../lib-shared/Types/Dictionary.mts'
 import DatabaseSingleton, {TDatabaseQueryInput} from '../Singletons/DatabaseSingleton.mts'
 import Utils from '../Utils/Utils.mts'
 
@@ -285,14 +285,14 @@ export default class DatabaseHelper {
         return undefined
     }
 
-    static async loadOrEmpty<T>(
+    static loadOrEmpty<T>(
         emptyInstance: T&AbstractData,
         key: string,
         parentId?: number,
         ignoreCache?: boolean
-    ): Promise<T> {
+    ): T {
         // Filled can always be true as this is not used in the editor
-        return await this.load(emptyInstance, key, parentId, true, ignoreCache) ?? emptyInstance
+        return this.load(emptyInstance, key, parentId, true, ignoreCache) ?? emptyInstance
     }
 
     /**

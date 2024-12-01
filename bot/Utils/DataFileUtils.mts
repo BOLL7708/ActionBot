@@ -1,57 +1,54 @@
-import BrowserUtils from '../../web_old/Client/BrowserUtils.mts'
+import Log from '../EasyTSUtils/Log.mts'
 
 export default class DataFileUtils {
-    static async writeData(path: string, data: any): Promise<boolean> {
-        const response = await fetch(`_data.php?path=${path}`,
-            {
-                method: 'POST',
-                headers: {
-                    Authorization: BrowserUtils.getAuth(),
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })
-        if(!response.ok) console.warn(`Could not write data: ${path}`)
-        return response.ok
-    }
-    static async writeText(path: string, text: string): Promise<boolean> {
-        const response = await fetch(`_data.php?path=${path}`,
-            {
-                method: 'POST',
-                headers: {
-                    Authorization: BrowserUtils.getAuth(),
-                    'Content-Type': 'plain/text'
-                },
-                body: text
-            })
-        if(!response.ok) console.warn(`Could not write text: ${path}`)
-        return response.ok
-    }
-    static async appendText(path: string, text: string): Promise<boolean> {
-        const response = await fetch(`_data.php?path=${path}`,
-            {
-                method: 'PUT',
-                headers: {
-                    Authorization: BrowserUtils.getAuth(),
-                    'Content-Type': 'plain/text'
-                },
-                body: text
-            })
-        if(!response.ok) console.warn(`Could not append text: ${path}`)
-        return response.ok
-    }
-    static async readData<T>(path: string): Promise<T|string|undefined> {
-        const response = await fetch(`_data.php?path=${path}`, BrowserUtils.getAuthInit())
-        if(!response.ok) {
-            console.warn(`Could not read: ${path}`)
-            return undefined
+    private static readonly TAG = this.name
+
+    static writeData(path: string, data: any): boolean {
+        try {
+            Deno.writeFileSync(path, data)
+            return true
+        } catch(e) {
+            Log.e(this.TAG, 'Failed to write file with data', e)
         }
-        const contentType = response.headers.get("content-type")
-        if (contentType && contentType.indexOf("application/json") > -1) {
-            return await response.json() as T
-        } else {
-            return await response.text()
+        return false
+    }
+    static writeText(path: string, text: string): boolean {
+        try {
+            Deno.writeTextFileSync(path, text)
+            return true
+        } catch(e) {
+            Log.e(this.TAG, 'Failed to write file with text', e)
         }
+        return false
+    }
+    static appendText(path: string, text: string): boolean {
+        try {
+            Deno.writeTextFileSync(path, text, {append: true})
+            return true
+        } catch(e) {
+            Log.e(this.TAG, 'Failed to append file with text', e)
+        }
+        return false
+    }
+    static readData<T>(path: string): T|string|undefined {
+        const textDecoder = new TextDecoder()
+        let text = ''
+        try {
+            const fileData = Deno.readFileSync(path)
+            text = textDecoder.decode(fileData)
+        } catch(e) {
+            Log.e(this.TAG, 'Failed to read file with data', e)
+        }
+        if(!text.trim().length) return undefined
+
+        let data: any
+        try {
+            data = JSON.parse(text)
+            return data as T
+        } catch(e) {
+            Log.w(this.TAG, 'Failed to parse data from file', e)
+        }
+        return text
     }
 }
 

@@ -1,7 +1,7 @@
 import {Database} from '@db/sqlite'
 import Log from '../EasyTSUtils/Log.mts'
 import {IDatabaseRow} from '../Helpers/DatabaseHelper.mts'
-import {IDictionary} from '../Interfaces/igeneral.mts'
+import {IDictionary} from '../../lib-shared/Types/Dictionary.mts'
 
 export default class DatabaseSingleton {
     private static _instance: DatabaseSingleton
@@ -22,7 +22,7 @@ export default class DatabaseSingleton {
 
     private TAG = this.constructor.name
     private constructor(isTest: boolean = false) {
-        const dir = './_user/db'
+        const dir = '../_user/db'
         Deno.mkdirSync(dir, {recursive: true})
         const file = isTest ? 'test.sqlite' : 'main.sqlite'
         this._dbPath = `${dir}/${file}`
@@ -41,7 +41,7 @@ export default class DatabaseSingleton {
             // Check if table exists
             const tableName = db.prepare(`SELECT name FROM sqlite_master WHERE type='table' AND name=:name`).value({name: 'json_store'})
             if (!tableName) {
-                const sqlBuffer = Deno.readFileSync('./sql/structure.sql')
+                const sqlBuffer = Deno.readFileSync('../sql/structure.sql')
                 const sqlStr = new TextDecoder().decode(sqlBuffer)
                 db.run(sqlStr)
                 Log.i(this.TAG, 'Table not found, ran import.')

@@ -1,5 +1,5 @@
+import {TRunType} from '../../Types/Exec.mts'
 import {AbstractOption} from './AbstractOption.mts'
-import {TRunType} from '../../../bot/Utils/ExecUtils.mts'
 import {OptionsMap} from './OptionsMap.mts'
 
 export class OptionCommandType extends AbstractOption {

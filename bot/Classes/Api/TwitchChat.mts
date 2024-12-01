@@ -1,4 +1,4 @@
-import WebSockets from '../Web/WebSockets.mts'
+import WebSockets from '../Client/WebSockets.mts'
 import TwitchHelixHelper from '../../Helpers/TwitchHelixHelper.mts'
 import {DataUtils} from '../../../lib-shared/index.mts'
 import Utils from '../../Utils/Utils.mts'

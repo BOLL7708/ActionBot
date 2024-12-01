@@ -19,3 +19,4 @@ export async function bot() {
     // new Temp()
     await MainController.init()
 }
+bot().then()

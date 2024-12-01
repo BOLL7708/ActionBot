@@ -1,6 +1,6 @@
 import Utils from '../../Utils/Utils.mts'
 import {ITwitchEventSubEmote} from '../Api/TwitchEventSub.mts'
-import {INumberDictionary} from '../../Interfaces/igeneral.mts'
+import {INumberDictionary} from '../../../lib-shared/Types/Dictionary.mts'
 import Twitch from '../Api/Twitch.mts'
 
 export default class TwitchFactory {

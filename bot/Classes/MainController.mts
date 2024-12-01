@@ -1,13 +1,11 @@
 import {ConfigController, ConfigSteam, DataUtils, EnlistData, SettingAccumulatingCounter, SettingDictionaryEntry, SettingIncrementingCounter, SettingStreamQuote, SettingTwitchClip, SettingTwitchRedemption, SettingTwitchReward, SettingTwitchTokens, SettingUser} from '../../lib-shared/index.mts'
-import PasswordForm from '../../web_old/PasswordForm.mts'
+// import PasswordForm from '../../web/src/classes/PasswordForm.mts'
 import Color from '../Constants/ColorConstants.mts'
-import Log from '../EasyTSUtils/Log.mts'
 import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
 import TwitchHelixHelper from '../Helpers/TwitchHelixHelper.mts'
 import TwitchTokensHelper from '../Helpers/TwitchTokensHelper.mts'
 import ModulesSingleton from '../Singletons/ModulesSingleton.mts'
 import StatesSingleton from '../Singletons/StatesSingleton.mts'
-import AuthUtils from '../Utils/AuthUtils.mts'
 import Utils from '../Utils/Utils.mts'
 import {Actions} from './Actions.mts'
 import Callbacks from './Callbacks.mts'
@@ -18,9 +16,10 @@ export default class MainController {
     public static async init() {
         EnlistData.run()
 
-        const authed = await AuthUtils.checkIfAuthed()
+        // const authed = await AuthUtils.checkIfAuthed()
+        const authed = true
         if(!authed) {
-            PasswordForm.spawn()
+            // PasswordForm.spawn()
             return
         }
 

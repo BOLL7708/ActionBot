@@ -1,5 +1,5 @@
 import {AbstractData} from './AbstractData.mts'
-import {IDictionary, IStringDictionary} from '../../../bot/Interfaces/igeneral.mts'
+import {IDictionary, IStringDictionary} from '../../Types/Dictionary.mts'
 import {DataMeta} from './DataMeta.mts'
 
 // Types

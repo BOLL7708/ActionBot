@@ -9,7 +9,8 @@ import TwitchEventSub from '../Classes/Api/TwitchEventSub.mts'
 import StreamDeckRelay from '../Classes/Data/StreamDeckRelay.mts'
 import AudioPlayer from '../Classes/Placeholder/AudioPlayer.mts'
 import Sign from '../Classes/Placeholder/Sign.mts'
-import Http from '../Classes/Server/Http.mts'
+import HttpHandler from '../Classes/Server/HttpHandler.mts'
+import WebSocketHandler from '../Classes/Server/WebSocketHandler.mts'
 
 /**
  * Contains instances of various modules
@@ -22,8 +23,8 @@ export default class ModulesSingleton {
         return this._instance;
     }
     // region Servers
-    public http = new Http()
-
+    public http = new HttpHandler()
+    public ws = new WebSocketHandler()
     // endregion
 
     // region Clients

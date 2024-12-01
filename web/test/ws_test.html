@@ -1,0 +1,20 @@
+<html lang="en">
+<head><title>WebSocket Test Client</title></head>
+<body>
+<div>
+    <p>Check the console, nerd.</p>
+</div>
+</body>
+<script>
+    const ws = new WebSocket('ws://localhost:7712', 'db')
+    ws.onopen = (event)=>{
+        ws.send(JSON.stringify({
+            key: 'Main',
+            group: 'ConfigMain'
+        }))
+    }
+    ws.onmessage = (event)=>{
+        console.log(event.data)
+    }
+</script>
+</html>

@@ -12,7 +12,7 @@
     "install": "deno install",
     "generate": "cd ../dev && deno run --allow-read --allow-write generate.mts",
     "test": "deno task generate && deno test --allow-all --trace-leaks --watch",
-    "dev": "deno run -A --watch main.mts",
+    "dev": "deno task generate && deno run -A --watch main.mts",
     "run": "todo",
     "first-run": "deno task install && deno task generate && deno task run"
   },

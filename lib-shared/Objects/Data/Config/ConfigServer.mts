@@ -1,5 +1,5 @@
 import {AbstractData} from '../AbstractData.mts'
-import {DataMap} from '../DataMap.mjs'
+import {DataMap} from '../DataMap.mts'
 
 export class ConfigServer extends AbstractData {
     httpServerPort: number = 8080

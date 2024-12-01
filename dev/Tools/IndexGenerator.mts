@@ -1,4 +1,7 @@
+import Log from '../../bot/EasyTSUtils/Log.mts'
+
 export default class IndexGenerator {
+    private static readonly TAG = IndexGenerator.name
     /**
      * Will scan a source folder recursively and generate an index file in it that exports all files in the folder.
      * @param sourceFolder The root folder where the index file will be generated.
@@ -14,7 +17,7 @@ export default class IndexGenerator {
         const rows = fileNames.map(row => `export * from './${row}'`)
         rows.unshift(warning)
         Deno.writeFileSync(outputFile, encoder.encode(rows.join("\n")))
-        console.log(`Generated "${outputFile}" with ${rows.length} export(s).`)
+        Log.i(this.TAG, `Generated "${outputFile}" with ${rows.length} export(s).`)
 
         if(!alsoOutputJs) return
 
@@ -28,7 +31,7 @@ export default class IndexGenerator {
         })
         rowsJs.unshift(warning)
         Deno.writeFileSync(outputFileJs, encoder.encode(rowsJs.join("\n")))
-        console.log(`Generated "${outputFileJs}" with ${rowsJs.length} export(s).`)
+        Log.i(this.TAG, `Generated "${outputFileJs}" with ${rowsJs.length} export(s).`)
     }
 
     /**

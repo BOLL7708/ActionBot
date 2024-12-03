@@ -1,4 +1,4 @@
-import Log from '../../bot/EasyTSUtils/Log.mts'
+import Log from '../../lib/SharedUtils/Log.mts'
 
 export default class IndexGenerator {
     private static readonly TAG = IndexGenerator.name

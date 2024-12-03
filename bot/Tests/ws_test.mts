@@ -1,7 +1,7 @@
 import {assert, assertEquals} from 'jsr:@std/assert'
-import Log, {EEasyDebugLogLevel} from '../EasyTSUtils/Log.mts'
-import WebSocketClient from '../EasyTSUtils/WebSocketClient.mts'
-import WebSocketServer, {EWebSocketServerState} from '../EasyTSUtils/WebSocketServer.mts'
+import Log, {EEasyDebugLogLevel} from '../../lib/SharedUtils/Log.mts'
+import WebSocketClient from '../../lib/SharedUtils/WebSocketClient.mts'
+import WebSocketServer, {EWebSocketServerState} from '../DenoUtils/WebSocketServer.mts'
 import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
 
 Deno.test('init', () => {
@@ -70,7 +70,8 @@ Deno.test('server + client', async (t) => {
                     assert(false)
                 }
             }
-        }
+        },
+        loggingProxy: Log.get()
     })
 
     const wsClient = new WebSocketClient({

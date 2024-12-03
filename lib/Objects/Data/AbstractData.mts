@@ -1,5 +1,5 @@
 // TODO: Migrate bot dependencies, like the newly added Log class, why did I add that here in shared? Boggles the mind.
-import Log from '../../../bot/EasyTSUtils/Log.mts'
+import Log from '../../SharedUtils/Log.mts'
 import {DataUtils} from './DataUtils.mts'
 import {DataMap} from './DataMap.mts'
 import DatabaseHelper, {IDatabaseItem} from '../../../bot/Helpers/DatabaseHelper.mts'

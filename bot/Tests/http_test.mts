@@ -1,7 +1,7 @@
 import {assert} from 'jsr:@std/assert'
 import {EnlistData} from '../../lib/index.mts'
-import HttpServer from '../EasyTSUtils/HttpServer.mts'
-import Log, {EEasyDebugLogLevel} from '../EasyTSUtils/Log.mts'
+import HttpServer from '../DenoUtils/HttpServer.mts'
+import Log, {EEasyDebugLogLevel} from '../../lib/SharedUtils/Log.mts'
 
 Deno.test('init', () => {
     EnlistData.run()
@@ -23,7 +23,8 @@ Deno.test('server', async (t) => {
         rootFolders: {
             '/assets': '../_user/',
             '/data': '../_user/'
-        }
+        },
+        loggingProxy: Log.get()
     })
     const response = await fetch(`http://localhost:${port}/assets`) // TODO: This is actually a 404, figure that out.
     // assert(response.ok)

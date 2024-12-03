@@ -1,3 +1,4 @@
+import Log from '../../lib/SharedUtils/Log.mts'
 import DatabaseHelper from './DatabaseHelper.mts'
 import Utils from '../Utils/Utils.mts'
 import {ConfigSteam} from '../../lib/index.mts'
@@ -10,6 +11,7 @@ import {SettingSteamGame} from '../../lib/index.mts'
  * The current rate limit is 100k calls/24h, as mentioned her: https://steamcommunity.com/dev/apiterms
  */
 export default class SteamWebHelper {
+    private static readonly TAG = this.name
     private static _profileTag: string = ''
     static async getPlayerSummary(): Promise<ISteamWebApiPlayerSummaryData|undefined> {
         const config = DatabaseHelper.loadMain(new ConfigSteam())

@@ -1,5 +1,5 @@
 import {assert, assertEquals} from 'jsr:@std/assert'
-import Log, {EEasyDebugLogLevel} from '../EasyTSUtils/Log.mts'
+import Log, {EEasyDebugLogLevel} from '../../lib/SharedUtils/Log.mts'
 import DatabaseHelper, {IDatabaseItem} from '../Helpers/DatabaseHelper.mts'
 import DataBaseHelper_OLD, {IDataBaseListItems, type IDataBaseListItem} from '../Helpers/DataBaseHelper_OLD.mts'
 import {IDictionary} from '../../lib/Types/Dictionary.mts'

@@ -1,4 +1,4 @@
-import Log from '../EasyTSUtils/Log.mts'
+import Log from '../../lib/SharedUtils/Log.mts'
 
 export default class DataFileUtils {
     private static readonly TAG = this.name

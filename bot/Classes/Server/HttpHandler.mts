@@ -1,5 +1,6 @@
 import {ConfigServer} from '../../../lib/Objects/Data/Config/ConfigServer.mts'
-import HttpServer from '../../EasyTSUtils/HttpServer.mts'
+import Log from '../../../lib/SharedUtils/Log.mts'
+import HttpServer from '../../DenoUtils/HttpServer.mts'
 import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 
 export default class HttpHandler {
@@ -14,7 +15,8 @@ export default class HttpHandler {
                 '/data': '../_user',
                 '/test': '../web',
                 '/': '../web/dist'
-            }
+            },
+            loggingProxy: Log.get()
         })
     }
 

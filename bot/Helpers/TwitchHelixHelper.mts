@@ -1,12 +1,14 @@
 import {ActionSystemRewardState, DataUtils, EventDefault, OptionTwitchRewardUsable, OptionTwitchRewardVisible, PresetReward, SettingTwitchClient, SettingTwitchRedemption, SettingTwitchTokens, SettingUser, SettingUserName, TriggerReward} from '../../lib/index.mts'
 import {ITwitchEventSubSubscriptionPayload} from '../Classes/Api/TwitchEventSub.mts'
 import Color from '../Constants/ColorConstants.mts'
+import Log from '../../lib/SharedUtils/Log.mts'
 import Utils from '../Utils/Utils.mts'
 import DatabaseHelper from './DatabaseHelper.mts'
 import EventHelper from './EventHelper.mts'
 import TextHelper from './TextHelper.mts'
 
 export default class TwitchHelixHelper {
+    static readonly TAG = this.name
     static _baseUrl: string = 'https://api.twitch.tv/helix'
     static _userCache: Map<number, ITwitchHelixUsersResponseData> = new Map()
     static _userNameToId: Map<string, number> = new Map()

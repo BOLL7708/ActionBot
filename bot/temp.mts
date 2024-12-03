@@ -1,6 +1,6 @@
 import Chalk from './Constants/Chalk.mts'
 import {ActionAudio, ConfigMain, EnlistData} from '../lib/index.mts'
-import Log, {EEasyDebugLogLevel} from './EasyTSUtils/Log.mts'
+import Log, {EEasyDebugLogLevel} from '../lib/SharedUtils/Log.mts'
 import AssetsHelper from './Helpers/AssetsHelper.mts'
 import DatabaseHelper from './Helpers/DatabaseHelper.mts'
 import DatabaseSingleton from './Singletons/DatabaseSingleton.mts'

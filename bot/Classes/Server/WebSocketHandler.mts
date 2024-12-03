@@ -1,6 +1,6 @@
 import {ConfigServer} from '../../../lib/Objects/Data/Config/ConfigServer.mts'
-import Log from '../../EasyTSUtils/Log.mts'
-import WebSocketServer, {IWebSocketServerSession} from '../../EasyTSUtils/WebSocketServer.mts'
+import Log from '../../../lib/SharedUtils/Log.mts'
+import WebSocketServer, {IWebSocketServerSession} from '../../DenoUtils/WebSocketServer.mts'
 import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 
 /**
@@ -36,7 +36,8 @@ export default class WebSocketHandler {
             },
             onServerEvent: (state, value, session) => {
                 Log.i(this.TAG, state.toString(), value, session)
-            }
+            },
+            loggingProxy: Log.get()
         })
     }
 

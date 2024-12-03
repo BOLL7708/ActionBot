@@ -1,3 +1,6 @@
-[submodule "bot/EasyTSUtils"]
-	path = bot/EasyTSUtils
-	url = https://github.com/BOLL7708/EasyTSUtils.git
+[submodule "bot/DenoUtils"]
+	path = bot/DenoUtils
+	url = https://github.com/BOLL7708/DenoUtils.git
+[submodule "lib/SharedUtils"]
+	path = lib/SharedUtils
+	url = https://github.com/BOLL7708/SharedUtils.git

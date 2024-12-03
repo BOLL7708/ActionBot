@@ -1,5 +1,5 @@
 import MainController from './Classes/MainController.mts'
-import Log, {EEasyDebugLogLevel} from './EasyTSUtils/Log.mts'
+import Log, {EEasyDebugLogLevel} from '../lib/SharedUtils/Log.mts'
 import DatabaseHelper from './Helpers/DatabaseHelper.mts'
 
 /**

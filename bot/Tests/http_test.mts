@@ -16,7 +16,7 @@ Deno.test('init', () => {
 })
 
 Deno.test('server', async (t) => {
-    const port = 8080
+    const port = 8081
     const httpServer = new HttpServer({
         name: 'TestServer',
         port,

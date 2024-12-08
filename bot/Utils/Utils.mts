@@ -1,3 +1,4 @@
+import ValueUtils from '../../lib/SharedUtils/ValueUtils.mts'
 import Color from '../Constants/ColorConstants.mts'
 
 export default class Utils {
@@ -41,7 +42,7 @@ export default class Utils {
     }
 
     static hexToDecColor(hex: string): number {
-        if(hex.indexOf('#') == 0) hex = hex.substr(1)
+        if(hex.indexOf('#') == 0) hex = hex.substring(1)
         if(hex.length == 3) hex = hex.split('').map(ch => ch+ch).join('')
         return parseInt(hex, 16)
     }
@@ -152,25 +153,6 @@ export default class Utils {
         return result
     }
 
-    static ensureArray<Type>(value: Type[]|Type|undefined): Type[] {
-        if(value === undefined) return []
-        return Array.isArray(value) ? value : [value]
-    }
-
-    static ensureValue<Type>(value: Type|Type[]): Type|undefined {
-        return (Array.isArray(value) && value.length > 0) ? value.shift() : value as Type
-    }
-
-    static ensureNumber(value: any, fallback: number = 0): number {
-        switch(typeof value) {
-            case 'number': return isNaN(value) ? fallback : value
-            case 'string':
-                const num = parseFloat(value)
-                return isNaN(num) ? fallback : num
-            case 'boolean': return value ? 1 : 0
-            default: return fallback
-        }
-    }
 
     static encode(str: string): string {
         let base64 = btoa(str)
@@ -226,55 +208,12 @@ export default class Utils {
     }
 
     /**
-     * Clone anything data structure by JSON stringify and parse
-     * @param data Data to clone
-     * @returns The cloned data
-     */
-    static clone<Type>(data: Type): Type {
-        return JSON.parse(JSON.stringify(data)) as Type
-    }
-
-    /**
-     * Checks if all the needles exist in the haystack.
-     * @param haystack
-     * @param needles
-     */
-    static containsAll(needles: any[], haystack: any[]): boolean {
-        const haystackSet = new Set(haystack)
-        return needles.every(item => haystackSet.has(item))
-    }
-
-    /**
      * Splits a Steam app key into parts and returns the parsed number
      * @param appId 
      * @returns application ID number or NaN if not a valid app key
      */
     static numberFromAppId(appId: string|undefined): number {
-        return Utils.toInt(appId?.split('.').pop())
-    }
-
-    /**
-     * Basically a parseInt that also takes undefined
-     * @param intStr
-     * @param defaultValue
-     */
-    static toInt(intStr: string|undefined, defaultValue: number = NaN): number {
-        return parseInt(intStr ?? '') || defaultValue
-    }
-
-    /**
-     * Returns the deduced boolean value for a string, provided default or false if no match.
-     * @param boolStr
-     * @param defaultValue
-     */
-    static toBool(boolStr: string|undefined|null|unknown, defaultValue: boolean = false): boolean {
-        if(boolStr === undefined || boolStr === null || typeof boolStr !== 'string' || boolStr.length == 0) return defaultValue
-        const firstChar: string = boolStr.toLowerCase()[0]
-        const trueIsh: string[] = ['t', 'y', '1']
-        const falseIsh: string[] = ['f', 'n', '0']
-        if(trueIsh.includes(firstChar)) return true
-        if(falseIsh.includes(firstChar)) return false
-        return defaultValue
+        return ValueUtils.toInt(appId?.split('.').pop())
     }
 
     static removeLastPart(splitOn: string, text: string|undefined): string {

@@ -1,35 +1,45 @@
 import {
-    ActionSettingVR, ConfigCommands,
-    ConfigController, ConfigTwitch,
+    ActionSettingVR,
+    ConfigCommands,
+    ConfigController,
+    ConfigTwitch,
     DataUtils,
     EventDefault,
     IActionsCallbackStack,
-    IActionUser, OptionCommandCategory,
-    OptionEventBehavior, OptionsMap,
+    IActionUser,
+    OptionCommandCategory,
+    OptionEventBehavior,
+    OptionsMap,
     OptionSteamVRSettingType,
     OptionSystemActionType,
-    OptionTTSType, PresetReward,
-    PresetSystemActionText, SettingAccumulatingCounter,
+    OptionTTSType,
+    PresetReward,
+    PresetSystemActionText,
+    SettingAccumulatingCounter,
     SettingChannelTrophyStat,
     SettingIncrementingCounter,
-    SettingStreamQuote, SettingTwitchClip,
+    SettingStreamQuote,
+    SettingTwitchClip,
     SettingTwitchRedemption,
-    SettingTwitchTokens, TriggerCommand, TriggerReward
+    SettingTwitchTokens,
+    TriggerCommand,
+    TriggerReward
 } from '../../lib/index.mts'
+import ValueUtils from '../../lib/SharedUtils/ValueUtils.mts'
+import Color from '../Constants/ColorConstants.mts'
+import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
+import EventHelper from '../Helpers/EventHelper.mts'
+import SteamStoreHelper from '../Helpers/SteamStoreHelper.mts'
+import TextHelper from '../Helpers/TextHelper.mts'
+import TwitchHelixHelper, {ITwitchHelixClipResponseData} from '../Helpers/TwitchHelixHelper.mts'
 import ModulesSingleton from '../Singletons/ModulesSingleton.mts'
 import StatesSingleton from '../Singletons/StatesSingleton.mts'
-import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
-import Functions from './Functions.mts'
-import TwitchHelixHelper, {ITwitchHelixClipResponseData} from '../Helpers/TwitchHelixHelper.mts'
-import TextHelper from '../Helpers/TextHelper.mts'
-import Utils from '../Utils/Utils.mts'
-import SteamStoreHelper from '../Helpers/SteamStoreHelper.mts'
-import DataFileUtils from '../Utils/DataFileUtils.mts'
-import LegacyUtils from '../Utils/LegacyUtils.mts'
 import ChannelTrophyUtils from '../Utils/ChannelTrophyUtils.mts'
-import EventHelper from '../Helpers/EventHelper.mts'
+import DataFileUtils from '../Utils/DataFileUtils.mts'
 import DiscordUtils from '../Utils/DiscordUtils.mts'
-import Color from '../Constants/ColorConstants.mts'
+import LegacyUtils from '../Utils/LegacyUtils.mts'
+import Utils from '../Utils/Utils.mts'
+import Functions from './Functions.mts'
 
 export default class ActionsCallbacks {
     public static stack: IActionsCallbackStack = {
@@ -300,7 +310,7 @@ export default class ActionsCallbacks {
                         )
                     }
                 } else {
-                    let scale = Utils.toInt(user.input)
+                    let scale = ValueUtils.toInt(user.input)
                     if(isNaN(scale)) scale = 100
                     if(states.scaleIntervalHandle > -1) {
                         clearInterval(states.scaleIntervalHandle)
@@ -333,7 +343,7 @@ export default class ActionsCallbacks {
             description: 'Changes the display brightness of the headset.',
             call: (user) => {
                 const modules = ModulesSingleton.getInstance()
-                const brightness = Utils.toInt(user.input, 130)
+                const brightness = ValueUtils.toInt(user.input, 130)
                 const textPreset = DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.Brightness.valueOf().toString())
                 const speech = textPreset?.filledData?.speech[0] ?? ''
                 const value = Math.max(0, Math.min(160, brightness)) // TODO: There are properties in SteamVR to read out for safe min/max values or if available at all! https://github.com/ValveSoftware/openvr/blob/4c85abcb7f7f1f02adaf3812018c99fc593bc341/headers/openvr.h#L475
@@ -351,7 +361,7 @@ export default class ActionsCallbacks {
             call: (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const validRefreshRates = [80, 90, 120, 144] // TODO: Load from OpenVR2WS so we don't set unsupported frame-rates as it breaks the headset.
-                const possibleRefreshRate = Utils.toInt(user.input, 120)
+                const possibleRefreshRate = ValueUtils.toInt(user.input, 120)
                 const refreshRate = (validRefreshRates.indexOf(possibleRefreshRate) != -1) ? possibleRefreshRate : 120
                 const textPreset = DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.RefreshRate.valueOf().toString())
                 const speech = textPreset?.filledData?.speech[0] ?? ''
@@ -369,7 +379,7 @@ export default class ActionsCallbacks {
             description: 'Changes the eye used for the VR View. Or would if it updated live.',
             call: (user) => {
                 const modules = ModulesSingleton.getInstance()
-                const eyeMode = Utils.toInt(user.input, 4)
+                const eyeMode = ValueUtils.toInt(user.input, 4)
                 const textPreset = DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.VrViewEye.valueOf().toString())
                 const speech = textPreset?.filledData?.speech[0] ?? ''
                 const value = Math.max(0, Math.min(5, eyeMode))
@@ -472,7 +482,7 @@ export default class ActionsCallbacks {
                 for(const [key, redemption] of Object.entries(redemptions)) {
                     if(redemption.status.toLowerCase() == 'unfulfilled') {
                         totalClearable++
-                        const redemptionClone = Utils.clone(redemption)
+                        const redemptionClone = ValueUtils.clone(redemption)
                         redemptionClone.status = 'FULFILLED'
                         const result = await TwitchHelixHelper.updateRedemption(key, redemptionClone)
                         if(result) {
@@ -621,7 +631,7 @@ export default class ActionsCallbacks {
                             const preset = rewardEntries[0]
                             const rewardID = DataUtils.ensureKey(trigger.rewardID)
                             if(preset && rewardID) {
-                                const clone = Utils.clone(preset)
+                                const clone = ValueUtils.clone(preset)
                                 clone.title = await TextHelper.replaceTagsInText(clone.title, user)
                                 clone.prompt = await TextHelper.replaceTagsInText(clone.prompt, user)
                                 Utils.log(`Resetting incrementing reward: ${key}`, Color.Green)
@@ -682,8 +692,8 @@ export default class ActionsCallbacks {
                             const preset = rewardEntries[0] as PresetReward
                             const rewardID = DataUtils.ensureKey(trigger.rewardID)
                             if(preset && rewardID) {
-                                const clone = Utils.clone(preset)
-                                const userClone = Utils.clone(user)
+                                const clone = ValueUtils.clone(preset)
+                                const userClone = ValueUtils.clone(user)
                                 userClone.eventKey = key
                                 clone.title = await TextHelper.replaceTagsInText(clone.title, userClone)
                                 clone.prompt = await TextHelper.replaceTagsInText(clone.prompt, userClone)
@@ -721,7 +731,7 @@ export default class ActionsCallbacks {
                 const textPreset = DatabaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.ChannelTrophyStats.valueOf().toString())
                 const speechArr = textPreset?.filledData?.speech ?? []
                 const numberOfStreams = await ChannelTrophyUtils.getNumberOfStreams()
-                const streamNumber = Utils.toInt(user.input)
+                const streamNumber = ValueUtils.toInt(user.input)
                 const controllerConfig = DatabaseHelper.loadMain(new ConfigController())
                 /* TODO move this to a separate module
                 const webhook = DataUtils.ensureDataSingle(controllerConfig.channelTrophySettings.discordStatistics)?.data
@@ -836,7 +846,7 @@ export default class ActionsCallbacks {
 
                     const helpText = trigger.helpText
                     if(entries && helpText) {
-                        const text = `${helpTitle}\`!${Utils.ensureArray(entries).join('|')}${helpInput}\` - ${helpText}`
+                        const text = `${helpTitle}\`!${ValueUtils.ensureArray(entries).join('|')}${helpInput}\` - ${helpText}`
                         if((messageText.length + text.length) > 2000) {
                             DiscordUtils.enqueuePayload(url, {content: messageText})
                             messageText = ''

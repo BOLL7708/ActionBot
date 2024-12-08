@@ -1,17 +1,17 @@
 import {ActionDiscord, DataUtils, IActionCallback, IActionUser} from '../../../lib/index.mts'
+import ValueUtils from '../../../lib/SharedUtils/ValueUtils.mts'
 import TextHelper from '../../Helpers/TextHelper.mts'
 import TwitchHelixHelper from '../../Helpers/TwitchHelixHelper.mts'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.mts'
 import ArrayUtils from '../../Utils/ArrayUtils.mts'
 import DiscordUtils from '../../Utils/DiscordUtils.mts'
-import Utils from '../../Utils/Utils.mts'
 
 // deno-lint-ignore require-await
 ActionDiscord.prototype.build = async function <T>(key: string, instance: T): Promise<IActionCallback> {
    return {
       description: 'Callback that triggers a DiscordUtils message action',
       call: async (user: IActionUser, nonce: string, index?: number) => {
-         const clone = Utils.clone(instance as ActionDiscord)
+         const clone = ValueUtils.clone(instance as ActionDiscord)
          const modules = ModulesSingleton.getInstance()
          const userData = await TwitchHelixHelper.getUserById(user.id)
          const entries = ArrayUtils.getAsType(clone.entries, clone.entries_use, index)

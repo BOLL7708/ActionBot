@@ -30,6 +30,7 @@ import {SettingTwitchTokens} from '../../lib/index.mts'
 import Color from '../Constants/ColorConstants.mts'
 import AssetsHelper from '../Helpers/AssetsHelper.mts'
 import {ActionSign} from '../../lib/index.mts'
+import ValueUtils from '../../lib/SharedUtils/ValueUtils.mts'
 
 export default class Callbacks {
     private static _relays: Map<string, IRelay> = new Map()
@@ -121,7 +122,7 @@ export default class Callbacks {
             } else if(states.pingForChat && twitchChatConfig.soundEffectOnEmptyMessage) {
                 // Chat sound
                 if(soundEffect && !Utils.matchFirstChar(messageData.text, controllerConfig.secretChatSymbols)) {
-                    const clone = Utils.clone(soundEffect)
+                    const clone = ValueUtils.clone(soundEffect)
                     clone.srcEntries = await AssetsHelper.preparePathsForUse(clone.srcEntries)
                     modules.tts.enqueueSoundEffect(clone)
                 }
@@ -137,10 +138,10 @@ export default class Callbacks {
         modules.twitch.setAllChatCallback(async (message:ITwitchMessageCmd) => {
             const rewardId = message?.properties?.["custom-reward-id"]           
             if(rewardId) return // Skip rewards as handled elsewhere
-            const bits = Utils.toInt(message?.properties?.bits, 0)
+            const bits = ValueUtils.toInt(message?.properties?.bits, 0)
             
             // Discord
-            const user = await TwitchHelixHelper.getUserById(Utils.toInt(message.properties['user-id']))
+            const user = await TwitchHelixHelper.getUserById(ValueUtils.toInt(message.properties['user-id']))
             let text = message?.message?.text
             if(text == null || text.length == 0) return
 
@@ -246,7 +247,7 @@ export default class Callbacks {
 
             // Announce cheer
             const bits = event.bits
-            const levels = Utils.clone(announcementsConfig.announceCheers)
+            const levels = ValueUtils.clone(announcementsConfig.announceCheers)
             let selectedLevel = levels.shift()
             for(const level of levels) {
                 if(bits >= level.bits) selectedLevel = level
@@ -295,7 +296,7 @@ export default class Callbacks {
             ) {
                 const preset = DataUtils.ensureData(screenshotsConfig.callback.pipePreset)
                 if(preset) {
-                    const configClone: PresetPipeCustom = Utils.clone(preset)
+                    const configClone: PresetPipeCustom = ValueUtils.clone(preset)
                     if(configClone) {
                         const tas = configClone.textAreas
                         if(tas && tas.length > 0) {

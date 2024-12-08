@@ -1,14 +1,14 @@
 import {ActionURI, IActionCallback, IActionUser} from '../../../lib/index.mts'
+import ValueUtils from '../../../lib/SharedUtils/ValueUtils.mts'
 import TextHelper from '../../Helpers/TextHelper.mts'
 import ArrayUtils from '../../Utils/ArrayUtils.mts'
-import Utils from '../../Utils/Utils.mts'
 
 // deno-lint-ignore require-await
 ActionURI.prototype.build = async function <T>(key: string, instance: T): Promise<IActionCallback> {
    return {
       description: 'Callback that triggers a URI action',
       call: async (user: IActionUser, nonce: string, index?: number) => {
-         const clone = Utils.clone(instance as ActionURI)
+         const clone = ValueUtils.clone(instance as ActionURI)
          const uris = ArrayUtils.getAsType(clone.entries, clone.entries_use, index)
          let totalDelay = 0
          for (const uri of uris) {

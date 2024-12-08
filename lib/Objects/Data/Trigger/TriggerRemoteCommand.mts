@@ -1,7 +1,7 @@
 import {AbstractTrigger} from './AbstractTrigger.mts'
 import {DataMap} from '../DataMap.mts'
 import ModulesSingleton from '../../../../bot/Singletons/ModulesSingleton.mts'
-import Utils from '../../../../bot/Utils/Utils.mts'
+import ValueUtils from '../../../SharedUtils/ValueUtils.mts'
 
 export class TriggerRemoteCommand extends AbstractTrigger {
     entries: string[] = ['']
@@ -26,7 +26,7 @@ export class TriggerRemoteCommand extends AbstractTrigger {
 
     async register(eventKey: string) {
         const modules = ModulesSingleton.getInstance()
-        const clone = Utils.clone<TriggerRemoteCommand>(this)
+        const clone = ValueUtils.clone<TriggerRemoteCommand>(this)
         if(this.entries.length) {
             for(let trigger of clone.entries) {
                 modules.twitch.registerRemoteCommand(clone, eventKey)

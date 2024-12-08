@@ -1,7 +1,7 @@
+import {ConfigDiscord, DataUtils} from '../../lib/index.mts'
+import ValueUtils from '../../lib/SharedUtils/ValueUtils.mts'
 import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
-import {DataUtils} from '../../lib/index.mts'
 import Utils from './Utils.mts'
-import {ConfigDiscord} from '../../lib/index.mts'
 
 enum EResponseState {
     OK,
@@ -95,8 +95,8 @@ export default class DiscordUtils {
         const bucket = response.headers.get("x-ratelimit-bucket")
         if(bucket) {
             if(!this._rateLimitBuckets.hasOwnProperty(url)) this._rateLimitBuckets[url] = bucket
-            const remaining = Utils.ensureNumber(response.headers.get("x-ratelimit-remaining"), 0)
-            const reset = Utils.ensureNumber(response.headers.get("x-ratelimit-reset"), 0)
+            const remaining = ValueUtils.ensureNumber(response.headers.get("x-ratelimit-remaining"), 0)
+            const reset = ValueUtils.ensureNumber(response.headers.get("x-ratelimit-reset"), 0)
             if(response.ok) {
                 const resetTimestamp = reset * 1000
                 this._rateLimits[bucket] = {remaining: remaining, resetTimestamp: resetTimestamp}

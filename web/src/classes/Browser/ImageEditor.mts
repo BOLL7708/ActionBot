@@ -159,7 +159,7 @@ export default class ImageEditor {
 
     private constructRoundedRectangle(context: CanvasRenderingContext2D|null, rect: ConfigImageEditorRect, cornerRadius: number, margin: number = 0) {
         if(!context) return console.warn(`ImageEditor: No context to draw rounded rectangle`)
-        const rectClone = Utils.clone(rect)
+        const rectClone = ValueUtils.clone(rect)
         rectClone.x += margin
         rectClone.y += margin
         rectClone.w -= margin*2

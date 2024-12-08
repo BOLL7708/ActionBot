@@ -1,17 +1,17 @@
 import {ActionSpeech, DataUtils, IActionCallback, IActionUser, SettingTwitchTokens} from '../../../lib/index.mts'
+import ValueUtils from '../../../lib/SharedUtils/ValueUtils.mts'
 import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 import TextHelper from '../../Helpers/TextHelper.mts'
 import TwitchHelixHelper from '../../Helpers/TwitchHelixHelper.mts'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.mts'
 import ArrayUtils from '../../Utils/ArrayUtils.mts'
-import Utils from '../../Utils/Utils.mts'
 
 // deno-lint-ignore require-await
 ActionSpeech.prototype.build = async function <T>(key: string, instance: T): Promise<IActionCallback> {
    return {
       description: 'Callback that triggers something spoken with TTS.',
       call: async (user: IActionUser, nonce: string, index?: number) => {
-         const clone = Utils.clone(instance as ActionSpeech)
+         const clone = ValueUtils.clone(instance as ActionSpeech)
          console.log('tts debug, entry preset', clone.entryPreset)
          const modules = ModulesSingleton.getInstance()
 

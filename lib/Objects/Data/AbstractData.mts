@@ -1,9 +1,9 @@
 // TODO: Migrate bot dependencies, like the newly added Log class, why did I add that here in shared? Boggles the mind.
 import Log from '../../SharedUtils/Log.mts'
+import ValueUtils from '../../SharedUtils/ValueUtils.mts'
 import {DataUtils} from './DataUtils.mts'
 import {DataMap} from './DataMap.mts'
 import DatabaseHelper, {IDatabaseItem} from '../../../bot/Helpers/DatabaseHelper.mts'
-import Utils from '../../../bot/Utils/Utils.mts'
 
 export type TDataCategory =
     string
@@ -96,7 +96,7 @@ export abstract class AbstractData {
                         // It is a dictionary of subclasses, instantiate.
                         newProp.type = EDataType.Dictionary
                         for (const [k, idValue] of Object.entries(propertyValue)) {
-                            const id = Utils.ensureNumber(idValue)
+                            const id = ValueUtils.ensureNumber(idValue)
                             const dbItem = DatabaseHelper.loadById(id.toString())
                             if(dbItem?.data && dbItem?.filledData) newProp.dataDictionary[k] = dbItem
                             else if(id !== 0) Log.w(TAG, `Data.__apply: Unable to load instance for ${typeValues.class}:${id}, it might not exist anymore.`)
@@ -142,7 +142,7 @@ export abstract class AbstractData {
                             switch(expectedType) {
                                 case 'string': correctedProp = propertyValue?.toString() ?? ''; break;
                                 case 'number': correctedProp = parseFloat(propertyValue?.toString() ?? 0); break;
-                                case 'boolean': correctedProp = Utils.toBool(propertyValue); break;
+                                case 'boolean': correctedProp = ValueUtils.toBool(propertyValue); break;
                                 default: Log.w(TAG, `Data.__apply: Unhandled field type for prop [${propertyName}] in [${thisClass}]: ${expectedType}`, propertyValue)
                             }
                         }

@@ -1,5 +1,6 @@
 import {AbstractData, DataMap} from '../../lib/index.mts'
 import Log from '../../lib/SharedUtils/Log.mts'
+import ValueUtils from '../../lib/SharedUtils/ValueUtils.mts'
 import {IDictionary, INumberDictionary, IStringDictionary} from '../../lib/Types/Dictionary.mts'
 import DatabaseSingleton, {TDatabaseQueryInput} from '../Singletons/DatabaseSingleton.mts'
 import Utils from '../Utils/Utils.mts'
@@ -197,7 +198,7 @@ export default class DatabaseHelper {
      * @private
      */
     private static handleDataBaseItem<T>(item: IDatabaseItem<T>):T|undefined {
-        const itemClone = Utils.clone<IDatabaseItem<T>>(item)
+        const itemClone = ValueUtils.clone<IDatabaseItem<T>>(item)
         itemClone.data = null
 
         // We cache things so we can quickly list them later, thus data is nulled.

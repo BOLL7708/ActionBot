@@ -1,4 +1,5 @@
 import {ConfigCleanText, ConfigSpeech, EventDefault, IActionUser, SettingAccumulatingCounter, SettingUser, SettingUserName, SettingUserVoice} from '../../lib/index.mts'
+import ValueUtils from '../../lib/SharedUtils/ValueUtils.mts'
 import {ITwitchEmotePosition} from '../Classes/Data/TwitchFactory.mts'
 import ModulesSingleton from '../Singletons/ModulesSingleton.mts'
 import StatesSingleton from '../Singletons/StatesSingleton.mts'
@@ -363,7 +364,7 @@ export default class TextHelper {
             lastTTSSetNickSubstitute: ''
         } as ITextTags
         if(typeof userData?.input === 'string') {
-            const inputWordsClone = Utils.clone(userData.inputWords)
+            const inputWordsClone = ValueUtils.clone(userData.inputWords)
             result.userInput = userData.input
             result.userInputHead = inputWordsClone.shift() ?? ''
             result.userInputRest = inputWordsClone.join(' ')

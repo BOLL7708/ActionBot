@@ -21,6 +21,7 @@ import {ConfigImageEditorOutline, ConfigImageEditorRect} from '../../../lib/inde
 import {OptionPipeAnchorType} from '../../../lib/index.mts'
 import ArrayUtils from '../../Utils/ArrayUtils.mts'
 import {PresetPipeChannel} from '../../../lib/index.mts'
+import ValueUtils from '../../../lib/SharedUtils/ValueUtils.mts'
 
 export default class Pipe {
     private _config: ConfigPipe = new ConfigPipe()
@@ -93,10 +94,10 @@ export default class Pipe {
         if(!this._socket?.isConnected()) console.warn('Pipe.sendBasic: Websockets instance not initiated.')
 
         // Skip if supposed to be skipped
-        const controllerConfig = await DatabaseHelper.loadMain<ConfigController>(new ConfigController())
+        const controllerConfig = DatabaseHelper.loadMain<ConfigController>(new ConfigController())
         if(Utils.matchFirstChar(message, controllerConfig.secretChatSymbols)) return console.warn(`Pipe: Skipping secret chat: ${message}`)
         const hasBits = (messageData?.bits ?? 0) > 0
-        const cleanTextConfig = Utils.clone(this._config.cleanTextConfig)
+        const cleanTextConfig = ValueUtils.clone(this._config.cleanTextConfig)
         cleanTextConfig.removeBitEmotes = hasBits
         const cleanText = await TextHelper.cleanText(
             message,
@@ -113,7 +114,7 @@ export default class Pipe {
             ? await ImageHelper.getDataUrl(profileUrl, true)
             : null
 
-        const preset = Utils.clone<PresetPipeCustom|undefined>(DataUtils.ensureData(this._chatConfig.pipePreset))
+        const preset = ValueUtils.clone<PresetPipeCustom|undefined>(DataUtils.ensureData(this._chatConfig.pipePreset))
         if(
             this._config.useCustomChatNotification
             && preset
@@ -173,7 +174,7 @@ export default class Pipe {
             // Avatar
             if(imageDataUrl != null) {
                 // Replace undefined colors in outlines with user color or default
-                const avatarConfig = Utils.clone(this._config.customChatAvatarConfig)
+                const avatarConfig = ValueUtils.clone(this._config.customChatAvatarConfig)
                 for(const [key, value] of avatarConfig.outlines?.entries() ?? []) {
                     // TODO: Does changing this in value actually update the avatarConfig? Debug this later.
                     if(value.color.length == 0 ) value.color = userColor ?? Color.White
@@ -197,7 +198,7 @@ export default class Pipe {
 
             // Name
             if(textResult.rowsDrawn > 1) {
-                const nameFontConfig = Utils.clone(this._config.customChatNameConfig.font)
+                const nameFontConfig = ValueUtils.clone(this._config.customChatNameConfig.font)
                 if(nameFontConfig.color.length == 0) nameFontConfig.color = userColor ?? Color.White
                 if(displayName.length > 0) {
                     await imageEditor.drawText(displayName, this._config.customChatNameConfig.rect, nameFontConfig)

@@ -1,7 +1,6 @@
 // TODO: Migrate bot dependencies to shared
-import Color from '../../../bot/Constants/ColorConstants.mts'
+import Log from '../../SharedUtils/Log.mts'
 import {IStringDictionary} from '../../Types/Dictionary.mts'
-import Utils from '../../../bot/Utils/Utils.mts'
 import {TNoFunctions} from '../Data/DataMap.mts'
 import {DataMeta} from '../Data/DataMeta.mts'
 import {AbstractOption} from './AbstractOption.mts'
@@ -35,7 +34,7 @@ export class OptionsMap {
         className: string|undefined
     ): boolean {
         const has = className ? this._map.has(className) : false
-        if(!has) Utils.log(`Option: "${className}" does not exist in the OptionsMap!`, Color.DarkRed, true, true)
+        if(!has) Log.e(this.constructor.name, `Option: "${className}" does not exist in the OptionsMap!`)
         return has
     }
 

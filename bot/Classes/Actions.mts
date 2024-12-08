@@ -1,4 +1,5 @@
 import {AbstractAction, AbstractTrigger, ActionSystemRewardState, DataUtils, EventActionContainer, EventDefault, IActionCallback, IActionsExecutor, IActionsMainCallback, IActionUser, OptionEntryUsage, OptionEventBehavior, OptionEventRun, OptionTwitchRewardUsable, OptionTwitchRewardVisible, PresetReward, SettingAccumulatingCounter, SettingIncrementingCounter, SettingTwitchTokens, TriggerReward} from '../../lib/index.mts'
+import ValueUtils from '../../lib/SharedUtils/ValueUtils.mts'
 import {EEventSource} from '../../lib/Types/Event.mts'
 import Color from '../Constants/ColorConstants.mts'
 import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
@@ -23,11 +24,11 @@ export class ActionHandler {
             if(gameEvent) {
                 event = gameEvent
             }
-            const newEvent = Utils.clone(event)
+            const newEvent = ValueUtils.clone(event)
             if(gameEvent?.actionsEntries && event?.actionsEntries) {
                 const newActions = []
-                const defaultActions = Utils.ensureArray(event.actionsEntries ?? {})
-                const thisActions = Utils.ensureArray(gameEvent.actionsEntries ?? {})
+                const defaultActions = ValueUtils.ensureArray(event.actionsEntries ?? {})
+                const thisActions = ValueUtils.ensureArray(gameEvent.actionsEntries ?? {})
                 for(let i=0; i<Math.max(defaultActions.length, thisActions.length); i++) {
                     newActions[i] = {
                         ...(defaultActions[i] ?? {}),
@@ -91,7 +92,7 @@ export class ActionHandler {
                         rewardPresetIndex = Math.min(rewardPresetIndex, options.maxValue > 0 ? options.maxValue-1 : rewardEntries.length-1) // Clamp to max
                         const rewardPreset = rewardEntries[rewardPresetIndex]
                         if (rewardPreset) {
-                            const clone = Utils.clone(rewardPreset)
+                            const clone = ValueUtils.clone(rewardPreset)
                             clone.title = await TextHelper.replaceTagsInText(clone.title, user)
                             clone.prompt = await TextHelper.replaceTagsInText(clone.prompt, user)
                             const result = await TwitchHelixHelper.updateReward(DataUtils.ensureKey(trigger.rewardID), clone)
@@ -147,7 +148,7 @@ export class ActionHandler {
 
                         const rewardPreset = rewardEntries[rewardIndex]
                         if(rewardPreset) {
-                            const clone = Utils.clone(rewardPreset)
+                            const clone = ValueUtils.clone(rewardPreset)
                             clone.title = await TextHelper.replaceTagsInText(clone.title, user)
                             clone.prompt = await TextHelper.replaceTagsInText(clone.prompt, user)
 
@@ -227,7 +228,7 @@ export class ActionHandler {
                         const rewardPreset = rewardData ? rewardData[0] : undefined
                         if(!rewardIdSetting || !rewardIdKey || !rewardPreset) continue
 
-                        const clone = Utils.clone(rewardPreset)
+                        const clone = ValueUtils.clone(rewardPreset)
                         if (clone) {
                             clone.title = await TextHelper.replaceTagsInText(clone.title, user)
                             clone.prompt = await TextHelper.replaceTagsInText(clone.prompt, user)
@@ -255,7 +256,7 @@ export class ActionHandler {
                         const rewardPreset = rewardData ? rewardData[counter.count] : undefined
                         if(!rewardId || !rewardPreset) continue
 
-                        const clone = Utils.clone(rewardPreset)
+                        const clone = ValueUtils.clone(rewardPreset)
                         if (clone) {
                             clone.title = await TextHelper.replaceTagsInText(clone.title, user)
                             clone.prompt = await TextHelper.replaceTagsInText(clone.prompt, user)

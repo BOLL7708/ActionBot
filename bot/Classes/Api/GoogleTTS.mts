@@ -16,6 +16,7 @@ import Color from '../../Constants/ColorConstants.mts'
 import {SettingDictionaryEntry} from '../../../lib/index.mts'
 import {SettingUser, SettingUserVoice} from '../../../lib/index.mts'
 import {ConfigController} from '../../../lib/index.mts'
+import ValueUtils from '../../../lib/SharedUtils/ValueUtils.mts'
 
 export default class GoogleTTS {
     private _config = new ConfigSpeech()
@@ -48,7 +49,7 @@ export default class GoogleTTS {
     }
 
     private checkForFinishedDownloads() {
-        let key = Utils.toInt(Object.keys(this._preloadQueue).shift()) // Get the oldest key without removing it
+        let key = ValueUtils.toInt(Object.keys(this._preloadQueue).shift()) // Get the oldest key without removing it
         if(key) {
             const entry = this._preloadQueue[key] // Get stored entry for key
             if(entry === null) { // We are still waiting for a result
@@ -182,7 +183,7 @@ export default class GoogleTTS {
         let cleanName = await TextHelper.loadCleanName(userData?.id ?? sentence.userId)
 
         // Clean input text
-        const cleanTextConfig = Utils.clone(this._config.cleanTextConfig) // TODO: Apparently not a class instance as no __clone available?
+        const cleanTextConfig = ValueUtils.clone(this._config.cleanTextConfig) // TODO: Apparently not a class instance as no __clone available?
         cleanTextConfig.removeBitEmotes = sentence.type == OptionTTSType.Cheer
         let cleanText = await TextHelper.cleanText(
             text, 

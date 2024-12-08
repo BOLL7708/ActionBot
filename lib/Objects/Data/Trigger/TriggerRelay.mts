@@ -3,8 +3,8 @@ import {DataMap} from '../DataMap.mts'
 import TextHelper from '../../../../bot/Helpers/TextHelper.mts'
 import {ActionHandler} from '../../../../bot/Classes/Actions.mts'
 import Callbacks from '../../../../bot/Classes/Callbacks.mts'
-import Utils from '../../../../bot/Utils/Utils.mts'
 import {IRelay} from '../../../../bot/Classes/Api/Relay.mts'
+import Log from '../../../SharedUtils/Log.mts'
 
 export class TriggerRelay extends AbstractTrigger {
     key: string = ''
@@ -28,7 +28,7 @@ export class TriggerRelay extends AbstractTrigger {
         if(relay.key.length > 0) {
             Callbacks.registerRelay(relay)
         } else {
-            Utils.logWithBold(`Cannot register relay event for: <${eventKey}>.`, 'red')
+            Log.w(this.__getClass(), `Cannot register relay event for: <${eventKey}>.`)
         }
     }
 }

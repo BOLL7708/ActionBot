@@ -1,4 +1,5 @@
 import {ConfigChat, ConfigCommands, ConfigTwitch, DataUtils, EEventSource, IActionUser, SettingTwitchTokens, TriggerCommand, TriggerRemoteCommand} from '../../../lib/index.mts'
+import ValueUtils from '../../../lib/SharedUtils/ValueUtils.mts'
 import Color from '../../Constants/ColorConstants.mts'
 import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 import TextHelper from '../../Helpers/TextHelper.mts'
@@ -262,7 +263,7 @@ export default class Twitch{
         }
         if(isWhisper) return
 
-        const bits = Utils.toInt(messageCmd.properties?.bits, 0)
+        const bits = ValueUtils.toInt(messageCmd.properties?.bits, 0)
         const messageData:ITwitchMessageData = {
             text: text,
             bits: bits,

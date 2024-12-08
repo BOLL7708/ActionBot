@@ -1,4 +1,5 @@
 import {ActionSystem, ActionSystemRewardState, ConfigCommands, DataUtils, EventDefault, IActionCallback, IActionUser, TriggerReward} from '../../../lib/index.mts'
+import ValueUtils from '../../../lib/SharedUtils/ValueUtils.mts'
 import {ActionHandler} from '../../Classes/Actions.mts'
 import ActionsCallbacks from '../../Classes/ActionsCallbacks.mts'
 import Color from '../../Constants/ColorConstants.mts'
@@ -13,7 +14,7 @@ ActionSystem.prototype.build = async function <T>(key: string, instance: T): Pro
    return {
       description: 'Callback that triggers or toggles events',
       call: async (user: IActionUser, nonce: string, index?: number) => {
-         const clone = Utils.clone(instance as ActionSystem)
+         const clone = ValueUtils.clone(instance as ActionSystem)
          const modules = ModulesSingleton.getInstance()
          const interval = clone.trigger.interval
          let delay = 0

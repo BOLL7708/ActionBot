@@ -1,16 +1,16 @@
 import {ActionPipe, DataUtils, IActionCallback, IActionUser} from '../../../lib/index.mts'
+import ValueUtils from '../../../lib/SharedUtils/ValueUtils.mts'
 import AssetsHelper from '../../Helpers/AssetsHelper.mts'
 import TextHelper from '../../Helpers/TextHelper.mts'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.mts'
 import ArrayUtils from '../../Utils/ArrayUtils.mts'
-import Utils from '../../Utils/Utils.mts'
 
 // deno-lint-ignore require-await
 ActionPipe.prototype.build = async function <T>(key: string, instance: T): Promise<IActionCallback> {
    return {
       description: 'Callback that triggers an OpenVRNotificationPipe action',
       call: async (user: IActionUser, nonce: string, index?: number) => {
-         const clone = Utils.clone(instance as ActionPipe)
+         const clone = ValueUtils.clone(instance as ActionPipe)
          const modules = ModulesSingleton.getInstance()
          const customPreset = DataUtils.ensureData(clone.customPreset)
          const basicPreset = DataUtils.ensureData(clone.basicPreset)

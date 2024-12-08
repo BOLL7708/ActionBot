@@ -1,4 +1,5 @@
 import {ActionRemoteCommand, IActionCallback, IActionUser} from '../../../lib/index.mts'
+import ValueUtils from '../../../lib/SharedUtils/ValueUtils.mts'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.mts'
 import ArrayUtils from '../../Utils/ArrayUtils.mts'
 import Utils from '../../Utils/Utils.mts'
@@ -8,7 +9,7 @@ ActionRemoteCommand.prototype.build = async function <T>(key: string, instance: 
    return {
       description: 'Callback that triggers a Remote Command action',
       call: async (user: IActionUser, nonce: string, index?: number) => {
-         const clone = Utils.clone(instance as ActionRemoteCommand)
+         const clone = ValueUtils.clone(instance as ActionRemoteCommand)
          const modules = ModulesSingleton.getInstance()
          const entries = ArrayUtils.getAsType(clone.entries, clone.entries_use, index)
          for (const entry of entries) {

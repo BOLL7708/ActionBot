@@ -1,13 +1,13 @@
 import {ActionMoveVRSpace, IActionCallback, IActionUser} from '../../../lib/index.mts'
+import ValueUtils from '../../../lib/SharedUtils/ValueUtils.mts'
 import {IOpenVR2WSMoveSpace, IOpenVR2WSMoveSpaceEntry} from '../../Classes/Api/OpenVR2WS.mts'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.mts'
-import Utils from '../../Utils/Utils.mts'
 
 ActionMoveVRSpace.prototype.build = async function <T>(key: string, instance: T): Promise<IActionCallback> {
    return {
       description: 'Callback that triggers an OpenVR2WSMoveSpace action',
       call: async (user: IActionUser, nonce: string, index?: number) => {
-         const clone = Utils.clone(instance as ActionMoveVRSpace)
+         const clone = ValueUtils.clone(instance as ActionMoveVRSpace)
          const modules = ModulesSingleton.getInstance()
 
          const entries: IOpenVR2WSMoveSpaceEntry[] = []

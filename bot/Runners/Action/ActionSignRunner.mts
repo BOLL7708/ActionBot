@@ -1,15 +1,15 @@
 import {ActionSign, IActionCallback, IActionUser} from '../../../lib/index.mts'
+import ValueUtils from '../../../lib/SharedUtils/ValueUtils.mts'
 import TextHelper from '../../Helpers/TextHelper.mts'
 import TwitchHelixHelper from '../../Helpers/TwitchHelixHelper.mts'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.mts'
-import Utils from '../../Utils/Utils.mts'
 
 // deno-lint-ignore require-await
 ActionSign.prototype.build = async function <T>(key: string, instance: T): Promise<IActionCallback> {
    return {
       description: 'Callback that triggers a Sign action',
       call: async (user: IActionUser, nonce: string, index?: number) => {
-         const clone = Utils.clone(instance as ActionSign)
+         const clone = ValueUtils.clone(instance as ActionSign)
          const modules = ModulesSingleton.getInstance()
          TwitchHelixHelper.getUserById(user.id).then(async userData => {
             const modules = ModulesSingleton.getInstance()

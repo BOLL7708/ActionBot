@@ -1,3 +1,4 @@
+import ValueUtils from '../../lib/SharedUtils/ValueUtils.mts'
 import ModulesSingleton from '../Singletons/ModulesSingleton.mts'
 import StatesSingleton from '../Singletons/StatesSingleton.mts'
 import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
@@ -287,7 +288,7 @@ export default class Functions {
     // region Steam Web API
     public static async loadPlayerSummary() {
         const summary = await SteamWebHelper.getPlayerSummary()
-        const id = Utils.toInt(summary?.gameid)
+        const id = ValueUtils.toInt(summary?.gameid)
         Utils.log(`Steam player summary loaded, game ID: ${id}`, Color.Gray)
         if(!isNaN(id) && id > 0) await Functions.appIdCallback(`steam.app.${id}`, false)
     }

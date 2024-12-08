@@ -3,7 +3,7 @@ import {DataMap} from './DataMap.mts'
 import {IDictionary, INumberDictionary, IStringDictionary} from '../../Types/Dictionary.mts'
 // TODO: Migrate bot dependencies to shared (or something... oh cheese we use DB here wut)
 import {IDatabaseItem} from '../../../bot/Helpers/DatabaseHelper.mts'
-import Utils from '../../../bot/Utils/Utils.mts'
+import ValueUtils from '../../SharedUtils/ValueUtils.mts';
 
 export class DataUtils {
     // region Referencing
@@ -193,7 +193,7 @@ export class DataUtils {
     static ensureItemDictionary<T>(entries: INumberDictionary|DataEntries<T>): DataEntries<T>|undefined {
         const keys = Object.keys(entries)
         const matchKeys = Object.keys(new DataEntries())
-        if(!Utils.containsAll(keys, matchKeys)) return undefined
+        if(!ValueUtils.containsAll(keys, matchKeys)) return undefined
         else return entries as DataEntries<T>
     }
     // endregion

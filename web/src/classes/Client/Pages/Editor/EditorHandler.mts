@@ -680,7 +680,7 @@ export default class EditorHandler {
     }
 
     private updateModifiedState(modified: boolean) {
-        this._unsavedChanges = Utils.clone(modified)
+        this._unsavedChanges = ValueUtils.clone(modified)
         if(modified) {
             window.onbeforeunload = async (event)=>{
                 await this.confirmSaveIfReplacingOrLeaving()

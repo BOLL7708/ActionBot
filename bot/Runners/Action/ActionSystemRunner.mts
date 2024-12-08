@@ -118,7 +118,7 @@ ActionSystem.prototype.build = async function <T>(key: string, instance: T): Pro
             const eventEntry = DataUtils.ensureItem(eventStates.event)
             const event = eventEntry?.dataSingle.filledData
             if (event) {
-               const rewards = DataUtils.ensureDataArray(event.triggers) as TriggerReward[]
+               const rewards = DataUtils.ensureDataArray(event.triggers) as unknown as TriggerReward[]
                for (const reward of rewards) {
                   const rewardID = DataUtils.ensureItem(reward.rewardID)
                   if (rewardID) {

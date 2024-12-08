@@ -1,9 +1,8 @@
-import {AbstractTrigger} from './AbstractTrigger.mts'
-import {DataEntries} from '../AbstractData.mts'
-import {PresetPermissions} from '../Preset/PresetPermissions.mts'
 import {OptionCommandCategory} from '../../Options/OptionCommandCategory.mts'
+import {DataEntries} from '../AbstractData.mts'
 import {DataMap} from '../DataMap.mts'
-import ModulesSingleton from '../../../../bot/Singletons/ModulesSingleton.mts'
+import {PresetPermissions} from '../Preset/PresetPermissions.mts'
+import {AbstractTrigger} from './AbstractTrigger.mts'
 
 export class TriggerCommand extends AbstractTrigger {
     entries: string[] = ['']
@@ -43,12 +42,5 @@ export class TriggerCommand extends AbstractTrigger {
                 helpInput: 'string'
             }
         })
-    }
-
-    async register(eventKey: string) {
-        const modules = ModulesSingleton.getInstance()
-        if(this.entries.length > 0) {
-            modules.twitch.registerCommandTrigger(this, eventKey)
-        }
     }
 }

@@ -1,16 +1,12 @@
-import {AbstractTrigger} from './AbstractTrigger.mts'
+import DatabaseHelper from '../../../../bot/Helpers/DatabaseHelper.mts'
+import TwitchHelixHelper from '../../../../bot/Helpers/TwitchHelixHelper.mts'
 import {AbstractData, DataEntries} from '../AbstractData.mts'
 import {DataMap, RootToolResult} from '../DataMap.mts'
-import {PresetPermissions} from '../Preset/PresetPermissions.mts'
-import {SettingTwitchReward} from '../Setting/SettingTwitch.mts'
-import TwitchHelixHelper from '../../../../bot/Helpers/TwitchHelixHelper.mts'
-import DatabaseHelper from '../../../../bot/Helpers/DatabaseHelper.mts'
-import ModulesSingleton from '../../../../bot/Singletons/ModulesSingleton.mts'
-import {ActionHandler} from '../../../../bot/Classes/Actions.mts'
 import {DataUtils} from '../DataUtils.mts'
-import {ITwitchReward} from '../../../../bot/Classes/Api/TwitchEventSub.mts'
+import {PresetPermissions} from '../Preset/PresetPermissions.mts'
 import {PresetReward} from '../Preset/PresetReward.mts'
-import Log from '../../../SharedUtils/Log.mts'
+import {SettingTwitchReward} from '../Setting/SettingTwitch.mts'
+import {AbstractTrigger} from './AbstractTrigger.mts'
 
 export class TriggerReward extends AbstractTrigger {
     permissions: number|DataEntries<PresetPermissions> = 0
@@ -73,17 +69,5 @@ export class TriggerReward extends AbstractTrigger {
                 }
             }
         })
-    }
-
-    register(eventKey: string) {
-        const modules = ModulesSingleton.getInstance()
-        const handler = new ActionHandler(eventKey)
-        const rewardPreset = DataUtils.ensureItem(this.rewardID)
-        if(rewardPreset) {
-            const reward: ITwitchReward = { id: rewardPreset.dataSingle.key, handler }
-            modules.twitchEventSub.registerReward(reward)
-        } else {
-            Log.w(this.__getClass(), `No Reward ID for <${eventKey}>, it might be missing a reward config.`)
-        }
     }
 }

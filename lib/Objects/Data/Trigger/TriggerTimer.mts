@@ -1,7 +1,5 @@
-import {EEventSource} from '../../../Types/Event.mts'
-import {AbstractTrigger} from './AbstractTrigger.mts'
 import {DataMap} from '../DataMap.mts'
-import {ActionHandler, Actions} from '../../../../bot/Classes/Actions.mts'
+import {AbstractTrigger} from './AbstractTrigger.mts'
 
 export class TriggerTimer extends AbstractTrigger {
     interval: number = 10
@@ -21,25 +19,5 @@ export class TriggerTimer extends AbstractTrigger {
                 adjustIntervalEachTime: 'Increase or decrease the interval by this number of seconds each trigger.'
             }
         })
-    }
-
-    async register(eventKey: string) {
-        const actionHandler = new ActionHandler(eventKey)
-        const user = await Actions.buildEmptyUserData(EEventSource.Timer, eventKey)
-        let handle: number|any = -1 // TODO: Transitional node fix
-        let count = 0
-        const times = this.repetitions ?? 0
-        let interval = this.interval
-        const delay = Math.max(0, (this.initialDelay ?? 10) - interval)
-        setTimeout(()=>{
-            handle = setInterval(()=>{
-                actionHandler.call(user)
-                count++
-                interval += this.adjustIntervalEachTime
-                if(times > 0) {
-                    if(count >= times) clearInterval(handle)
-                }
-            }, Math.max(0, interval)*1000)
-        }, delay*1000)
     }
 }

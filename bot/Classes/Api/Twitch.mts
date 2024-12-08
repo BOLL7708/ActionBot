@@ -1,4 +1,5 @@
 import {ConfigChat, ConfigCommands, ConfigTwitch, DataUtils, IActionUser, SettingTwitchTokens, TriggerCommand, TriggerRemoteCommand} from '../../../lib/index.mts'
+import {EEventSource} from '../../../lib/Types/Event.mts'
 import Color from '../../Constants/ColorConstants.mts'
 import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 import TextHelper from '../../Helpers/TextHelper.mts'
@@ -9,7 +10,6 @@ import Utils from '../../Utils/Utils.mts'
 import {ActionHandler, Actions} from '../Actions.mts'
 import SessionVars from '../Data/SessionVars.mts'
 import TwitchFactory, {ITwitchEmote, ITwitchMessageCmd} from '../Data/TwitchFactory.mts'
-import {EEventSource} from '../Enums.mts'
 import TwitchChat, {ITwitchChatMessageCallback, ITwitchWhisperMessageCallback} from './TwitchChat.mts'
 
 export default class Twitch{

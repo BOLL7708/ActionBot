@@ -17,6 +17,7 @@ export default class MainController {
         EnlistData.run()
 
         // const authed = await AuthUtils.checkIfAuthed()
+        // TODO: Check if authed in some manner.
         const authed = true
         if(!authed) {
             // PasswordForm.spawn()

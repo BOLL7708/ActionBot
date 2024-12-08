@@ -1,7 +1,7 @@
+import {EEventSource} from '../../../Types/Event.mts'
 import {AbstractTrigger} from './AbstractTrigger.mts'
 import {DataMap} from '../DataMap.mts'
 import {ActionHandler, Actions} from '../../../../bot/Classes/Actions.mts'
-import {EEventSource} from '../../../../bot/Classes/Enums.mts'
 
 export class TriggerTimer extends AbstractTrigger {
     interval: number = 10

@@ -1,3 +1,4 @@
+import BotController from './Classes/BotController.mts'
 import MainController from './Classes/MainController.mts'
 import Log, {EEasyDebugLogLevel} from '../lib/SharedUtils/Log.mts'
 import DatabaseHelper from './Helpers/DatabaseHelper.mts'
@@ -17,6 +18,7 @@ export async function bot() {
     DatabaseHelper.isTesting = false
 
     // new Temp()
-    await MainController.init()
+    // await MainController.init()
+    await BotController.init()
 }
 bot().then()

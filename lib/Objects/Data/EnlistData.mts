@@ -1,5 +1,5 @@
-import Chalk from '../../../bot/Constants/Chalk.mts'
 import * as index from '../../index.mts'
+import Log from '../../SharedUtils/Log.mts'
 import {AbstractData} from './AbstractData.mts'
 
 /**
@@ -8,6 +8,7 @@ import {AbstractData} from './AbstractData.mts'
  * If a class is not enlisted here, it will not be re-instantiated, and thus throw an error.
  */
 export class EnlistData {
+    static TAG = this.name
     static run() {
         const enlisted: string[] = []
         const cannotEnlist: string[] = []
@@ -26,7 +27,7 @@ export class EnlistData {
                 cannotInstantiate.push(groupClass)
             }
         }
-        console.log(Chalk.data('Enlisting of Data Objects result:'), {
+        Log.i(this.TAG, 'Enlisting of Data Objects result:', {
             ok: enlisted.length,
             no_method: cannotEnlist.length,
             no_constructor: cannotInstantiate.length

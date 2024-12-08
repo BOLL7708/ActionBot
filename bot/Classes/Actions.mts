@@ -1,4 +1,5 @@
 import {AbstractAction, AbstractTrigger, ActionSystemRewardState, DataUtils, EventActionContainer, EventDefault, IActionCallback, IActionsExecutor, IActionsMainCallback, IActionUser, OptionEntryUsage, OptionEventBehavior, OptionEventRun, OptionTwitchRewardUsable, OptionTwitchRewardVisible, PresetReward, SettingAccumulatingCounter, SettingIncrementingCounter, SettingTwitchTokens, TriggerReward} from '../../lib/index.mts'
+import {EEventSource} from '../../lib/Types/Event.mts'
 import Color from '../Constants/ColorConstants.mts'
 import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
 import TextHelper from '../Helpers/TextHelper.mts'
@@ -7,7 +8,6 @@ import StatesSingleton from '../Singletons/StatesSingleton.mts'
 import ArrayUtils from '../Utils/ArrayUtils.mts'
 import Utils from '../Utils/Utils.mts'
 import {ITwitchEventSubEventCheer, ITwitchEventSubEventRedemption} from './Api/TwitchEventSub.mts'
-import {EEventSource} from './Enums.mts'
 
 export class ActionHandler {
     constructor(

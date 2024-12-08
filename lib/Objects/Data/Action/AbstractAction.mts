@@ -1,5 +1,5 @@
 import {AbstractData} from '../AbstractData.mts'
-import {EEventSource} from '../../../../bot/Classes/Enums.mts'
+import {EEventSource} from '../../../Types/Event.mts'
 import {ITwitchCommand} from '../../../../bot/Classes/Api/Twitch.mts'
 import {ITwitchEventSubEventRedemption} from '../../../../bot/Classes/Api/TwitchEventSub.mts'
 

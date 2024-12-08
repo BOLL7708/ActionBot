@@ -1,4 +1,4 @@
-import WebSockets from '../Client/WebSockets.mts'
+import WebSocketClient from '../../../lib/SharedUtils/WebSocketClient.mts'
 import TwitchHelixHelper from '../../Helpers/TwitchHelixHelper.mts'
 import {DataUtils} from '../../../lib/index.mts'
 import Utils from '../../Utils/Utils.mts'
@@ -8,7 +8,7 @@ import {SettingTwitchTokens} from '../../../lib/index.mts'
 
 export default class TwitchChat {
     private LOG_COLOR: string = 'purple'
-    private _socket?: WebSockets
+    private _socket?: WebSocketClient
     private _isConnected: boolean = false
     private _userName: string = ''
     private _channel: string = ''
@@ -18,16 +18,17 @@ export default class TwitchChat {
         this._userName = userName
         this._channel = channel
         this._listenToWhispers = listenToWhispers
-        this._socket = new WebSockets(
-            'wss://irc-ws.chat.twitch.tv:443',
-            15,
-            false,
-            this.onOpen.bind(this),
-            this.onClose.bind(this),
-            this.onMessage.bind(this),
-            this.onError.bind(this)
-        )
-        this._socket.init();
+        this._socket = new WebSocketClient({
+            clientName: 'TwitchChat',
+            serverUrl: 'wss://irc-ws.chat.twitch.tv:443',
+            reconnectIntervalSeconds: 15,
+            messageQueueing: false,
+            onOpen: this.onOpen.bind(this),
+            onClose: this.onClose.bind(this),
+            onMessage: this.onMessage.bind(this),
+            onError: this.onError.bind(this)
+        })
+        this._socket.init()
     }
 
     private _chatMessageCallback: ITwitchChatMessageCallback = (message) => {}

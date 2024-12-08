@@ -70,7 +70,7 @@ export default class MainController {
 
         await modules.twitch.init(controllerConfig.useWebsockets.twitchChat)
         if(controllerConfig.useWebsockets.openvr2ws) modules.openvr2ws.init().then()
-        if(controllerConfig.useWebsockets.pipe) modules.pipe.init().then()
+        if(controllerConfig.useWebsockets.pipe) modules.pipe.init()
         if(controllerConfig.useWebsockets.obs) modules.obs.init()
         if(controllerConfig.useWebsockets.sssvr) modules.sssvr.init()
         // if(controllerConfig.useWebsockets.sdrelay) modules.streamDeckRelay.init().then() // TODO

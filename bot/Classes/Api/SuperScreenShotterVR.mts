@@ -1,22 +1,27 @@
-import WebSockets from '../Client/WebSockets.mts'
 import {IScreenshotRequestData} from '../../../lib/index.mts'
 import {ConfigScreenshots} from '../../../lib/index.mts'
+import WebSocketClient from '../../../lib/SharedUtils/WebSocketClient.mts'
 import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 import {IActionUser} from '../../../lib/index.mts'
 
 export default class SuperScreenShotterVR {
-    private _socket?: WebSockets
+    private _socket?: WebSocketClient
     private _messageCounter: number = 0
     private _screenshotRequests: Map<number, IScreenshotRequestData> = new Map()
     private _messageCallback: ISSSVRCallback = (requestResponse) => { console.warn('Screenshot: unhandled response') }
     private _config = new ConfigScreenshots()
     constructor() {}
-    async init() {
-        this._config = await DatabaseHelper.loadMain(new ConfigScreenshots())
-        this._socket = new WebSockets(`ws://localhost:${this._config.SSSVRPort}`, 10, true)
-        this._socket._onMessage = this.onMessage.bind(this)
-        this._socket._onError = this.onError.bind(this)
-        this._socket.init();
+    init() {
+        this._config = DatabaseHelper.loadMain(new ConfigScreenshots())
+        this._socket = new WebSocketClient({
+            clientName: 'SuperScreenShotterVR',
+            serverUrl: `ws://localhost:${this._config.SSSVRPort}`,
+            reconnectIntervalSeconds: 10,
+            messageQueueing: true,
+            onMessage: this.onMessage.bind(this),
+            onError: this.onError.bind(this)
+        })
+        this._socket.init()
     }
     private onMessage(evt: MessageEvent) {
         let data: ISSSVRResponse

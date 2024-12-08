@@ -1,6 +1,6 @@
 import {ConfigPipe} from '../../../lib/index.mts'
 import {ConfigChat} from '../../../lib/index.mts'
-import WebSockets from '../Client/WebSockets.mts'
+import WebSocketClient from '../../../lib/SharedUtils/WebSocketClient.mts'
 import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 import {ITwitchMessageData} from './Twitch.mts'
 import {IActionUser} from '../../../lib/index.mts'
@@ -25,14 +25,19 @@ import {PresetPipeChannel} from '../../../lib/index.mts'
 export default class Pipe {
     private _config: ConfigPipe = new ConfigPipe()
     private _chatConfig: ConfigChat = new ConfigChat()
-    private _socket?: WebSockets = undefined
+    private _socket?: WebSocketClient = undefined
     constructor() {}
-    async init() {
-        this._config = await DatabaseHelper.loadMain(new ConfigPipe())
-        this._chatConfig = await DatabaseHelper.loadMain(new ConfigChat())
-        this._socket = new WebSockets(`ws://localhost:${this._config.port}`, 10, true)
-        this._socket._onMessage = this.onMessage.bind(this)
-        this._socket._onError = this.onError.bind(this)
+    init() {
+        this._config = DatabaseHelper.loadMain(new ConfigPipe())
+        this._chatConfig = DatabaseHelper.loadMain(new ConfigChat())
+        this._socket = new WebSocketClient({
+            clientName: 'Pipe',
+            serverUrl: `ws://localhost:${this._config.port}`,
+            reconnectIntervalSeconds: 10,
+            messageQueueing: true,
+            onMessage: this.onMessage.bind(this),
+            onError: this.onError.bind(this)
+        })
         this._socket.init()
     }
     private onMessage(evt: MessageEvent) {

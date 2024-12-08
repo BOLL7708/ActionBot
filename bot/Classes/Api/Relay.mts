@@ -1,6 +1,6 @@
+import WebSocketClient from '../../../lib/SharedUtils/WebSocketClient.mts'
 import Color from '../../Constants/ColorConstants.mts'
 import {ActionHandler} from '../Actions.mts'
-import WebSockets from '../Client/WebSockets.mts'
 import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 import Utils from '../../Utils/Utils.mts'
 import {ConfigRelay} from '../../../lib/index.mts'
@@ -8,7 +8,7 @@ import {ConfigController} from '../../../lib/index.mts'
 
 export default class Relay {
     private readonly _logColor = Color.ForestGreen
-    private _socket: WebSockets|undefined = undefined
+    private _socket: WebSocketClient|undefined = undefined
     private _authorized: boolean = false
     private readonly _prefix = ':::'
     private readonly _channel: string
@@ -19,20 +19,25 @@ export default class Relay {
         this._password = password ?? ''
         if(onMessageCallback) this._onMessageCallback = onMessageCallback
     }
-    async init() {
-        const configRelay = await DatabaseHelper.loadMain<ConfigRelay>(new ConfigRelay())
-        this._socket = new WebSockets(`ws://localhost:${configRelay.port}`, 10, true)
-        this._socket._onOpen = this.onOpen.bind(this)
-        this._socket._onClose = this.onClose.bind(this)
-        this._socket._onMessage = this.onMessage.bind(this)
-        this._socket._onError = this.onError.bind(this)
-        const controllerConfig = await DatabaseHelper.loadMain<ConfigController>(new ConfigController())
+    init() {
+        const configRelay = DatabaseHelper.loadMain<ConfigRelay>(new ConfigRelay())
+        this._socket = new WebSocketClient({
+            clientName: 'Relay',
+            serverUrl: `ws://localhost:${configRelay.port}`,
+            reconnectIntervalSeconds: 10,
+            messageQueueing: true,
+            onOpen: this.onOpen.bind(this),
+            onClose: this.onClose.bind(this),
+            onMessage: this.onMessage.bind(this),
+            onError: this.onError.bind(this)
+        })
+        const controllerConfig = DatabaseHelper.loadMain<ConfigController>(new ConfigController())
         if(controllerConfig.useWebsockets.relay) this._socket.init()
         else Utils.log('Relay: Will not init websockets as it is disabled in the config.', this._logColor)
     }
     setOnMessageCallback(callback: IOnRelayMessageCallback) {
         this._onMessageCallback = callback
-        this.init().then()
+        this.init()
     }
 
     send(message: string) {

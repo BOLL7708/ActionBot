@@ -1,6 +1,6 @@
-import WebSockets from '../Client/WebSockets.mts'
 import {ConfigOBS} from '../../../lib/index.mts'
 import {IScreenshotRequestData} from '../../../lib/index.mts'
+import WebSocketClient from '../../../lib/SharedUtils/WebSocketClient.mts'
 import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 import Utils from '../../Utils/Utils.mts'
 import {ActionOBS} from '../../../lib/index.mts'
@@ -10,18 +10,23 @@ import {IActionUser} from '../../../lib/index.mts'
 import {OptionScreenshotFileType} from '../../../lib/index.mts'
 
 export default class OBS {
-    private _socket?: WebSockets
+    private _socket?: WebSocketClient
     private _config = new ConfigOBS()
     private _messageCounter: number = 10
     private _screenshotRequests: Map<string, IScreenshotRequestData> = new Map()
     constructor() {
 
     }
-    async init() {
-        this._config = await DatabaseHelper.loadMain(new ConfigOBS())
-        this._socket = new WebSockets(`ws://localhost:${this._config.port}`, 10, false)
-        this._socket._onOpen = this.onOpen.bind(this)
-        this._socket._onMessage = this.onMessage.bind(this)
+    init() {
+        this._config = DatabaseHelper.loadMain(new ConfigOBS())
+        this._socket = new WebSocketClient({
+            clientName: 'OBS',
+            serverUrl: `ws://localhost:${this._config.port}`,
+            reconnectIntervalSeconds: 10,
+            messageQueueing: false,
+            onOpen: this.onOpen.bind(this),
+            onMessage: this.onMessage.bind(this)
+        })
         this._socket.init()
     }
     private onOpen(evt: Event) {

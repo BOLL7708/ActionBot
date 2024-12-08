@@ -1,15 +1,15 @@
-import Color from '../../Constants/ColorConstants.mts'
-import WebSockets from '../Client/WebSockets.mts'
-import Utils from '../../Utils/Utils.mts'
-import TwitchHelixHelper from '../../Helpers/TwitchHelixHelper.mts'
 import {SettingTwitchRedemption} from '../../../lib/index.mts'
+import WebSocketClient from '../../../lib/SharedUtils/WebSocketClient.mts'
+import Color from '../../Constants/ColorConstants.mts'
 import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
+import TwitchHelixHelper from '../../Helpers/TwitchHelixHelper.mts'
+import Utils from '../../Utils/Utils.mts'
 import {ActionHandler, Actions} from '../Actions.mts'
 
 export default class TwitchEventSub {
     private LOG_COLOR = Color.DarkViolet
     private _serverUrl: string = 'wss://eventsub.wss.twitch.tv/ws'
-    private _socket?: WebSockets
+    private _socket?: WebSocketClient
     private _sessionId: string = ''
     private _keepAliveSeconds: number = 0
     private static _receivedMessageIds: string[] = []
@@ -61,13 +61,17 @@ export default class TwitchEventSub {
 
     // region Connection
     async init() {
-        this._socket = new WebSockets(this._serverUrl)
-        this._socket._onOpen = ()=>{
-            Utils.log('Connected to EventSub', Color.Purple, true, true)
-        }
-        this._socket._onClose = ()=>{}
-        this._socket._onError = ()=>{}
-        this._socket._onMessage = this.onMessage.bind(this)
+        this._socket = new WebSocketClient({
+            clientName: 'EventSub',
+            serverUrl: this._serverUrl,
+            onOpen: ()=>{
+                Utils.log('Connected to EventSub', Color.Purple, true, true)
+            },
+            onClose: ()=>{},
+            onError: ()=>{},
+            onMessage: this.onMessage.bind(this),
+
+        })
         this._socket.init()
     }
 

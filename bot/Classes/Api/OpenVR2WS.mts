@@ -1,5 +1,5 @@
 import {ConfigOpenVR2WS} from '../../../lib/index.mts'
-import WebSockets from '../Client/WebSockets.mts'
+import WebSocketClient from '../../../lib/SharedUtils/WebSocketClient.mts'
 import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 import Utils from '../../Utils/Utils.mts'
 import {ActionSettingVR} from '../../../lib/index.mts'
@@ -9,7 +9,7 @@ export default class OpenVR2WS {
     static get OVERLAY_LIV_MENU_BUTTON() { return 'VIVR_OVERLAY_MAIN_MENU_BUTTON' }
 
     private _config = new ConfigOpenVR2WS()
-    private _socket: WebSockets|undefined = undefined
+    private _socket: WebSocketClient|undefined = undefined
     private _resetLoopHandle: number|any = 0 // TODO: Transitional node fix
     private _resetSettingMessages: Map<string, IOpenVRWSCommandMessage> = new Map()
     private _resetSettingTimers: Map<string, number> = new Map()
@@ -20,17 +20,18 @@ export default class OpenVR2WS {
     constructor() {}
 
     async init() { // Init function as we want to set the callbacks before the first messages arrive.
-        this._config = await DatabaseHelper.loadMain(new ConfigOpenVR2WS())
+        this._config = DatabaseHelper.loadMain(new ConfigOpenVR2WS())
         this._password = await Utils.hashPassword(this._config.password)
-        this._socket = new WebSockets(
-            `ws://localhost:${this._config.port}`,
-            10,
-            false
-        )
-        this._socket._onMessage = this.onMessage.bind(this)
-        this._socket._onOpen = this.onOpen.bind(this)
-        this._socket._onClose = this.onClose.bind(this)
-        this._socket._onError = this.onError.bind(this)
+        this._socket = new WebSocketClient({
+            clientName: 'OpenVR2WS',
+            serverUrl: `ws://localhost:${this._config.port}`,
+            reconnectIntervalSeconds: 10,
+            messageQueueing: false,
+            onMessage: this.onMessage.bind(this),
+            onOpen: this.onOpen.bind(this),
+            onClose: this.onClose.bind(this),
+            onError: this.onError.bind(this)
+        })
         this._socket.init()
         this.startResetLoop()
     }

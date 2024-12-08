@@ -46,12 +46,12 @@ export default class Callbacks {
 
         // TODO: This should be on or off depending on a general websockets setting.
         //  Also add support for subscriber avatars, cheer emotes & avatar, raiders avatars.
-        const relayConfig = await DatabaseHelper.loadMain<ConfigRelay>(new ConfigRelay())
+        const relayConfig = DatabaseHelper.loadMain<ConfigRelay>(new ConfigRelay())
         this._imageRelay = new Relay(relayConfig.overlayImagesChannel)
-        this._imageRelay.init().then()
+        this._imageRelay.init()
 
         // region Chat
-        const announcementsConfig = await DatabaseHelper.loadMain<ConfigAnnouncements>(new ConfigAnnouncements())
+        const announcementsConfig = DatabaseHelper.loadMain<ConfigAnnouncements>(new ConfigAnnouncements())
         const announcerNames = (DataUtils.ensureDataArray(announcementsConfig.announcerUsers) ?? [])
                 .map((user)=>{return user.userName.toLowerCase() ?? ''})
                 .filter(v=>v) // Remove empty strings
@@ -67,7 +67,7 @@ export default class Callbacks {
 
                 // Pipe to VR (basic)
                 const user = await TwitchHelixHelper.getUserById(userData.id)
-                await modules.pipe.sendBasicObj(messageData, userData, user)
+                modules.pipe.sendBasicObj(messageData, userData, user)
             }
         })
 
@@ -94,8 +94,8 @@ export default class Callbacks {
             if(messageData.isAction) type = OptionTTSType.Action
 
             this._imageRelay.sendJSON(TwitchFactory.getEmoteImages(messageData.emotes, 2))
-            const twitchChatConfig = await DatabaseHelper.loadMain<ConfigChat>(new ConfigChat())
-            const controllerConfig = await DatabaseHelper.loadMain<ConfigController>(new ConfigController())
+            const twitchChatConfig = DatabaseHelper.loadMain<ConfigChat>(new ConfigChat())
+            const controllerConfig = DatabaseHelper.loadMain<ConfigController>(new ConfigController())
             const soundEffect = DataUtils.ensureData(twitchChatConfig.soundEffectOnEmptyMessage)
             if(states.ttsForAll) {
                 console.log('SPEECH', type)
@@ -151,12 +151,12 @@ export default class Callbacks {
             // Label messages with bits
             let label = ''
             if(!isNaN(bits) && bits > 0) {
-                const discordConfig = await DatabaseHelper.loadMain<ConfigDiscord>(new ConfigDiscord())
+                const discordConfig = DatabaseHelper.loadMain<ConfigDiscord>(new ConfigDiscord())
                 const unit = bits == 1 ? 'bit' : 'bits'
                 label = `${discordConfig.prefixCheer}**Cheered ${bits} ${unit}**: `
             }
             
-            const twitchChatConfig = await DatabaseHelper.loadMain<ConfigChat>(new ConfigChat())
+            const twitchChatConfig = DatabaseHelper.loadMain<ConfigChat>(new ConfigChat())
             const webhook = DataUtils.ensureData(twitchChatConfig.logToDiscord)
             if(states.logChatToDiscord && webhook) {
                 DiscordUtils.enqueueMessage(
@@ -182,9 +182,9 @@ export default class Callbacks {
             // TODO: Not yet available with EventSub, handle it on our own I guess.
             const amount = null // redemption.reward.redemptions_redeemed_current_stream
             const amountStr = amount != null ? ` #${amount}` : ''
-            const twitchChatConfig = await DatabaseHelper.loadMain<ConfigChat>(new ConfigChat())
+            const twitchChatConfig = DatabaseHelper.loadMain<ConfigChat>(new ConfigChat())
             const webhook = DataUtils.ensureData(twitchChatConfig.logToDiscord)
-            const discordConfig = await DatabaseHelper.loadMain<ConfigDiscord>(new ConfigDiscord())
+            const discordConfig = DatabaseHelper.loadMain<ConfigDiscord>(new ConfigDiscord())
             let description = `${discordConfig.prefixReward}**${event.reward.title}${amountStr}** (${event.reward.cost})`
             if(event.user_input.length > 0) description += `: ${Utils.escapeForDiscord(Utils.fixLinks(event.user_input))}`
             if(states.logChatToDiscord && webhook) {
@@ -240,9 +240,9 @@ export default class Callbacks {
 
         modules.twitchEventSub.setOnCheerCallback(async (event) => {
             // Save user cheer
-            const user = await DatabaseHelper.loadOrEmpty<SettingUser>(new SettingUser(), event.user_id)
+            const user = DatabaseHelper.loadOrEmpty<SettingUser>(new SettingUser(), event.user_id)
             user.cheer.lastBits = event.bits
-            await DatabaseHelper.save(user, event.user_id)
+            DatabaseHelper.save(user, event.user_id)
 
             // Announce cheer
             const bits = event.bits
@@ -260,7 +260,7 @@ export default class Callbacks {
         })
 
         modules.twitchEventSub.setOnRaidCallback(async (event) => {
-            const broadcasterId = (await TwitchHelixHelper.getBroadcasterUserId()).toString()
+            const broadcasterId = (TwitchHelixHelper.getBroadcasterUserId()).toString()
             let announcement: ConfigAnnounceRaid|undefined = undefined
             let currentViewerThreshold = 0
             for(const raidAnnouncement of announcementsConfig.announceRaids) {
@@ -285,7 +285,7 @@ export default class Callbacks {
 
         // region Screenshots
         modules.sssvr.setScreenshotCallback(async (requestData, responseData) => {
-            const screenshotsConfig = await DatabaseHelper.loadMain<ConfigScreenshots>(new ConfigScreenshots())
+            const screenshotsConfig = DatabaseHelper.loadMain<ConfigScreenshots>(new ConfigScreenshots())
 
             // Pipe manual screenshots into VR if configured.
             const pipeEnabledForEvents = DataUtils.ensureKeyArray(screenshotsConfig.callback.pipeEnabledForEvents) ?? []
@@ -319,11 +319,11 @@ export default class Callbacks {
 
             const webhooks = DataUtils.ensureDataArray(screenshotsConfig.callback.discordWebhooksSSSVR) ?? []
             const dataUrl = Utils.b64ToDataUrl(responseData.image)
-            const discordConfig = await DatabaseHelper.loadMain<ConfigDiscord>(new ConfigDiscord())
+            const discordConfig = DatabaseHelper.loadMain<ConfigDiscord>(new ConfigDiscord())
 
             // Post screenshot to Sign and Discord
             const blob = screenshotsConfig.callback.discordEmbedImageFormat == OptionScreenshotFileType.JPG
-                ? await ImageEditor.convertPngDataUrlToJpegBlobForDiscord(dataUrl)
+                ? await ImageEditor.convertPngDataUrlToJpegBlobForDiscord(dataUrl) // TODO: Needs a third party library for canvas
                 : Utils.b64toBlob(dataUrl)
             if(requestData) { // A screenshot from a reward
                 const userData = await TwitchHelixHelper.getUserById(requestData.userId)
@@ -372,12 +372,12 @@ export default class Callbacks {
         })
 
         modules.obs.registerSourceScreenshotCallback(async (img, requestData, nonce) => {
-            const screenshotsConfig = await DatabaseHelper.loadMain<ConfigScreenshots>(new ConfigScreenshots())
+            const screenshotsConfig = DatabaseHelper.loadMain<ConfigScreenshots>(new ConfigScreenshots())
 
             const b64data = img.split(',').pop() ?? ''
             const dataUrl = Utils.b64ToDataUrl(b64data)
             const nonceCallback = states.nonceCallbacks.get(nonce)
-            const discordConfig = await DatabaseHelper.loadMain<ConfigDiscord>(new ConfigDiscord())
+            const discordConfig = DatabaseHelper.loadMain<ConfigDiscord>(new ConfigDiscord())
             if(nonceCallback) nonceCallback()
 
             if(requestData != null) {
@@ -488,10 +488,10 @@ export default class Callbacks {
         modules.relay.setOnMessageCallback(async (message) => {
             const msg = message as IRelayTempMessage
             const relay = this._relays.get(msg.key)
-            const user = await DatabaseHelper.load<SettingTwitchTokens>(new SettingTwitchTokens(), 'Channel')
+            const user = DatabaseHelper.load<SettingTwitchTokens>(new SettingTwitchTokens(), 'Channel')
             if(relay) {
                 Utils.log(`Callbacks: Relay callback found for ${msg.key}: ${JSON.stringify(msg.data)}`, Color.Green)
-                relay.handler?.call(await Actions.buildEmptyUserData(EEventSource.Relay, msg.key, user?.userLogin, msg.data))
+                relay.handler?.call(await Actions.buildEmptyUserData(EEventSource.Relay, msg.key, user?.userLogin, msg.data)).then()
             } else {
                 Utils.log(`Callbacks: OpenVR2WS Relay callback for ${msg.key} not found.`, Color.OrangeRed)
             }

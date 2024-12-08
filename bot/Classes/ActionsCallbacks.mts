@@ -605,7 +605,7 @@ export default class ActionsCallbacks {
                         // We check if the reward counter is at zero because then we should not update as it enables
                         // the reward while it could have been disabled by profiles.
                         // To update settings for the widget reward, we update it as any normal reward, using !update.
-                        const counter = await DatabaseHelper.loadOrEmpty(new SettingIncrementingCounter(), eventID.toString())
+                        const counter = DatabaseHelper.loadOrEmpty(new SettingIncrementingCounter(), eventID.toString())
                         if(counter.count == 0) {
                             totalSkippedCount++
                             continue

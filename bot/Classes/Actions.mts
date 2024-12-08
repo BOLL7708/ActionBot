@@ -390,7 +390,7 @@ export class Actions {
      */
     public static async buildEmptyUserData(source: EEventSource, key: string, userName?: string, userInput?: string, userMessage?: string): Promise<IActionUser> {
         // TODO: Make this use the user ID instead of username?
-        const channelTokens = await DatabaseHelper.load<SettingTwitchTokens>(new SettingTwitchTokens(), 'Channel')
+        const channelTokens = DatabaseHelper.load<SettingTwitchTokens>(new SettingTwitchTokens(), 'Channel')
         const user = await TwitchHelixHelper.getUserByLogin(userName ?? channelTokens?.userLogin ?? '')
         const input = userInput ?? ''
         return {

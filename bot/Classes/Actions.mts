@@ -1,6 +1,5 @@
-import {AbstractAction, AbstractTrigger, ActionSystemRewardState, DataUtils, EventActionContainer, EventDefault, IActionCallback, IActionsExecutor, IActionsMainCallback, IActionUser, OptionEntryUsage, OptionEventBehavior, OptionEventRun, OptionTwitchRewardUsable, OptionTwitchRewardVisible, PresetReward, SettingAccumulatingCounter, SettingIncrementingCounter, SettingTwitchTokens, TriggerReward} from '../../lib/index.mts'
+import {AbstractAction, AbstractTrigger, ActionSystemRewardState, DataUtils, EEventSource, EventActionContainer, EventDefault, IActionCallback, IActionsExecutor, IActionsMainCallback, IActionUser, ITwitchEventSubEventRedemption, OptionEntryUsage, OptionEventBehavior, OptionEventRun, OptionTwitchRewardUsable, OptionTwitchRewardVisible, PresetReward, SettingAccumulatingCounter, SettingIncrementingCounter, SettingTwitchTokens, TriggerReward} from '../../lib/index.mts'
 import ValueUtils from '../../lib/SharedUtils/ValueUtils.mts'
-import {EEventSource} from '../../lib/Types/Event.mts'
 import Color from '../Constants/ColorConstants.mts'
 import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
 import TextHelper from '../Helpers/TextHelper.mts'
@@ -8,7 +7,7 @@ import TwitchHelixHelper from '../Helpers/TwitchHelixHelper.mts'
 import StatesSingleton from '../Singletons/StatesSingleton.mts'
 import ArrayUtils from '../Utils/ArrayUtils.mts'
 import Utils from '../Utils/Utils.mts'
-import {ITwitchEventSubEventCheer, ITwitchEventSubEventRedemption} from './Api/TwitchEventSub.mts'
+import {ITwitchEventSubEventCheer} from './Api/TwitchEventSub.mts'
 
 export class ActionHandler {
     constructor(
@@ -16,7 +15,7 @@ export class ActionHandler {
         public appId: string = ''
     ) {}
     public async call(user: IActionUser) {
-        let event = await DatabaseHelper.loadOrEmpty<EventDefault>(new EventDefault(), this.key)
+        let event = DatabaseHelper.loadOrEmpty<EventDefault>(new EventDefault(), this.key)
 
         /* TODO: REIMPLEMENT GAME EVENTS LATER WHEN WE ACTUALLY CAN STORE GAME EVENTS
         if(this.appId.length > 0) {
@@ -304,7 +303,7 @@ export class ActionHandler {
 export class Actions {
     public static async init() {
         Utils.log('=== Registering Triggers for Events ===', Color.DarkGreen)
-        const events = DataUtils.getKeyDataDictionary<EventDefault>(await DatabaseHelper.loadAll(new EventDefault()) ?? {})
+        const events = DataUtils.getKeyDataDictionary<EventDefault>(DatabaseHelper.loadAll(new EventDefault()) ?? {})
         if(events) {
             for(const [key, event] of Object.entries(events)) {
                 const triggers = DataUtils.ensureDataArray(event.triggers) ?? []

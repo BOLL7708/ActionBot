@@ -1,7 +1,7 @@
-import {AbstractData} from '../AbstractData.mts'
+import {ITwitchCommand} from '../../../../bot/Classes/Api/Twitch.mjs'
 import {EEventSource} from '../../../Types/Event.mts'
-import {ITwitchCommand} from '../../../../bot/Classes/Api/Twitch.mts'
-import {ITwitchEventSubEventRedemption} from '../../../../bot/Classes/Api/TwitchEventSub.mts'
+import {ITwitchEventSubEventRedemption} from '../../../Types/Twitch.mjs'
+import {AbstractData} from '../AbstractData.mts'
 
 export abstract class AbstractAction extends AbstractData {
     /**

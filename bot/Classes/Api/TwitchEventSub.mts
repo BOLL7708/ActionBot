@@ -1,4 +1,4 @@
-import {SettingTwitchRedemption, TTwitchEventSubEventStatus} from '../../../lib/index.mts'
+import {ITwitchEventSubEventRedemption, SettingTwitchRedemption} from '../../../lib/index.mts'
 import WebSocketClient from '../../../lib/SharedUtils/WebSocketClient.mts'
 import Color from '../../Constants/ColorConstants.mts'
 import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
@@ -550,28 +550,6 @@ export interface ITwitchEventSubEmote {
     id: number
 }
 
-/**
- * @link https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelchannel_points_custom_reward_redemptionadd
- * @link https://dev.twitch.tv/docs/eventsub/eventsub-reference/#channel-points-custom-reward-redemption-add-event
- */
-export interface ITwitchEventSubEventRedemption {
-    id: string
-    broadcaster_user_id: string
-    broadcaster_user_login: string
-    broadcaster_user_name: string
-    user_id: string
-    user_login: string
-    user_name: string
-    user_input: string
-    status: TTwitchEventSubEventStatus,
-    reward: {
-        id: string
-        title: string
-        cost: number
-        prompt: string
-    },
-    redeemed_at: string
-}
 export interface ITwitchEventSubEventCheer {
     is_anonymous: boolean
     user_id: string // null if is_anonymous=true

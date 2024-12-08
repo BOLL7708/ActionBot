@@ -1,4 +1,4 @@
-import {SettingTwitchRedemption} from '../../../lib/index.mts'
+import {SettingTwitchRedemption, TTwitchEventSubEventStatus} from '../../../lib/index.mts'
 import WebSocketClient from '../../../lib/SharedUtils/WebSocketClient.mts'
 import Color from '../../Constants/ColorConstants.mts'
 import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
@@ -549,10 +549,6 @@ export interface ITwitchEventSubEmote {
     end: number
     id: number
 }
-export type TTwitchEventSubEventStatus =
-    'FULFILLED'
-    | 'UNFULFILLED'
-    | 'CANCELED'
 
 /**
  * @link https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelchannel_points_custom_reward_redemptionadd

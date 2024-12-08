@@ -1,6 +1,6 @@
+import { TTwitchEventSubEventStatus } from '../../../index.mts';
 import {AbstractData} from '../AbstractData.mts'
 import {DataMap} from '../DataMap.mts'
-import {TTwitchEventSubEventStatus} from '../../../../bot/Classes/Api/TwitchEventSub.mts'
 
 export class SettingTwitchClient extends AbstractData {
     clientId: string = ''

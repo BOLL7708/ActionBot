@@ -1,10 +1,10 @@
+import '../Runners/index.mts' // This is required so the prototypes get extended.
 import {assert, assertEquals} from 'jsr:@std/assert'
+import {ActionAudio, ActionChat, ActionCustom, ActionLabel, ConfigController, ConfigMain, ConfigSpeech, DataEntries, EnlistData, EventDefault, IDatabaseItem, IDictionary, PresetAudioChannel} from '../../lib/index.mts'
 import Log, {EEasyDebugLogLevel} from '../../lib/SharedUtils/Log.mts'
-import DatabaseHelper, {IDatabaseItem} from '../Helpers/DatabaseHelper.mts'
-import DataBaseHelper_OLD, {IDataBaseListItems, type IDataBaseListItem} from '../Helpers/DataBaseHelper_OLD.mts'
-import {IDictionary} from '../../lib/Types/Dictionary.mts'
+import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
+import DataBaseHelper_OLD, {type IDataBaseListItem} from '../Helpers/DataBaseHelper_OLD.mts'
 import DatabaseSingleton from '../Singletons/DatabaseSingleton.mts'
-import {ActionAudio, ActionChat, ActionCustom, ActionLabel, ConfigController, ConfigMain, ConfigSpeech, DataEntries, EnlistData, EventDefault, PresetAudioChannel} from '../../lib/index.mts'
 
 Deno.test('init', async () => {
     EnlistData.run()

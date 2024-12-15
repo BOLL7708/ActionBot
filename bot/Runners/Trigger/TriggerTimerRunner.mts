@@ -1,5 +1,5 @@
 import {EEventSource, TriggerTimer} from '../../../lib/index.mts'
-import {ActionHandler, Actions} from '../../Classes/Actions.mjs'
+import {ActionHandler, Actions} from '../../Classes/Actions.mts'
 
 TriggerTimer.prototype.register = async function(eventKey: string) {
     const actionHandler = new ActionHandler(eventKey)

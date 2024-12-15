@@ -1,9 +1,8 @@
+import {IDatabaseItem} from '../../index.mts'
+import ValueUtils from '../../SharedUtils/ValueUtils.mts'
+import {IDictionary, INumberDictionary, IStringDictionary} from '../../Types/Dictionary.mts'
 import {AbstractData, DataEntries, DataRefValues} from './AbstractData.mts'
 import {DataMap} from './DataMap.mts'
-import {IDictionary, INumberDictionary, IStringDictionary} from '../../Types/Dictionary.mts'
-// TODO: Migrate bot dependencies to shared (or something... oh cheese we use DB here wut)
-import {IDatabaseItem} from '../../../bot/Helpers/DatabaseHelper.mts'
-import ValueUtils from '../../SharedUtils/ValueUtils.mts';
 
 export class DataUtils {
     // region Referencing

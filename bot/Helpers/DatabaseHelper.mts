@@ -1,7 +1,6 @@
-import {AbstractData, DataMap} from '../../lib/index.mts'
+import {AbstractData, DataMap, IDatabaseClassItem, IDatabaseItem, IDatabaseItemRaw, IDatabaseListItem, IDatabaseNextKeyItem, IDatabaseRow, IDictionary, INumberDictionary, IStringDictionary} from '../../lib/index.mts'
 import Log from '../../lib/SharedUtils/Log.mts'
 import ValueUtils from '../../lib/SharedUtils/ValueUtils.mts'
-import {IDictionary, INumberDictionary, IStringDictionary} from '../../lib/Types/Dictionary.mts'
 import DatabaseSingleton, {TDatabaseQueryInput} from '../Singletons/DatabaseSingleton.mts'
 import Utils from '../Utils/Utils.mts'
 
@@ -119,7 +118,11 @@ export default class DatabaseHelper {
 
         // Upsert
         const result = db.queryRun({
-           query: "INSERT INTO json_store (group_class, group_key, parent_id, data_json) VALUES (:group_class, :group_key, :parent_id, :data_json) ON CONFLICT DO UPDATE SET parent_id=:parent_id, data_json=:data_json;",
+            query: `
+INSERT INTO json_store (group_class, group_key, parent_id, data_json)
+VALUES (:group_class, :group_key, :parent_id, :data_json) 
+ON CONFLICT DO UPDATE SET parent_id=:parent_id, data_json=:data_json;
+            `,
            params: {group_class: groupClass, group_key: groupKey, parent_id: parentId, data_json: jsonStr}
         })
         if(!result) groupKey = null
@@ -649,33 +652,6 @@ export default class DatabaseHelper {
         return groupKey
     }
 
-    /**
-     * Get authorization header with optional JSON content type.
-     * @param options
-     * @private
-     */
-    private static getHeader(
-        options: IDatabaseHelperHeaders
-    ): HeadersInit {
-        const headers = new Headers()
-        // TODO: Auth will break here, but we can do the initial DB implementation unauthed
-        // headers.set('Authorization', localStorage.getItem(Constants.LOCAL_STORAGE_KEY_AUTH+Utils.getCurrentPath()) ?? '')
-        if(options.groupClass !== undefined) headers.set('X-Group-Class', options.groupClass)
-        if(options.groupKey !== undefined) headers.set('X-Group-Key', options.groupKey)
-        if(options.newGroupKey !== undefined) headers.set('X-New-Group-Key', options.newGroupKey)
-        if(options.addJsonHeader) headers.set('Content-Type', 'application/json; charset=utf-8')
-        if(options.rowIds !== undefined) headers.set('X-Row-Ids', options.rowIds.toString())
-        if(options.rowIdList !== undefined) headers.set('X-Row-Id-List', options.rowIdList ? '1' : '0')
-        if(options.rowIdLabel !== undefined) headers.set('X-Row-Id-Label', options.rowIdLabel)
-        if(options.noData !== undefined) headers.set('X-No-Data', options.noData ? '1' : '0')
-        if(options.parentId !== undefined) headers.set('X-Parent-Id', options.parentId.toString())
-        if(options.searchQuery !== undefined) headers.set('X-Search-Query', options.searchQuery)
-        if(options.nextGroupKey !== undefined) headers.set('X-Next-Group-Key', options.nextGroupKey ? '1' : '0')
-        if(options.onlyId !== undefined) headers.set('X-Only-Id', options.onlyId ? '1' : '0')
-        if(options.categoryId !== undefined) headers.set('X-Delete-Category', options.categoryId.toString())
-        return headers
-    }
-
     private static checkAndReportClassError(className: string, action: string): boolean {
         // TODO: Add callstack?
         const isProblem = className == 'Object'
@@ -721,57 +697,3 @@ export default class DatabaseHelper {
     }
     // endregion
 }
-
-// region Interfaces
-interface IDatabaseHelperHeaders {
-    groupClass?: string
-    groupKey?: string
-    newGroupKey?: string
-    rowIds?: number|string
-    rowIdList?: boolean
-    rowIdLabel?: string
-    noData?: boolean
-    addJsonHeader?: boolean
-    parentId?: number
-    searchQuery?: string
-    nextGroupKey?: boolean
-    onlyId?: boolean
-    categoryId?: number
-}
-
-export interface IDatabaseItem<T> {
-    id: number
-    class: string
-    key: string
-    pid: number|null
-    data: (T&AbstractData)|null
-    filledData: (T&AbstractData)|null // Bonus property not from the DB, it's the data property but with references filled in.
-}
-export interface IDatabaseItemRaw extends IDatabaseItem<any> {
-    data: string
-}
-export interface IDatabaseListItem {
-    id?: number
-    key: string
-    label: string
-    pid: number|null
-}
-export interface IDatabaseNextKeyItem {
-    key: string
-}
-
-export interface IDatabaseRow {
-    row_id: number
-    row_created: string
-    row_modified: string
-    group_class: string
-    group_key: string
-    parent_id: number|null
-    data_json: string
-}
-
-export interface IDatabaseClassItem {
-    row_id: number
-    group_class: string
-}
-// endregion

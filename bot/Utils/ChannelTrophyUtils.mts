@@ -1,12 +1,10 @@
-import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
-import DataUtils from '../Objects/Data/DataUtils.mts'
-import SettingChannelTrophyStat from '../Objects/Data/Setting/SettingChannel.mts'
-import TwitchHelixHelper from '../Helpers/TwitchHelixHelper.mts'
-import Utils from './Utils.mts'
-import TextHelper from '../Helpers/TextHelper.mts'
+import {ConfigController, ConfigControllerChannelTrophyNumber, DataUtils, SettingChannelTrophyStat} from '../../lib/index.mts'
 import Color from '../Constants/ColorConstants.mts'
-import ConfigController, {ConfigControllerChannelTrophyNumber} from '../Objects/Data/Config/ConfigController.mts'
+import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
+import TextHelper from '../Helpers/TextHelper.mts'
+import TwitchHelixHelper from '../Helpers/TwitchHelixHelper.mts'
 import {IDiscordEmbed, IDiscordEmbedField} from './DiscordUtils.mts'
+import Utils from './Utils.mts'
 
 export default class ChannelTrophyUtils {
     static async getNumberOfStreams():Promise<number> {
@@ -282,7 +280,7 @@ export default class ChannelTrophyUtils {
             userId: userId
         }
         // if(n < 10) return null
-        const controllerConfig = await DatabaseHelper.loadMain(new ConfigController())
+        const controllerConfig = DatabaseHelper.loadMain<ConfigController>(new ConfigController())
         const nameForDiscord = `%userName (**${n}**)`
         const nameForTTS = 'temp' // TODO controllerConfig.channelTrophySettings.ttsName
         const nStr = n.toString()

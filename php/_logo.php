@@ -6,8 +6,7 @@ $config = array_pop($configArr)->data;
 $foregroundColor = $config->logo->foregroundColor ?? '#FFCA34';
 $backgroundColor = $config->logo->backgroundColor ?? '#9146FF';
 
-$logo = file_get_contents('../app/htdocs/media/desbot_logo.svg');
-$logo = preg_replace('/\.bg.*{.*}/U', ".bg { fill: $backgroundColor; }", $logo);
-$logo = preg_replace('/\.fg.*{.*}/U', ".fg { fill: $foregroundColor; }", $logo);
+$logo = file_get_contents('../app/htdocs/media/actionbot_eye.svg');
+$logo = preg_replace('/#ffffff/U', $foregroundColor, $logo);
 header('Content-Type: image/svg+xml');
 echo $logo;

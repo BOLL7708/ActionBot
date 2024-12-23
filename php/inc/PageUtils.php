@@ -14,7 +14,7 @@ class PageUtils
         <!DOCTYPE html>
         <html lang="en">
         <head>
-            <title>desbot: <?= ucfirst($scriptFile) ?></title>
+            <title>ActionBot: <?= ucfirst($scriptFile) ?></title>
             <link rel="icon" type="image/svg+xml" href="_logo.php"/>
             <link rel="stylesheet" href="../app/htdocs/styles/general.css"/>
             <link rel="stylesheet" href="../app/htdocs/styles/_shared.css"/>

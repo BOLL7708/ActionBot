@@ -1,8 +1,5 @@
-import DatabaseHelper from '../../../../bot/Helpers/DatabaseHelper.mts'
-import TwitchHelixHelper from '../../../../bot/Helpers/TwitchHelixHelper.mts'
 import {AbstractData, DataEntries} from '../AbstractData.mts'
-import {DataMap, RootToolResult} from '../DataMap.mts'
-import {DataUtils} from '../DataUtils.mts'
+import {DataMap} from '../DataMap.mts'
 import {PresetPermissions} from '../Preset/PresetPermissions.mts'
 import {PresetReward} from '../Preset/PresetReward.mts'
 import {SettingTwitchReward} from '../Setting/SettingTwitch.mts'
@@ -28,6 +25,8 @@ export class TriggerReward extends AbstractTrigger {
                 rewardID: SettingTwitchReward.ref.id.label.build(),
                 rewardEntries: AbstractData.genericRef('PresetReward').build() // I believe this was done to give these items a parent
             },
+            /*
+            // TODO: This is BOT code, it should be stored in the BOT, figure out how to define this. This tools proper is referenced in a number of places so this will be a mess to untangle.
             tools: {
                 rewardID: {
                     label: 'Create reward on Twitch',
@@ -68,6 +67,7 @@ export class TriggerReward extends AbstractTrigger {
                     }
                 }
             }
+            */
         })
     }
 }

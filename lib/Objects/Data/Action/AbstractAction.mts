@@ -1,4 +1,3 @@
-import {ITwitchCommand} from '../../../../bot/Classes/Api/Twitch.mts'
 import {EEventSource} from '../../../Types/Event.mts'
 import {ITwitchEventSubEventRedemption} from '../../../Types/Twitch.mts'
 import {AbstractData} from '../AbstractData.mts'
@@ -62,6 +61,6 @@ export interface IActionUser {
     bits: number,
     bitsTotal: number
     rewardCost: number
-    commandConfig?: ITwitchCommand
+    commandEntries?: string[]
     rewardMessage?: ITwitchEventSubEventRedemption
 }

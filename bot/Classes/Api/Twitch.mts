@@ -347,7 +347,7 @@ export default class Twitch{
 
         // Update user object
         user.eventKey = command.eventKey
-        user.commandConfig = command
+        user.commandEntries = command.trigger.entries
 
         // Handle
         if(allowedByGlobalCooldown && allowedByUserCooldown) {

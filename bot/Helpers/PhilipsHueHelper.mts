@@ -130,7 +130,7 @@ export default class PhilipsHueHelper {
     static async registerBridge(serverPath: string): Promise<IPhilipsHueBridgeRegisterResult> {
         const response = await fetch(`${serverPath}/api`, {
             method: 'POST',
-            body: JSON.stringify({devicetype: 'desbot.app'})
+            body: JSON.stringify({devicetype: 'actionbot.app'})
         })
         if(response.ok) {
             const json = await response.json()

@@ -47,7 +47,7 @@ export default class MainController {
         const controllerConfig = await DatabaseHelper.loadMain<ConfigController>(new ConfigController())
         if(controllerConfig.useWebsockets.twitchEventSub) modules.twitchEventSub.init().then()
 
-        modules.pipe.setOverlayTitle("desbot").then()
+        modules.pipe.setOverlayTitle("ActionBot").then()
 
         Functions.setEmptySoundForTTS().then()
 

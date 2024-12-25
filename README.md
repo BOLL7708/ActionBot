@@ -1,10 +1,10 @@
-# desbot [alpha]
+# ActionBot (Alpha)
 The bot is currently in alpha, that means not all features are here, but it is possible to run. Expect large changes to still occur.
 
 ## What does it do?
 
 ### The Project
-Desbot is a streaming bot for Twitch, it runs as a browser-source in your streaming software, it can connect to various APIs and services, play back media and show on screen graphics.  
+ActionBot is a streaming bot for Twitch, it runs as a browser-source in your streaming software, it can connect to various APIs and services, play back media and show on screen graphics.  
 
 ### Capabilities
 The bot is meant to be a nexus for your stream interactions, it can connect to a range of services and APIs, and it can be extended with custom scripts. Expand the section below for a high level overview of what it can do.
@@ -46,9 +46,9 @@ This section will explain how to get started with the bot, how to install it, ho
 3. An API key from [Google][googletts], so you get access to TTS functionality, which is a commonly used feature in the bot.
 
 #### Get the bot
-1. Clone this repository to a folder in the document root of your webserver, go to it in the terminal and run `git clone https://github.com/BOLL7708/desbot.git`. If you are using `XAMPP` the root is `xampp/htdocs`.
+1. Clone this repository to a folder in the document root of your webserver, go to it in the terminal and run `git clone https://github.com/BOLL7708/ActionBot.git`. If you are using `XAMPP` the root is `xampp/htdocs`.
 2. Navigate into the `./scripts` folder and run `1_install.cmd`, this will install dependencies and compile the project.
-3. Open the URL to the bot in your browser and go through the setup, see the next section for configuration, the URL should look something like this if you used the defaults: `http://localhost/desbot/`
+3. Open the URL to the bot in your browser and go through the setup, see the next section for configuration, the URL should look something like this if you used the defaults: `http://localhost/actionbot/`
 
 </details>
 
@@ -113,11 +113,11 @@ This describes the various data structure that is used to manage and configure t
 There are a range of data sources used by the events, triggers and actions. These are descibed below.
 ```mermaid
 flowchart LR
-    Desbot[DESBOT\nThe bot uses these things to function.]
-    Desbot --> Config[CONFIG\nCollections of configuration\nvalues used for various integrations.]
-    Desbot --> Preset[PRESET\nManually added data that is meant\nto be reused in multiple places.]
-    Desbot --> Setting[SETTING\nAutomatically added data that the bot\nmanages, usually no need to access these.]
-    Desbot --> Event[EVENT\nContains triggers\nthat trigger actions.]
+    ActionBot[ACTIONBOT\nThe bot uses these things to function.]
+    ActionBot --> Config[CONFIG\nCollections of configuration\nvalues used for various integrations.]
+    ActionBot --> Preset[PRESET\nManually added data that is meant\nto be reused in multiple places.]
+    ActionBot --> Setting[SETTING\nAutomatically added data that the bot\nmanages, usually no need to access these.]
+    ActionBot --> Event[EVENT\nContains triggers\nthat trigger actions.]
     Event --> Trigger[TRIGGER\nThese are the things that\ncauses the bot to perform things.]
     Event --> Action[ACTION\nThese are the things that\nthe bot can cause to happen.]
 ```
@@ -129,25 +129,24 @@ The items below are both major conversions and new features. These are things th
 <details>
 
 1. The DB conversion took 16 months, but it's done, it's on here as there is some polish to do before continuing to the next thing.
-2. Convert the backend of the project to Node.JS, this has a number of benefits.
-   * NPM libraries for Twitch, Discord, etc. This will offload the API integration maintenance which will help a lot.
-   * Node instead of Apache for HTTP serving, this will remove one installation to run the bot.
-   * Node instead of PHP for page rendering and DB access, this will make for a more stable connection to SQLite.
-   * Node to host a Websocket relay server, instead of relying on a separate application.
-   * Node can run some browser APIs that can be offloaded from the browser component.
-   * Node can be run on Windows, Mac, Linux and can thus likely run 24/7 on a Raspberry Pi.
-3. Presenter - Break out the presentation part into a separate component. This will come automatically with the Node.JS conversion, but could be looked at beforehand. Basically all media playback and on screen overlays will be a separately hosted webpage that gets data over Websockets from the backend.
-4. Dashboard - Create a Stream Deck equivalent as a webpage, where reward and system features can be toggled or triggered. This is where the old game reward profile feature will come back as we can persist reward states for the running Steam game.
+2. Convert the backend of the project to Deno, this has a number of benefits.
+   * Third party libraries for Twitch, Discord, OBS, etc. This will offload the API integration maintenance which will help reducing the workload.
+   * Deno instead of Apache for HTTP serving, this will remove one installation to run the bot.
+   * Deno instead of PHP for page rendering and DB access, this will make for a more stable connection to SQLite.
+   * Deno to host a Websocket server, instead of relying on a separate application.
+   * Deno can run some browser APIs that can be offloaded from the browser component.
+   * Deno can be run on Windows, Mac, Linux and can thus run 24/7 on a Raspberry Pi.
+3. Presenter - Break out the presentation part into a separate component. This will be required with the Deno conversion, but could be looked at beforehand. Basically all media playback and on screen overlays will be a separately hosted webpage that gets data over Websockets from the backend.
+4. Dashboard - Create a Stream Deck equivalent as a webpage, where reward and system features can be toggled or triggered. This is where the old game reward profile feature will come back as we can persist reward states for the running game.
 
 ### Planned Final Bot Structure
-This has been the plan for a while, the whole conversion from config files to database with an editor has taken a while, so we're still a bit from splitting up the project and convert it to Node.JS.
+This is currently what is being worked on, the porting to Deno is a major undertaking, and will be the ongoing topic for some time.
 ```mermaid
 flowchart LR
-    Desbot[DESBOT]
-    Desbot --> Nexus[NEXUS\nThe backend running in Node.JS\nmanaging data I/O and API\nconnections. Will host web\ncomponents and a websocket relay.]
-    Nexus --> Presenter[PRESENTER\nWeb component that displays\ngraphics, video and plays back audio.\nUsed as browser source in OBS.]
-    Nexus --> Editor[EDITOR\nWeb component that provides\nsetup and configuration.]
-    Nexus --> Dashboard[DASHBOARD\nWeb component that provides\na Stream Deck equivalent\nfor managing the system.]
+    Bot[BOT\nThe backend running in Deno, manages\ndata I/O and API connections.\nHosts web components and a websocket\nserver.]
+    Bot --> Presenter[PRESENTER\nWeb component that displays\ngraphics, video and plays back audio.\nUsed as browser source in OBS.]
+    Bot --> Editor[EDITOR\nWeb component that provides\nsetup and configuration.]
+    Bot --> Dashboard[DASHBOARD\nWeb component that provides\na Stream Deck equivalent\nfor managing the system.]
 ```
 </details>
 
@@ -165,9 +164,6 @@ flowchart LR
 [pipe]: https://github.com/BOLL7708/OpenVROverlayPipe
 [sssvr]: https://github.com/BOLL7708/SuperScreenShotterVR
 
-[website]: https://desbot.app
-[discord]: https://desbot.app/discord
-[reddit]: https://desbot.app/reddit
-[twitter]: https://desbot.app/twitter
-[bluesky]: https://desbot.app/bluesky
-[trello]: https://desbot.app/trello
+[website]: https://actionbot.app
+[discord]: https://actionbot.app/discord
+[trello]: https://actionbot.app/trello

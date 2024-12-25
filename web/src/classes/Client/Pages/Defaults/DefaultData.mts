@@ -1770,12 +1770,12 @@ export default class DefaultData {
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
-                    trigger.entries = ['bot', 'desbot']
+                    trigger.entries = ['bot', 'actionbot']
                     trigger.category = OptionCommandCategory.Links
                     trigger.helpText = 'Posts a link to the bot website.'
                     trigger.globalCooldown = 60 * 5
                     const action = new ActionChat()
-                    action.entries = ['Read about the bot here: https://desbot.app']
+                    action.entries = ['Read about the bot here: https://actionbot.app']
                     return await DefaultData.registerEvent(
                         instance, key, [trigger], [action],
                         await DefaultData.loadID(new PresetEventCategory(), EKeys.EventCategoryBonusImports)
@@ -1793,7 +1793,7 @@ export default class DefaultData {
                     trigger.helpText = 'Posts a link to the issues page for the bot.'
                     trigger.globalCooldown = 60 * 5
                     const action = new ActionChat()
-                    action.entries = ['Post feedback and bugs for the bot here: https://desbot.app/issues']
+                    action.entries = ['Post feedback and bugs for the bot here: https://actionbot.app/issues']
                     return await DefaultData.registerEvent(
                         instance, key, [trigger], [action],
                         await DefaultData.loadID(new PresetEventCategory(), EKeys.EventCategoryBonusImports)

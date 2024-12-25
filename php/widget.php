@@ -4,7 +4,7 @@ include_once('_init.php');
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>desbot</title>
+        <title>ActionBot</title>
         <link rel="icon" type="image/svg+xml" href="_logo.php" />
         <link rel="stylesheet" href="../web/htdocs/styles/widget.css"/>
     </head>

@@ -1,6 +1,6 @@
-# Contributing to desbot
+# Contributing to ActionBot
 
-Thank you for wanting to contribute to the project. The following is a set of guidelines for contributing to desbot, which is hosted on GitHub.
+Thank you for wanting to contribute to the project. The following is a set of guidelines for contributing to ActionBot, which is hosted on GitHub.
 
 ## Bugs
     
@@ -18,7 +18,7 @@ If you want to contribute right now, the biggest need right now is frontend deve
     
 ## Development
 
-You don't need a special version of desbot to develop for it, the project is delivered as the source code, and can be modified at will. It is recommended to clone the project again though, so you have one bot to use when live, and one for development, unless you like to live dangerously.
+You don't need a special version of ActionBot to develop for it, the project is delivered as the source code, and can be modified at will. It is recommended to clone the project again though, so you have one bot to use when live, and one for development, unless you like to live dangerously.
 
 To build the project with a JetBrains editor, add these file names patterns to `Settings > Editor > File Types > TypeScript config`: `tsconfig.server.json`, `tsconfig.client.json`.
 
@@ -26,5 +26,5 @@ To build the project with a JetBrains editor, add these file names patterns to `
 
 See `README.md` for the current roadmap.
 
-[issues]: https://github.com/BOLL7708/desbot/issues
-[discord]: https://desbot.app/discord
+[issues]: https://github.com/BOLL7708/ActionBot/issues
+[discord]: https://actionbot.app/discord

@@ -62,7 +62,7 @@ export default class Pipe {
         this._socket?.send(JSON.stringify({
             key: 'EnqueueNotification',
             password: await this.getPassword(),
-            nonce: Utils.getNonce('DesbotPipe'),
+            nonce: Utils.getNonce('ActionBotPipe'),
             data: {
                 title: title,
                 message: "Initializing Overlay Pipe"

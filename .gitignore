@@ -21,8 +21,5 @@ desktop.ini
 index.mts
 
 # node
-package-lock.json
 **/node_modules
-
-# deno
-deno.lock
+*.tsbuildinfo

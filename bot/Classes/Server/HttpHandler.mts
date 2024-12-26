@@ -1,4 +1,4 @@
-import {ConfigServer} from '../../../lib/Objects/Data/Config/ConfigServer.mts'
+import {ConfigServer} from '../../../lib/index.mts'
 import Log from '../../../lib/SharedUtils/Log.mts'
 import HttpServer from '../../DenoUtils/HttpServer.mts'
 import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'

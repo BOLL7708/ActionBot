@@ -14,4 +14,7 @@ Things that needs to be set up before there can be any major progression in gett
 
 1. 🆗 Port database handler to runtime
 2. Implement a WebSocket server that handles database and presenter requests
-3.  
+
+## Vue
+1. Change index page to have links to the other pages.
+   1. Include links to both the dev pages (full path: /src/pages/thepage.html) and built pages (direct paths /thepage.html).

@@ -13,7 +13,11 @@ function printMenuItem(string $thisScript, $newGroup, string $file, string $labe
 }
 ?>
 <div id="menu-bar" class="hbar">
-    <a href="https://actionbot.app" target="_blank" title="Open the ActionBot official website." class="version"><img id="corner-logo" src="_logo.php" alt="ActionBot Logo" /><br/><?=Utils::getVersion()?></a>
+    <a href="https://actionbot.app" target="_blank" title="Open the ActionBot official website." class="version">
+        <img id="corner-logo" src="_logo.php" alt="ActionBot Logo" />
+        <br/>
+        <?=Utils::getVersion()?>
+    </a>
     <ul>
         <?php
         $scriptFile = Utils::getScriptFileName();

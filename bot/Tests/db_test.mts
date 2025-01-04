@@ -1,9 +1,8 @@
 import '../Runners/index.mts' // This is required so the prototypes get extended.
 import {assert, assertEquals} from 'jsr:@std/assert'
-import {ActionAudio, ActionChat, ActionCustom, ActionLabel, ConfigController, ConfigMain, ConfigSpeech, DataEntries, EnlistData, EventDefault, IDatabaseItem, IDictionary, PresetAudioChannel} from '../../lib/index.mts'
+import {ActionAudio, ActionChat, ActionCustom, ActionLabel, ConfigController, ConfigMain, ConfigSpeech, DataEntries, EnlistData, EventDefault, PresetAudioChannel} from '../../lib/index.mts'
 import Log, {EEasyDebugLogLevel} from '../../lib/SharedUtils/Log.mts'
 import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
-import DataBaseHelper_OLD, {type IDataBaseListItem} from '../Helpers/DataBaseHelper_OLD.mts'
 import DatabaseSingleton from '../Singletons/DatabaseSingleton.mts'
 
 Deno.test('init', async () => {
@@ -64,66 +63,17 @@ async function resetDatabases(): Promise<void> {
     ])
 }
 
-function compareSets(
-    a: IDictionary<IDatabaseItem<any>> | IDictionary<IDataBaseListItem> | undefined,
-    b: IDictionary<IDatabaseItem<any>> | IDictionary<IDataBaseListItem> | undefined,
-    skipKeys: boolean = false,
-    sortBy: string | undefined = undefined
-): void {
-    if (a === undefined || b === undefined) return
-    if (skipKeys && sortBy) {
-        const sortValues = (a: any, b: any): number => {
-            const aVal = `${a[sortBy]}`
-            const bVal = `${b[sortBy]}`
-            return aVal.localeCompare(bVal)
-        }
-        const aValues = Object.values(a).sort(sortValues)
-        const bValues = Object.values(b).sort(sortValues)
-        for (let i = 0; i < Object.keys(a).length; i++) {
-            const item_a = aValues[i]
-            const item_b = bValues[i]
-            delete (item_a as any).id
-            delete (item_b as any).id
-            assertEquals(item_a, item_b)
-        }
-    } else {
-        assertEquals(Object.keys(a), Object.keys(b))
-        for (const [key, item_a] of Object.entries(a)) {
-            const item_b = b[key]
-            // Deleting ID as it is for some reason a mismatch, as the old code increments ID twice per row, interestingly enough.
-            delete (item_a as any).id
-            delete (item_b as any).id
-            assertEquals(item_a, item_b)
-        }
-    }
-}
-
-function compareKeys(
-    a: IDictionary<IDatabaseItem<any>> | IDictionary<IDataBaseListItem> | undefined,
-    b: IDictionary<IDatabaseItem<any>> | IDictionary<IDataBaseListItem> | undefined
-): void {
-    if(a === undefined || b === undefined) return
-    assertEquals(
-        Object.entries(a).map(([key,item])=>item.key),
-        Object.entries(b).map(([key,item])=>item.key)
-    )
-}
-
 Deno.test('save & load', async (t) => {
-    const a = DataBaseHelper_OLD
     const s = DatabaseHelper
     await t.step('save single', async () => {
         await resetDatabases()
-        await a.saveMain(new ConfigMain())
         s.saveMain(new ConfigMain())
     })
     await t.step('load single', async () => {
         await resetDatabases()
-        const configMain_a = await a.loadMain(new ConfigMain())
         const configMain_s = s.loadMain(new ConfigMain())
-        assert(configMain_a)
         assert(configMain_s)
-        assertEquals(configMain_s, configMain_a)
+        assertEquals(configMain_s, new ConfigMain())
     })
     await t.step('save main & delete', async () => {
         await resetDatabases()
@@ -140,40 +90,48 @@ Deno.test('save & load', async (t) => {
         const c = 10
         const saveMe = new ActionCustom()
         for (let i = 0; i < c; i++) {
-            await a.save(saveMe, `actionCustom-${i}`)
             s.save(saveMe, `actionCustom-${i}`)
         }
-        const all_a = await a.loadAll(new ActionCustom())
-        assertEquals(Object.keys(all_a ?? {}).length, c)
         const all_s = s.loadAll(new ActionCustom())
-        assertEquals(Object.keys(all_s ?? {}).length, c)
-        compareSets(all_a, all_s)
+        const keys = Object.keys(all_s ?? {})
+        assertEquals(keys.length, c)
+        const all = [
+            'actionCustom-0',
+            'actionCustom-1',
+            'actionCustom-2',
+            'actionCustom-3',
+            'actionCustom-4',
+            'actionCustom-5',
+            'actionCustom-6',
+            'actionCustom-7',
+            'actionCustom-8',
+            'actionCustom-9'
+        ]
+        assertEquals(all, keys)
     })
     await t.step('update key', async () => {
         await resetDatabases()
         const key1 = 'FirstKey', key2 = 'SecondKey'
-        await a.save(new ActionCustom(), key1)
         s.save(new ActionCustom(), key1)
-        let r_a = await a.load(new ActionCustom(), key1)
         let r_s = s.load(new ActionCustom(), key1)
-        assert(r_a)
         assert(r_s)
-        await a.save(new ActionCustom(), key1, key2)
         s.save(new ActionCustom(), key1, key2)
-        r_a = await a.load(new ActionCustom(), key2)
         r_s = s.load(new ActionCustom(), key2)
-        assert(r_a)
         assert(r_s)
     })
     await t.step('load by ID', async () => {
         await resetDatabases()
-        await a.saveMain(new ConfigMain())
-        const a_item = await a.loadById(1)
-        assert(a_item)
         s.saveMain(new ConfigMain())
         const s_item = s.loadById(1)
         assert(s_item)
-        assertEquals(a_item, s_item)
+        assertEquals({
+            class: 'ConfigMain',
+            data: new ConfigMain(),
+            filledData: new ConfigMain(),
+            id: 1,
+            key: 'Main',
+            pid: null
+        }, s_item)
     })
     await t.step('fill sub items', async () => {
         await resetDatabases()
@@ -181,16 +139,11 @@ Deno.test('save & load', async (t) => {
         const ckey = 'Child'
         const preset = new PresetAudioChannel()
         preset.channel = 100
-        const a_ckey = await a.save(preset, ckey)
         const s_ckey = s.save(preset, ckey)
-        assert(a_ckey)
         assert(s_ckey)
-        assertEquals(ckey, a_ckey)
         assertEquals(ckey, s_ckey)
-        assertEquals(a_ckey, s_ckey)
-        const a_cid = await a.loadID(preset.__getClass(), a_ckey)
-        const s_cid = s.loadId(preset.__getClass(), a_ckey)
-        assert(a_cid)
+        assertEquals(ckey, s_ckey)
+        const s_cid = s.loadId(preset.__getClass(), s_ckey)
         assert(s_cid)
 
         // We don't test the async library, because it will use the new AbstractData and try to populate from the wrong database, thus failing.
@@ -210,86 +163,101 @@ Deno.test('save & load', async (t) => {
         await resetDatabases()
         const childInstance = new ActionCustom()
 
-        await a.saveMain(new ConfigSpeech())
-        await a.save(childInstance, `${a.OBJECT_MAIN_KEY} Custom`)
-        const a_p = await a.loadItem(new ConfigSpeech(), a.OBJECT_MAIN_KEY)
-        assert(a_p)
-        const a_key = await a.getNextKey(childInstance.__getClass(), a_p?.id ?? 0, true)
-        assert(a_key)
-
         s.saveMain(new ConfigSpeech())
         s.save(childInstance, `${s.OBJECT_MAIN_KEY} Custom`)
         const s_p = s.loadItem(new ConfigSpeech(), s.OBJECT_MAIN_KEY)
         assert(s_p)
         const s_key = s.getNextKey(childInstance.__getClass(), s_p?.id ?? 0, true)
         assert(s_key)
-
-        assertEquals(a_key, s_key)
+        assertEquals({key: 'Main Custom 1'}, s_key)
     })
     await t.step('get row IDs with labels', async () => {
         await resetDatabases()
         const parent = new ConfigSpeech()
         const parentKey = 'ParentForLabels'
-        await a.save(parent, parentKey)
         s.save(parent, parentKey)
-        const a_pid = await a.loadID(parent.__getClass(), parentKey)
         const s_pid = s.loadId(parent.__getClass(), parentKey)
 
         const c = 10
         const saveMe = new ActionLabel()
         for (let i = 0; i < c; i++) {
             saveMe.fileName = `UseMeAsLabel-${i}`
-            await a.save(saveMe, `actionLabel-${i}`, undefined, i < 5 ? undefined : a_pid)
             s.save(saveMe, `actionLabel-${i}`, undefined, i < 5 ? undefined : s_pid)
         }
         const clazz = saveMe.__getClass()
 
-        const a_res = await a.loadIDsWithLabelForClass(clazz)
+        let pidCount = 0
+        let pidNullCount = 0
         const s_res = s.loadIdsWithLabelForClass(clazz)
-        compareSets(a_res as IDictionary<IDataBaseListItem>, s_res, true, 'key')
+        for(const [id, row] of Object.entries(s_res)) {
+            assert(parseInt(id))
+            assert(row.key.startsWith('actionLabel-'))
+            assert(row.label.length == 0)
+            if(row.pid == null) pidNullCount++
+            else pidCount++
+        }
+        assert(pidCount == 5)
+        assert(pidNullCount == 5)
 
-        const a_resl = await a.loadIDsWithLabelForClass(clazz, 'fileName', undefined)
+        pidCount = 0
+        pidNullCount = 0
         const s_resl = s.loadIdsWithLabelForClass(clazz, 'fileName', undefined)
-        compareSets(a_resl as IDictionary<IDataBaseListItem>, s_resl, true, 'key')
+        for(const [id, row] of Object.entries(s_resl)) {
+            assert(parseInt(id))
+            assert(row.key.startsWith('actionLabel-'))
+            assert(row.label.startsWith('UseMeAsLabel-'))
+            if(row.pid == null) pidNullCount++
+            else pidCount++
+        }
+        assert(pidCount == 5)
+        assert(pidNullCount == 5)
 
-        const a_resp = await a.loadIDsWithLabelForClass(clazz, 'fileName', a_pid)
+        pidCount = 0
+        pidNullCount = 0
         const s_resp = s.loadIdsWithLabelForClass(clazz, 'fileName', s_pid)
-        compareSets(a_resp as IDictionary<IDataBaseListItem>, s_resp, true, 'key')
+        for(const [id, row] of Object.entries(s_resp)) {
+            assert(parseInt(id))
+            assert(row.key.startsWith('actionLabel-'))
+            assert(row.label.startsWith('UseMeAsLabel-'))
+            if(row.pid == null) pidNullCount++
+            else if(row.pid == s_pid) pidCount++
+        }
+        assert(pidCount == 5)
+        assert(pidNullCount == 5)
     })
     await t.step('classes with counts using wildcard', async () => {
         await resetDatabases()
         // Prepare
         const count = 10
         for (let i = 0; i < count; i++) {
-            await a.save(new ActionCustom(), `Key${i}`)
-            await a.save(new ActionChat(), `Key${i}`)
             s.save(new ActionCustom(), `Key${i}`)
             s.save(new ActionChat(), `Key${i}`)
         }
         const clazz = new ActionCustom().__getClass()
 
         // Just list counts on absolute match
-        const a_result = await a.loadClassesWithCounts(clazz)
-        assert(a_result)
-
         const s_result = s.loadClassesWithCounts(clazz)
         assert(s_result)
-
-        assertEquals(a_result[clazz], 10)
         assertEquals(s_result[clazz], 10)
-        assertEquals(a_result, s_result)
+        assertEquals(
+            {
+                ActionCustom: 10
+            },
+            s_result
+        )
 
         // List with wildcard
         const like = 'Action*'
-        const a_result2 = await a.loadClassesWithCounts(like)
-        assert(a_result)
-
         const s_result2 = s.loadClassesWithCounts(like)
         assert(s_result2)
-
-        assertEquals(Object.keys(a_result2).length, 2)
         assertEquals(Object.keys(s_result2).length, 2)
-        assertEquals(a_result2, s_result2)
+        assertEquals(
+            {
+                ActionChat: 10,
+                ActionCustom: 10
+            },
+            s_result2
+        )
 
         // Filter on parent, old lib cannot do this, not sure if actually used
         const parent = new ConfigSpeech()
@@ -304,14 +272,6 @@ Deno.test('save & load', async (t) => {
         assertEquals(s_result3, {[clazz]: 1})
     })
     await t.step('Load ID classes', async () => {
-        const a_key1 = await a.saveMain(new ConfigController())
-        const a_key2 = await a.saveMain(new ActionCustom())
-        const a_key3 = await a.saveMain(new EventDefault())
-        const a_id1 = await a.loadID(ConfigController.name, a_key1 ?? '')
-        const a_id2 = await a.loadID(ActionCustom.name, a_key2 ?? '')
-        const a_id3 = await a.loadID(EventDefault.name, a_key3 ?? '')
-        const a_classes = await a.loadIDClasses([a_id1, a_id2, a_id3])
-
         const s_key1 = s.saveMain(new ConfigController())
         const s_key2 = s.saveMain(new ActionCustom())
         const s_key3 = s.saveMain(new EventDefault())
@@ -319,8 +279,14 @@ Deno.test('save & load', async (t) => {
         const s_id2 = s.loadId(ActionCustom.name, s_key2 ?? '')
         const s_id3 = s.loadId(EventDefault.name, s_key3 ?? '')
         const s_classes = s.loadIdClasses([s_id1, s_id2, s_id3])
-
-        assertEquals(Object.values(a_classes), Object.values(s_classes))
+        assertEquals(
+            [
+                'ConfigController',
+                'ActionCustom',
+                'EventDefault'
+            ],
+            Object.values(s_classes)
+        )
     })
 })
 

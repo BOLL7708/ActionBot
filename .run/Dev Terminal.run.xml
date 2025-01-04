@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Dev Terminal" type="CompoundRunConfigurationType">
+    <toRun name="Dev Bot" type="ShConfigurationType" />
+    <toRun name="Dev Web" type="ShConfigurationType" />
+    <method v="2" />
+  </configuration>
+</component>

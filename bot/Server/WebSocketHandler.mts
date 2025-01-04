@@ -1,7 +1,8 @@
-import {ConfigServer} from '../../../lib/Objects/Data/Config/ConfigServer.mts'
-import Log from '../../../lib/SharedUtils/Log.mts'
-import WebSocketServer, {IWebSocketServerSession} from '../../DenoUtils/WebSocketServer.mts'
-import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
+import {ConfigServer} from '../../lib/index.mts'
+import Log from '../../lib/SharedUtils/Log.mts'
+import WebSocketServer, {IWebSocketServerSession} from '../DenoUtils/WebSocketServer.mts'
+import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
+import DatabaseHandler from './WebSocketHandlers/DatabaseHandler.mts'
 
 /**
  * Handles all websocket communication
@@ -12,20 +13,24 @@ import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
  */
 export default class WebSocketHandler {
     private readonly TAG = this.constructor.name
-    private _server: WebSocketServer
+    private readonly _server: WebSocketServer
 
     constructor() {
         const config = DatabaseHelper.loadMain(new ConfigServer())
         this._server = new WebSocketServer({
             name: 'Test',
             port: config.webSocketServerPort,
+            hostname: config.webSocketServerHost,
             keepAlive: true,
             onMessageReceived: (message, session) => {
-                switch (session.subProtocols[0]) {
-                    case 'db':
-                        this.handleDb(message, session)
+                switch (session.subprotocols[0]) {
+                    case 'db': {
+                        const handler = new DatabaseHandler()
+                        handler.handle(this._server, message, session)
                         break
+                    }
                     case 'presenter':
+                        // TODO: Switch to handler class
                         this.handlePresenter(message, session)
                         break
                     // TODO: Add things like Stream Deck support
@@ -45,24 +50,13 @@ export default class WebSocketHandler {
         Log.w(this.TAG, 'Unhandled WebSocket message', message, session)
     }
 
-    private handleDb(message: string, session: IWebSocketServerSession) {
-        // TODO: Handle authentication here, check second sub-protocol value.
-        try {
-            const dbMessage = JSON.parse(message) as IDbMessage | undefined
-            const data = DatabaseHelper.loadJson(dbMessage?.group, dbMessage?.key, dbMessage?.parentId, dbMessage?.id)
-            // TODO: Change this to a common format that includes a nonce value in the output
-            this._server.sendMessage(JSON.stringify(data), session.sessionId, session.subProtocols[0])
-        } catch (e) {
-            Log.e(this.TAG, 'Failed to parse incoming DB message', {message, session})
-        }
-    }
-
     private handlePresenter(message: string, session: IWebSocketServerSession) {
         // TODO: Implement the presenter.
     }
 
     sendToPresenter(message: string, session: IWebSocketServerSession) {
-        // TODO: Send things to show in the presenter.
+        const presenterId = `${session.subprotocols[1]}`
+        this._server.sendMessage(message, session.sessionId, ['presenter'])
     }
 }
 

@@ -20,13 +20,18 @@ Deno.test('server', async (t) => {
     const httpServer = new HttpServer({
         name: 'TestServer',
         port,
+        hostname: '127.0.0.1',
         rootFolders: {
             '/assets': '../_user/',
             '/data': '../_user/'
         },
         loggingProxy: Log.get()
     })
-    const response = await fetch(`http://localhost:${port}/assets`) // TODO: This is actually a 404, figure that out.
+
+    // TODO: This is actually a 404, figure that out.
+    //  I think it is because there is not native file listing feature, so a file needs to exist.
+    const response = await fetch(`http://localhost:${port}/assets`)
+
     // assert(response.ok)
     const text = await response.text()
     console.log(text)

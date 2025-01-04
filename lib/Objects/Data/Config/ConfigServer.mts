@@ -3,7 +3,9 @@ import {DataMap} from '../DataMap.mts'
 
 export class ConfigServer extends AbstractData {
     httpServerPort: number = 8080
+    httpServerHost: string = '127.0.0.1'
     webSocketServerPort: number = 7712
+    webSocketServerHost: string = '127.0.0.1'
 
     enlist() {
         DataMap.addRootInstance({

@@ -17,6 +17,7 @@ Deno.test('init', () => {
 })
 
 Deno.test('server + client', async (t) => {
+    const subprotocolValues = ['deno.test', 'password12345']
     const r = Promise.withResolvers()
     let resolveCount = 0
     const resolve = ()=>{
@@ -26,13 +27,14 @@ Deno.test('server + client', async (t) => {
     const wsSrv = new WebSocketServer({
         name: 'Test',
         port: 7713,
+        hostname: '127.0.0.1',
         keepAlive: true,
         onServerEvent: (state, value, session) => {
             switch (state) {
                 case EWebSocketServerState.ClientConnected: {
                     const sessionId = session?.sessionId ?? ''
                     t.step('first -> cli', () => {
-                        wsSrv.sendMessage('first', sessionId)
+                        wsSrv.sendMessage('first', sessionId, [])
                     })
                     break
                 }
@@ -43,18 +45,18 @@ Deno.test('server + client', async (t) => {
             }
         },
         onMessageReceived: (message, session) => {
-            assertEquals(session.subProtocols[0], 'deno.test')
-            assertEquals(session.subProtocols[1], 'password12345')
+            assertEquals(session.subprotocols[0], 'deno.test')
+            assertEquals(session.subprotocols[1], 'password12345')
             switch (message) {
                 case 'one': {
                     t.step('second -> cli', ()=>{
-                        wsSrv.sendMessage('second', session.sessionId)
+                        wsSrv.sendMessage('second', session.sessionId, subprotocolValues)
                     })
                     break
                 }
                 case 'two': {
                     t.step('third -> cli', ()=>{
-                        wsSrv.sendMessage('third', session.sessionId)
+                        wsSrv.sendMessage('third', session.sessionId, subprotocolValues)
                     })
                     break
                 }
@@ -103,7 +105,7 @@ Deno.test('server + client', async (t) => {
             wsClient.disconnect()
             resolve()
         },
-        subProtocolValues: ['deno.test', 'password12345']
+        subprotocolValues: subprotocolValues
     })
     wsClient.init()
 

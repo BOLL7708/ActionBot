@@ -54,9 +54,8 @@ export default class WebSocketHandler {
         // TODO: Implement the presenter.
     }
 
-    sendToPresenter(message: string, session: IWebSocketServerSession) {
-        const presenterId = `${session.subprotocols[1]}`
-        this._server.sendMessage(message, session.sessionId, ['presenter'])
+    send(message: string, subprotocolValues: string[]) {
+        this._server.sendMessageToAll(message, subprotocolValues)
     }
 }
 

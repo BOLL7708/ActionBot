@@ -435,11 +435,6 @@ export default class Utils {
         return Object.fromEntries(entries)
     }
 
-    static getUrlParams(): URLSearchParams {
-        const queryString = window.location.search
-        return new URLSearchParams(queryString)
-    }
-
     /**
      * Takes any number of strings, will return the first non-empty string.
      * It verifies type and length for every value until there is a match.

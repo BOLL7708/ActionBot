@@ -11,9 +11,9 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: './index.html',
-        editor: './src/pages/editor.html',
-        dashboard: './src/pages/dashboard.html',
-        presenter: './src/pages/presenter.html',
+        editor: './src/editor.html',
+        dashboard: './src/dashboard.html',
+        presenter: './src/presenter.html',
       },
     },
   },

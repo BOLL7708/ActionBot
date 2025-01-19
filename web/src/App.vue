@@ -6,7 +6,7 @@ const rootPath = ref(import.meta.env.DEV ? '/src' : '/dist')
 
 <template>
   <div class="container">
-    <img src="../public/actionbot_logo.svg" alt="ActionBot Logo" class="logo">
+    <img src="/actionbot_logo.svg" alt="ActionBot Logo" class="logo">
     <p><a :href="rootPath+'/editor.html'">Editor</a></p>
     <p><a :href="rootPath+'/presenter.html'">Presenter</a></p>
     <p><a :href="rootPath+'/dashboard.html'">Dashboard</a></p>

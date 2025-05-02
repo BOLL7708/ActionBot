@@ -27,18 +27,5 @@ export default class ModulesSingleton {
     public ws = new WebSocketHandler()
     // endregion
 
-    // region Clients
-    public twitch = new Twitch()
-    public twitchEventSub = new TwitchEventSub()
-    public tts = new GoogleTTS()
-    public pipe = new Pipe()
-    public obs = new OBS()
-    public sssvr = new SuperScreenShotterVR()
-    public openvr2ws = new OpenVR2WS()
-    public audioPlayer = new AudioPlayer()
-    public sign = new Sign()
-    public relay = new Relay()
-    // public streamDeckRelay = new StreamDeckRelay()
-
     // endregion
 }

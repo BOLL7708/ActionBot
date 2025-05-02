@@ -13,3 +13,10 @@ ws.init()
 <template>
 
 </template>
+<style>
+body {
+  background-color: transparent;
+  margin: 0;
+  padding: 0;
+}
+</style>

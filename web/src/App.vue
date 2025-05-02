@@ -1,16 +1,18 @@
 <script setup lang="ts">
 import {ref} from 'vue'
+import AppFooter from './components/AppFooter.vue'
+import AppHeader from './components/AppHeader.vue'
+import AppHeaderButton from './components/AppHeaderButton.vue'
 
 const rootPath = ref(import.meta.env.DEV ? '/src' : '/dist')
 </script>
 
 <template>
-  <div class="container">
-    <img src="/actionbot_logo.svg" alt="ActionBot Logo" class="logo">
-    <p><a :href="rootPath+'/editor.html'">Editor</a></p>
-    <p><a :href="rootPath+'/presenter.html'">Presenter</a></p>
-    <p><a :href="rootPath+'/dashboard.html'">Dashboard</a></p>
-  </div>
+  <AppHeader/>
+  <main>
+<!--    <img src="/actionbot_logo.svg" alt="ActionBot Logo" class="logo">-->
+  </main>
+  <AppFooter/>
 </template>
 
 <style scoped>

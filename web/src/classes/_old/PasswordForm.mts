@@ -1,7 +1,7 @@
-import Color from '../../../bot/Constants/ColorConstants.mts'
+import Color from '../../../../bot/Constants/ColorConstants.mts'
 import Constants from './Constants/Constants.mts'
-import Utils from '../../../bot/Utils/Utils.mts'
-import BrowserUtils from './Client/BrowserUtils.mts'
+import Utils from '../../../../bot/Utils/Utils.mts'
+import BrowserUtils from '../Client/BrowserUtils.mts'
 
 export default class PasswordForm {
     static spawn() {

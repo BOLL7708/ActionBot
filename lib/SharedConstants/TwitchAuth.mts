@@ -1,0 +1,23 @@
+export default class TwitchAuth {
+    static scopes = [
+        "bits:read",
+        "channel:manage:broadcast",
+        "channel:manage:moderators",
+        "channel:manage:polls",
+        "channel:manage:predictions",
+        "channel:manage:raids",
+        "channel:manage:redemptions",
+        "channel:manage:vips",
+        "channel:moderate",
+        "channel:read:polls",
+        "channel:read:predictions",
+        "channel:read:redemptions",
+        "channel:read:subscriptions",
+        "chat:edit",
+        "chat:read",
+        "moderation:read",
+        "moderator:read:followers",
+        "whispers:edit",
+        "whispers:read"
+    ]
+}

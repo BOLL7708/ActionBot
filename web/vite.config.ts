@@ -11,6 +11,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: './index.html',
+        setup: './src/setup.html',
         editor: './src/editor.html',
         dashboard: './src/dashboard.html',
         presenter: './src/presenter.html',

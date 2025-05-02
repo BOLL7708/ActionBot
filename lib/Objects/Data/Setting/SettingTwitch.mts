@@ -19,10 +19,12 @@ export class SettingTwitchClient extends AbstractData {
 }
 export class SettingTwitchTokens extends AbstractData {
     userLogin: string = ''
-    userId: number = 0
+    userId: string = ''
     refreshToken: string = ''
     accessToken: string = ''
-    scopes: string = ''
+    scopes: string[] = []
+    expiresIn: number = 0
+    obtainedAt: number = 0
 
     enlist() {
         DataMap.addRootInstance({

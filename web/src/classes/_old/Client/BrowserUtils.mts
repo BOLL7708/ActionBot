@@ -1,4 +1,4 @@
-import Constants from '../Constants/Constants.mts'
+import Constants from '../_old/Constants/Constants.mts'
 import Utils from '../../../../bot/Utils/Utils.mts'
 
 export default class BrowserUtils {

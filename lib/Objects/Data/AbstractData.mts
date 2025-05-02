@@ -35,10 +35,19 @@ export abstract class AbstractData {
     // endregion
     /**
      * Submit any object to get mapped to this class instance. Implemented in runner.
+     * OBS: The implementation for this exists in AbstractDataRunner as it relies on the database which is only accessible in the bot code.
      * @param instanceOrJsonResult Optional properties to apply to this instance.
      * @param fill If IDs should be replaced by what they reference.
      */
     __apply(instanceOrJsonResult: object = {}, fill: boolean) {}
+    /**
+     * Does the same as __apply but is available anywhere as it's doing database connections through the async API.
+     * @param instanceOrJsonResult
+     * @param fill
+     */
+    async __applyAsync(instanceOrJsonResult: object = {}, fill: boolean): Promise<void> {
+
+    }
 
     /**
      * Returns a new instance with this class as a prototype, meaning it will be seen as the same class by the system.
@@ -48,6 +57,14 @@ export abstract class AbstractData {
     __new<T>(props: (T&object)|undefined, fill: boolean): T&AbstractData {
         const obj = Object.create(this) as T&AbstractData // Easy way of making a new instance, it will have the previous class as prototype though, but it still returns the same constructor name which is what we need.
         obj.__apply(props ?? {}, fill) // Will run with empty just to lift properties from the prototype up to the class instance.
+        return obj
+    }
+    /**
+     * Does the same as __new but is available anywhere as it's doing database connections through the async API.
+     */
+    async __newAsync<T>(props: (T&object)|undefined, fill: boolean): Promise<T&AbstractData> {
+        const obj = Object.create(this) as T&AbstractData
+        await obj.__applyAsync(props ?? {}, fill)
         return obj
     }
 

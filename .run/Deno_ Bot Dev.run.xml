@@ -1,0 +1,5 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Deno: Bot Dev" type="DenoConfigurationType" inputPath="$PROJECT_DIR$/bot/main.mts" programParameters="task run:dev" workingDirectory="$PROJECT_DIR$/bot">
+    <method v="2" />
+  </configuration>
+</component>

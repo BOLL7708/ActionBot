@@ -19,18 +19,22 @@ export default class SteamWebHelper {
             Utils.log(`SteamWebApi: Cannot fetch player summary as API key is not set.`, Color.Red)
             return undefined
         }
-        const encodedUrl = await this.getEncodedUrl('ISteamUser/GetPlayerSummaries/v0002')
-        const response: ISteamWebApiPlayerSummaries = await fetch(`_proxy.php?url=${encodedUrl}`)
-            .then(response => response.json())
-        if(response != null) {
-            const player = response.response.players[0] ?? null
-            if(player) {
-                // Remove trailing slash and pop off the tag.
-                this._profileTag = player.profileurl.replace(/\/$/, '').split('/').pop() ?? ''
+        const encodedUrl = this.getUrl('ISteamUser/GetPlayerSummaries/v0002')
+        try {
+            const response = await fetch(atob(encodedUrl)) // `_proxy.php?url=${encodedUrl}`)
+            if(response.ok) {
+                const result = await response.json() as ISteamWebApiPlayerSummaries
+                const player = result.response.players[0] ?? null
+                if(player) {
+                    // Remove trailing slash and pop off the tag.
+                    this._profileTag = player.profileurl.replace(/\/$/, '').split('/').pop() ?? ''
+                }
+                return player
+            } else {
+                console.warn(`SteamWebApi: Failed to get player summary`)
             }
-            return player
-        } else {
-            console.warn(`SteamWebApi: Failed to get player summary`)
+        } catch(e) {
+            Log.e(this.TAG, 'Failed to load player summary', e)
         }
         return
     }
@@ -48,13 +52,13 @@ export default class SteamWebHelper {
         }
         const id = Utils.numberFromAppId(appId)
         if(!isNaN(id)) {
-            const encodedUrl = await this.getEncodedUrl('ISteamUserStats/GetPlayerAchievements/v0001', id)
-            const response = await fetch(`_proxy.php?url=${encodedUrl}`)
+            const encodedUrl = this.getUrl('ISteamUserStats/GetPlayerAchievements/v0001', id)
             let json: ISteamWebApiPlayerAchievements|undefined = undefined
             try {
+                const response = await fetch(`_proxy.php?url=${encodedUrl}`)
                 json = await response.json()
             } catch (e) {
-                console.warn(`SteamWebApi: Failed to parse achievement JSON for ${appId}`)
+                console.warn(`SteamWebApi: Failed to load and/or parse achievement JSON for ${appId}`)
             }
             if(json) {
                 return json?.playerstats?.achievements ?? undefined
@@ -75,8 +79,10 @@ export default class SteamWebHelper {
         const id = Utils.numberFromAppId(appId)
         if(this._gameSchemas.has(id)) return this._gameSchemas.get(id)
         if(!isNaN(id)) {
-            const encodedUrl = await this.getEncodedUrl('ISteamUserStats/GetSchemaForGame/v0002/', id)
-            const response = await fetch(`_proxy.php?url=${encodedUrl}`)
+            const encodedUrl = this.getUrl('ISteamUserStats/GetSchemaForGame/v0002/', id)
+            try {
+
+            const response = await fetch(atob(encodedUrl))
             if(response.ok != null) {
                 const json: ISteamWebApiGameSchema = await response.json()
                 this._gameSchemas.set(id, json)
@@ -89,7 +95,10 @@ export default class SteamWebHelper {
             } else {
                 console.warn(`SteamWebApi: Failed to get game schema for ${appId}`)
             }
-        } 
+            } catch (e) {
+                Log.e(this.TAG, `Failed to load game schema: ${appId}`)
+            }
+        }
         return
     }
 
@@ -103,7 +112,7 @@ export default class SteamWebHelper {
         const id = Utils.numberFromAppId(appId)
         if(this._globalAchievementStats.has(id)) return this._globalAchievementStats.get(id)
         if(!isNaN(id)) {
-            const encodedUrl = await this.getEncodedUrl('ISteamUserStats/GetGlobalAchievementPercentagesForApp/v0002/', id)
+            const encodedUrl = await this.getUrl('ISteamUserStats/GetGlobalAchievementPercentagesForApp/v0002/', id)
             const response: IStreamWebApiGlobalAchievementStats = await fetch(`_proxy.php?url=${encodedUrl}`)
                 .then(response => response.json())
             if(response != null) {
@@ -117,7 +126,7 @@ export default class SteamWebHelper {
         return
     }
 
-    private static async getEncodedUrl(interfaceMethodVersion: string, appId?: number): Promise<string> {
+    private static getUrl(interfaceMethodVersion: string, appId?: number): string {
         const config = DatabaseHelper.loadMain(new ConfigSteam())
         const urlObj = new URL(`https://api.steampowered.com/${interfaceMethodVersion}`)
         urlObj.searchParams.append('key', config.steamWebApiKey)
@@ -125,7 +134,7 @@ export default class SteamWebHelper {
         urlObj.searchParams.append('steamids', config.steamUserId)
         if(appId) urlObj.searchParams.append('appid', appId.toString())
         if(appId) urlObj.searchParams.append('gameid', appId.toString())
-        return btoa(urlObj.toString())
+        return urlObj.toString()
     }
 }
 

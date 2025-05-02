@@ -10,11 +10,11 @@ import TextHelper from './TextHelper.mts'
 export default class TwitchHelixHelper {
     static readonly TAG = this.name
     static _baseUrl: string = 'https://api.twitch.tv/helix'
-    static _userCache: Map<number, ITwitchHelixUsersResponseData> = new Map()
-    static _userNameToId: Map<string, number> = new Map()
+    static _userCache: Map<string, ITwitchHelixUsersResponseData> = new Map()
+    static _userNameToId: Map<string, string> = new Map()
     static _gameCache: Map<number, ITwitchHelixGamesResponseData> = new Map()
     static _channelCache: Map<number, ITwitchHelixChannelResponseData> = new Map()
-    static _userColorCache: Map<number, string> = new Map()
+    static _userColorCache: Map<string, string> = new Map()
     static _channelVIPCache: Map<number, boolean> = new Map()
     static _channelModeratorCache: Map<number, boolean> = new Map()
 
@@ -32,79 +32,86 @@ export default class TwitchHelixHelper {
         return tokens?.userId ?? 0
     }
 
+    private static isLikelyTwitchUserId(value: string|number): boolean {
+        if(!isNaN(parseInt(`${value}`))) return true // Is a number, valid ID
+        if(typeof value === 'string') {
+            // New format ID, hexadecimal string
+            return value.match(/[a-f0-9]{36}/i) !== null
+        }
+        return false
+    }
+
     /**
      * Will return the user ID if it exists on Twitch.
      * @param idOrLogin The ID or login name as number or string.
      * @param skipCache Will skip cached data and always do the request.
      */
-    private static async getUserIdFromIdOrLogin(idOrLogin: number|string, skipCache: boolean = false): Promise<number|undefined> {
-        let possibleId: number
-        let verifiedId = NaN
-        if(typeof idOrLogin === 'string') {
-            possibleId = parseInt(idOrLogin)
-            if(isNaN(possibleId)) {
-                const user = await this.getUserByLogin(idOrLogin, skipCache)
-                verifiedId = parseInt(user?.id ?? '')
-            }
-        } else possibleId = idOrLogin
-        if(isNaN(verifiedId) && !isNaN(possibleId)) {
-            const user = await this.getUserById(possibleId, skipCache)
-            verifiedId = parseInt(user?.id ?? '')
+    private static async getUserIdFromIdOrLogin(idOrLogin: number|string, skipCache: boolean = false): Promise<string|undefined> {
+        let possibleId: string
+        if(this.isLikelyTwitchUserId(idOrLogin)) {
+            const user = await this.getUserById(idOrLogin, skipCache)
+            possibleId = user?.id ?? ''
+        } else {
+            const user = await this.getUserByLogin(`${idOrLogin}`, skipCache)
+            possibleId = user?.id ?? ''
         }
-        return isNaN(verifiedId) ? undefined : verifiedId
+        return possibleId.length > 0 ? possibleId : undefined
     }
     
     static async getUserByLogin(login: string, skipCache: boolean = false):Promise<ITwitchHelixUsersResponseData|undefined> {
         if(login.length == 0) {
-            Utils.log(`TwitchHelix: Tried to lookup empty login name.`, Color.Red)
+            Log.w(this.TAG,'TwitchHelix: Tried to lookup empty login name.')
             return undefined
         }
         const id = this._userNameToId.get(login)
         if(id && !skipCache && this._userCache.has(id)) return this._userCache.get(id)
         const url = `${this._baseUrl}/users/?login=${login}`
-        return this.getUserByUrl(url)
+        return await this.getUserByUrl(url)
     }
 
     static async getUserById(id: number|string, skipCache: boolean = false):Promise<ITwitchHelixUsersResponseData|undefined> {
-        if(typeof id === 'string') id = parseInt(id)
-        if(isNaN(id)) {
-            Utils.log(`TwitchHelix: Invalid user id when trying to load user: ${id}`, Color.Red)
-            return undefined
-        }
+        if(typeof id === 'number') id = `${id}`
         if(!skipCache && this._userCache.has(id)) return this._userCache.get(id)
         const url = `${this._baseUrl}/users/?id=${id}`
-        return this.getUserByUrl(url)
+        return await this.getUserByUrl(url)
     }
 
     private static async getUserByUrl(url: string): Promise<ITwitchHelixUsersResponseData|undefined> {
-        const response: ITwitchHelixUsersResponse = await (
-            await fetch(url, {headers: await this.getAuthHeaders()})
-        )?.json()
-        const result: ITwitchHelixUsersResponseData|undefined = response?.data?.pop()
-        if(result) {
-            const id = parseInt(result.id)
-            if(!isNaN(id)) {
-                let user = await DataBaseHelper.load<SettingUser>(new SettingUser(), id.toString())
-                if(!user) {
-                    user = new SettingUser()
-                    user.userName = result.login
-                    user.displayName = result.display_name
-                    user.name = new SettingUserName()
-                    user.name.shortName = TextHelper.cleanName(result.login)
-                    user.name.datetime = Utils.getISOTimestamp()
-                    await DataBaseHelper.save(user, id.toString())
-                }
-                this._userCache.set(id, result)
-                this._userNameToId.set(result.login, id)
-            }
+        let result: ITwitchHelixUsersResponse|undefined = undefined
+        try {
+            const response = await fetch(url, {headers: this.getAuthHeaders()})
+            result = await response.json()
+        } catch(e) {
+            Log.e(this.TAG, `Failed to get user by URL: ${url}`, e)
         }
-        return result
+        const data: ITwitchHelixUsersResponseData|undefined = result?.data?.pop()
+        if(data) {
+            const id = data.id
+            Log.d(this.TAG, `Loaded user: ${id}`)
+            if(id) {
+                let user = DatabaseHelper.load<SettingUser>(new SettingUser(), id.toString())
+                if(!user || !user.userName.length || ! user.displayName.length) {
+                    user = new SettingUser()
+                    user.userName = data.login
+                    user.displayName = data.display_name
+                    user.name = new SettingUserName()
+                    user.name.shortName = TextHelper.cleanName(data.login)
+                    user.name.datetime = Utils.getISOTimestamp()
+                    DatabaseHelper.save(user, id.toString())
+                }
+                this._userCache.set(id, data)
+                this._userNameToId.set(data.login, id)
+            }
+        } else {
+            Log.d(this.TAG, 'Failed to get user data', result) // TODO: Seems this might be broken for the new IDs?
+        }
+        return data
     }
 
     static async getChannelByName(channel: string, skipCache: boolean = false):Promise<ITwitchHelixChannelResponseData|undefined> {
         if(channel.length == 0) return undefined
         const user = await this.getUserByLogin(channel, skipCache)
-        return this.getChannelById(parseInt(user?.id ?? '0'), skipCache)
+        return await this.getChannelById(parseInt(user?.id ?? '0'), skipCache)
     }
     static async getChannelById(id: number, skipCache: boolean = false): Promise<ITwitchHelixChannelResponseData|undefined> {
         if(isNaN(id) || id === 0) {
@@ -113,11 +120,15 @@ export default class TwitchHelixHelper {
         }
         if(!skipCache && this._channelCache.has(id)) return this._channelCache.get(id)
         const url = `${this._baseUrl}/channels/?broadcaster_id=${id}`
-        const headers = await this.getAuthHeaders()
-        const response = await fetch(url, {headers: headers}).then(res => res.json()) as ITwitchHelixChannelResponse
-        const result = response?.data?.pop()
-        if(result) this._channelCache.set(id, result)
-        return result
+        const headers = this.getAuthHeaders()
+        try {
+            const response = await fetch(url, {headers: headers}).then(res => res.json()) as ITwitchHelixChannelResponse
+            const result = response?.data?.pop()
+            if(result) this._channelCache.set(id, result)
+            return result
+        } catch(e) {
+            Log.e(this.TAG, `Failed to get channel by ID: ${id}`, e)
+        }
     }
     /**
      * Rewards is a big can of worms. 
@@ -125,55 +136,63 @@ export default class TwitchHelixHelper {
      * 2. Load all current IDs from a settings file.
      * 3. If any reward is missing an ID, create it on Twitch.
      */
-    static async createReward(createData: PresetReward):Promise<ITwitchHelixRewardResponse> {
-        const url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${await this.getBroadcasterUserId()}`
-        const headers = await this.getAuthHeaders()
+    static async createReward(createData: PresetReward):Promise<ITwitchHelixRewardResponse|undefined> {
+        const url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${this.getBroadcasterUserId()}`
+        const headers = this.getAuthHeaders()
         headers.append('Content-Type', 'application/json')
         const request = {
             method: 'POST',
             headers: headers,
             body: JSON.stringify(createData)
         }
-
-        return await fetch(url, request)
-            .then(res => res.json())
-            .catch(error => {
-                Utils.log(`TwitchHelix: Error creating reward:${error}`, Color.Red)
-            })
+        try {
+            const response = await fetch(url, request)
+            if(response.ok) return await response.json()
+        } catch(e) {
+            Log.e(this.TAG, `Error creating reward`, e)
+        }
     }
 
-    static async getRewards(onlyManageable: boolean):Promise<ITwitchHelixRewardResponse> {
+    static async getRewards(onlyManageable: boolean):Promise<ITwitchHelixRewardResponse|undefined> {
         return this.getReward("", onlyManageable)
     }
 
-    static async getReward(rewardId: string, onlyManageable: boolean):Promise<ITwitchHelixRewardResponse> {
-        let url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${await this.getBroadcasterUserId()}`
+    static async getReward(rewardId: string, onlyManageable: boolean):Promise<ITwitchHelixRewardResponse|undefined> {
+        let url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${this.getBroadcasterUserId()}`
         if(onlyManageable) url += `&only_manageable_rewards=true`
         if(rewardId.length > 0) url += `&id=${rewardId}`
-        return await fetch(url, {headers: await this.getAuthHeaders()}).then(res => res.json())
+        try {
+            return await fetch(url, {headers: this.getAuthHeaders()}).then(res => res.json())
+        } catch(e) {
+            Log.e(this.TAG, 'Failed to get reward', e)
+        }
     }
 
-    static async updateReward(eventKey: string|undefined, presetOrData: PresetReward|ITwitchHelixRewardUpdate):Promise<ITwitchHelixRewardResponse|null> {
+    static async updateReward(eventKey: string|undefined, presetOrData: PresetReward|ITwitchHelixRewardUpdate):Promise<ITwitchHelixRewardResponse|undefined> {
         const updateData: ITwitchHelixRewardUpdate = presetOrData // Map preset to data
         if(eventKey == null) {
             console.warn("Tried to update reward but the ID is null")
-            return new Promise<null>(resolve => resolve(null))
+            return
         }
-        const url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${await this.getBroadcasterUserId()}&id=${eventKey}`
-        const headers = await this.getAuthHeaders()
+        const url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${this.getBroadcasterUserId()}&id=${eventKey}`
+        const headers = this.getAuthHeaders()
         headers.append('Content-Type', 'application/json')
         const request = {
             method: 'PATCH',
             headers: headers,
             body: JSON.stringify(updateData)
         }
-        let response: ITwitchHelixRewardResponse = await fetch(url, request).then(res => res.json())
-        if(response.status == 500) { // Retry once if the server broke
-            Utils.log(`Failed to update Twitch reward ${eventKey}: ${response.error}(${response.status}) [${response.message}] retrying once.`, Color.OrangeRed)
-            response = await fetch(url, request).then(res => res.json())
+        try {
+            let response: ITwitchHelixRewardResponse = await fetch(url, request).then(res => res.json())
+            if(response.status == 500) { // Retry once if the server broke
+                Utils.log(`Failed to update Twitch reward ${eventKey}: ${response.error}(${response.status}) [${response.message}] retrying once.`, Color.OrangeRed)
+                response = await fetch(url, request).then(res => res.json())
+            }
+            if(response.error != undefined) Utils.log(`Failed to update Twitch reward ${eventKey}: ${response.error}(${response.status}) [${response.message}]`, Color.Red)
+            return response
+        } catch(e) {
+            Log.e(this.TAG, `Failed to update reward: ${eventKey}`, presetOrData)
         }
-        if(response.error != undefined) Utils.log(`Failed to update Twitch reward ${eventKey}: ${response.error}(${response.status}) [${response.message}]`, Color.Red)
-        return response
     }
 
     static async updateRewards(allEvents: {[key: string]: EventDefault}|undefined) {
@@ -193,9 +212,9 @@ export default class TwitchHelixHelper {
                             const response = await TwitchHelixHelper.updateReward(rewardID, preset)
                             if (response?.data) {
                                 const success = response?.data[0]?.id == rewardID
-                                if(success) updatedRewardCount++
+                                if (success) updatedRewardCount++
                                 else failedRewardCount++
-                                Utils.logWithBold(`Reward <${key}> updated: <${success ? 'OK' : 'ERR'}>`, success ? Color.Green : Color.Red)
+                                Log.i(this.TAG, `Reward <${key}> updated: <${success ? 'OK' : 'ERR'}>`)
                                 /*
                                 // TODO: Figure this out
                                 // If update was successful, also reset incremental setting as the reward should have been reset.
@@ -207,14 +226,14 @@ export default class TwitchHelixHelper {
                                 */
                             } else {
                                 failedRewardCount++
-                                Utils.logWithBold(`Reward for <${key}> update unsuccessful: ${response?.error}`, Color.Red)
+                                Log.w(this.TAG, `Reward for <${key}> update unsuccessful: ${response?.error}`)
                             }
                         }
                     }
                 }
             } else {
                 skippedRewardCount++
-                Utils.logWithBold(`Reward for <${key}> update skipped or unavailable.`, Color.Purple)
+                Log.i(this.TAG, `Reward for <${key}> update skipped or unavailable.`)
             }
         }
         return {
@@ -244,10 +263,10 @@ export default class TwitchHelixHelper {
         return result
     }
 
-    static async getClips(count: number = 20, pagination?: string): Promise<ITwitchHelixClipResponse> {
+    static async getClips(count: number = 20, pagination?: string): Promise<ITwitchHelixClipResponse|undefined> {
         count = Math.min(100, Math.max(1, count))
-        let url = `${this._baseUrl}/clips/?broadcaster_id=${await this.getBroadcasterUserId()}&first=${count}`
-        const headers = await this.getAuthHeaders()
+        let url = `${this._baseUrl}/clips/?broadcaster_id=${this.getBroadcasterUserId()}&first=${count}`
+        const headers = this.getAuthHeaders()
         headers.append('Content-Type', 'application/json')
         const request = {
             headers: headers
@@ -255,45 +274,63 @@ export default class TwitchHelixHelper {
         if(pagination != undefined) {
             url += `&after=${pagination}`
         }
-        return await fetch(url, request).then(res => res.json())
+        try {
+            return await fetch(url, request).then(res => res.json())
+        } catch(e) {
+            Log.e(this.TAG, 'Failed to get clips', e)
+        }
     }
 
     static async getGameById(id: number, skipCache: boolean = false):Promise<ITwitchHelixGamesResponseData|undefined> {
         if(!skipCache && this._gameCache.has(id)) return this._gameCache.get(id)
         const url = `${this._baseUrl}/games/?id=${id}`
-        return this.getGameByUrl(url)
+        return await this.getGameByUrl(url)
     }
 
     private static async getGameByUrl(url: string):Promise<ITwitchHelixGamesResponseData|undefined> {
-        let response: ITwitchHelixGamesResponse = await (await fetch(url, {headers: await this.getAuthHeaders()}))?.json()
-        const result: ITwitchHelixGamesResponseData|undefined = response?.data.pop()
-        if(result) {
-            const id = parseInt(result.id)
-            if(!isNaN(id)) {
-                this._gameCache.set(id,  result)
+        try {
+            let response: ITwitchHelixGamesResponse = await (await fetch(url, {headers: this.getAuthHeaders()}))?.json()
+            const result: ITwitchHelixGamesResponseData|undefined = response?.data.pop()
+            if(result) {
+                const id = parseInt(result.id)
+                if(!isNaN(id)) {
+                    this._gameCache.set(id,  result)
+                }
             }
+            return result
+        } catch(e) {
+            Log.e(this.TAG, `Failed to get game by URL: ${url}`, e)
         }
-        return result
     }
 
     static async searchForGame(gameTitle: string, pagination?: string):Promise<ITwitchHelixCategoriesResponseData|null> {
         // https://dev.twitch.tv/docs/api/reference#search-categories
         const url = `https://api.twitch.tv/helix/search/categories?query=${gameTitle}&first=1`
-        const headers = await this.getAuthHeaders()
-        let response: ITwitchHelixGamesResponse = await (await fetch(url, {headers: headers}))?.json()
-        return response?.data.pop() ?? null
+        const headers = this.getAuthHeaders()
+        try {
+            const response: ITwitchHelixGamesResponse = await (await fetch(url, {headers: headers}))?.json()
+            return response?.data.pop() ?? null
+        } catch(e) {
+            Log.e(this.TAG, `Failed to search for game: ${gameTitle}`, e)
+        }
+        return null
     }
 
     static async updateChannelInformation(channelInformation: ITwitchHelixChannelRequest):Promise<boolean> {
         // https://dev.twitch.tv/docs/api/reference#modify-channel-information
-        const url = `https://api.twitch.tv/helix/channels?broadcaster_id=${await this.getBroadcasterUserId()}`
+        const url = `https://api.twitch.tv/helix/channels?broadcaster_id=${this.getBroadcasterUserId()}`
         const request = {
             method: 'PATCH',
-            headers: await this.getAuthHeaders(true),
+            headers: this.getAuthHeaders(true),
             body: JSON.stringify(channelInformation)
         }
-        const response = await fetch(url, request)
-        return response != null && response.status == 204
+        try {
+            const response = await fetch(url, request)
+            return response != null && response.status == 204
+        } catch(e) {
+            Log.e(this.TAG, 'Failed to update channel information', channelInformation)
+        }
+        return false
     }
 
     /**
@@ -315,43 +352,58 @@ export default class TwitchHelixHelper {
             return false
         }
 
-        const url = `https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id=${await this.getBroadcasterUserId()}&reward_id=${redemption.rewardId}&id=${redemptionId}`
-        const headers = await this.getAuthHeaders()
+        const url = `https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id=${this.getBroadcasterUserId()}&reward_id=${redemption.rewardId}&id=${redemptionId}`
+        const headers = this.getAuthHeaders()
         headers.append('Content-Type', 'application/json')
         const request = {
             method: 'PATCH',
             headers: headers, 
             body: JSON.stringify({status: redemption.status})
         }
-        const response = await fetch(url, request)
-        return response?.status == 200
-            ? true
-            : response?.status == 404
-                ? null
-                : false
+        try {
+            const response = await fetch(url, request)
+            return response?.status == 200
+                ? true
+                : response?.status == 404
+                    ? null
+                    : false
+        } catch(e) {
+            Log.e(this.TAG, `Failed to update redemption: ${redemptionId}`, redemption)
+        }
+        return false
     }
 
     static async raidChannel(channelId: string): Promise<boolean> {
         // https://dev.twitch.tv/docs/api/reference#start-a-raid
-        const url = `https://api.twitch.tv/helix/raids?from_broadcaster_id=${await this.getBroadcasterUserId()}&to_broadcaster_id=${channelId}`
-        const headers = await this.getAuthHeaders()
+        const url = `https://api.twitch.tv/helix/raids?from_broadcaster_id=${this.getBroadcasterUserId()}&to_broadcaster_id=${channelId}`
+        const headers = this.getAuthHeaders()
         const request = {
             method: 'POST',
             headers: headers
         }
-        const response = await fetch(url, request)
-        return response != null && response.status == 200
+        try {
+            const response = await fetch(url, request)
+            return response != null && response.status == 200
+        } catch(e) {
+            Log.e(this.TAG, `Failed to initiate raid on: ${channelId}`, e)
+        }
+        return false
     }
 
     static async cancelRaid(): Promise<boolean> {
-        const url = `https://api.twitch.tv/helix/raids?broadcaster_id=${await this.getBroadcasterUserId()}`
-        const headers = await this.getAuthHeaders()
+        const url = `https://api.twitch.tv/helix/raids?broadcaster_id=${this.getBroadcasterUserId()}`
+        const headers = this.getAuthHeaders()
         const request = {
             method: 'DELETE',
             headers: headers
         }
-        const response = await fetch(url, request)
-        return response != null && response.status == 204
+        try {
+            const response = await fetch(url, request)
+            return response != null && response.status == 204
+        } catch(e) {
+            Log.e(this.TAG, 'Failed to cancel raid', e)
+        }
+        return false
     }
 
     /**
@@ -366,23 +418,26 @@ export default class TwitchHelixHelper {
                 return this._userColorCache.get(userId)
             }
             const url = `https://api.twitch.tv/helix/chat/color?user_id=${userId}`
-            const headers = await this.getAuthHeaders()
+            const headers = this.getAuthHeaders()
             const request = {
                 method: 'GET',
                 headers: headers
             }
-            const response = await fetch(url, request)
-            const json: ITwitchHelixChatColorResponse = await response.json()
-            if(json && Array.isArray(json.data) && json.data.length > 0) {
-                const colorData = json.data.pop()
-                if(colorData && colorData.color.length > 0) {
-                    this._userColorCache.set(parseInt(colorData.user_id), colorData.color)
-                    return colorData.color
-                }
-                else Utils.log(`TwitchHelix: Color data was empty for: ${userIdOrLogin}`, Color.Red)
-            } else Utils.log(`TwitchHelix: Color response was invalid for: ${userIdOrLogin}`, Color.Red)
+            try {
+                const response = await fetch(url, request)
+                const json: ITwitchHelixChatColorResponse = await response.json()
+                if (json && Array.isArray(json.data) && json.data.length > 0) {
+                    const colorData = json.data.pop()
+                    if (colorData && colorData.color.length > 0) {
+                        this._userColorCache.set(colorData.user_id, colorData.color)
+                        return colorData.color
+                    } else Log.w(this.TAG, `Color data was empty for: ${userIdOrLogin}`)
+                } else Log.w(this.TAG, `Color response was invalid for: ${userIdOrLogin}`)
+            } catch (e) {
+                Log.e(this.TAG, `Failed to load color for user: ${userIdOrLogin}`, e)
+            }
         }
-        Utils.log(`TwitchHelix: Color request could not get data for: ${userIdOrLogin}`, Color.DarkRed)
+        Log.w(this.TAG, `Color request could not get data for: ${userIdOrLogin}`)
         return undefined
     }
 
@@ -392,33 +447,36 @@ export default class TwitchHelixHelper {
         let url = `https://api.twitch.tv/helix/moderation/moderators?broadcaster_id=${await this.getBroadcasterUserId()}`
         if(userId) url += `&user_id=${userId}`
         const request = {
-            headers: await this.getAuthHeaders()
+            headers: this.getAuthHeaders()
         }
-        const response = await fetch(url, request)
-        if(response.ok) {
-            const result = await response.json() as unknown as ITwitchHelixRoleResponse
-            const hasRole = result.data.length == 1 && result.data[0].user_id == userId.toString()
-            this._channelModeratorCache.set(userId, hasRole)
-            return hasRole
-        } else {
-            return false
+        try {
+            const response = await fetch(url, request)
+            if(response.ok) {
+                const result = await response.json() as unknown as ITwitchHelixRoleResponse
+                const hasRole = result.data.length == 1 && result.data[0].user_id == userId.toString()
+                this._channelModeratorCache.set(userId, hasRole)
+                return hasRole
+            }
+        } catch(e) {
+            Log.e(this.TAG, 'Failed to make user moderator', e)
         }
+        return false
     }
     static async makeUserModerator(userId: number): Promise<boolean> {
-        const url = `https://api.twitch.tv/helix/moderation/moderators?broadcaster_id=${await this.getBroadcasterUserId()}&user_id=${userId}`
+        const url = `https://api.twitch.tv/helix/moderation/moderators?broadcaster_id=${this.getBroadcasterUserId()}&user_id=${userId}`
         const request = {
             method: 'POST',
-            headers: await this.getAuthHeaders()
+            headers: this.getAuthHeaders()
         }
         const response = await fetch(url, request)
         if(response.ok) this._channelModeratorCache.set(userId, true)
         return response.ok
     }
     static async removeUserModerator(userId: number): Promise<boolean> {
-        const url = `https://api.twitch.tv/helix/moderation/moderators?broadcaster_id=${await this.getBroadcasterUserId()}&user_id=${userId}`
+        const url = `https://api.twitch.tv/helix/moderation/moderators?broadcaster_id=${this.getBroadcasterUserId()}&user_id=${userId}`
         const request = {
             method: 'DELETE',
-            headers: await this.getAuthHeaders()
+            headers: this.getAuthHeaders()
         }
         const response = await fetch(url, request)
         if(response.ok) this._channelModeratorCache.set(userId, false)
@@ -429,39 +487,52 @@ export default class TwitchHelixHelper {
     // region VIPs
     static async isUserVIP(userId: number, skipCache: boolean = false): Promise<boolean> {
         if(!skipCache && this._channelVIPCache.has(userId)) return this._channelVIPCache.get(userId) ?? false
-        let url = `https://api.twitch.tv/helix/channels/vips?broadcaster_id=${await this.getBroadcasterUserId()}&user_id=${userId}`
+        let url = `https://api.twitch.tv/helix/channels/vips?broadcaster_id=${this.getBroadcasterUserId()}&user_id=${userId}`
         const request = {
-            headers: await this.getAuthHeaders()
+            headers: this.getAuthHeaders()
         }
-        const response = await fetch(url, request)
-        if(response.ok) {
-            const result = await response.json() as unknown as ITwitchHelixRoleResponse
-            const hasRole = result.data.length == 1 && result.data[0].user_id == userId.toString()
-            this._channelVIPCache.set(userId, hasRole)
-            return hasRole
-        } else {
-            return false
+        try {
+            const response = await fetch(url, request)
+            if(response.ok) {
+                const result = await response.json() as unknown as ITwitchHelixRoleResponse
+                const hasRole = result.data.length == 1 && result.data[0].user_id == userId.toString()
+                this._channelVIPCache.set(userId, hasRole)
+                return hasRole
+            }
+        } catch(e) {
+            Log.e(this.TAG, 'Failed to check if user is VIP', e)
         }
+        return false
     }
     static async makeUserVIP(userId: number): Promise<boolean> {
-        const url = `https://api.twitch.tv/helix/channels/vips?broadcaster_id=${await this.getBroadcasterUserId()}&user_id=${userId}`
+        const url = `https://api.twitch.tv/helix/channels/vips?broadcaster_id=${this.getBroadcasterUserId()}&user_id=${userId}`
         const request = {
             method: 'POST',
-            headers: await this.getAuthHeaders()
+            headers: this.getAuthHeaders()
         }
-        const response = await fetch(url, request)
-        if(response.ok) this._channelVIPCache.set(userId, true)
-        return response.ok
+        try {
+            const response = await fetch(url, request)
+            if(response.ok) this._channelVIPCache.set(userId, true)
+            return response.ok
+        } catch(e) {
+            Log.e(this.TAG, 'Failed to make user VIP', e)
+        }
+        return false
     }
     static async removeUserVIP(userId: number): Promise<boolean> {
-        const url = `https://api.twitch.tv/helix/channels/vips?broadcaster_id=${await this.getBroadcasterUserId()}&user_id=${userId}`
+        const url = `https://api.twitch.tv/helix/channels/vips?broadcaster_id=${this.getBroadcasterUserId()}&user_id=${userId}`
         const request = {
             method: 'DELETE',
-            headers: await this.getAuthHeaders()
+            headers: this.getAuthHeaders()
         }
-        const response = await fetch(url, request)
-        if(response.ok) this._channelVIPCache.set(userId, false)
-        return response.ok
+        try {
+            const response = await fetch(url, request)
+            if(response.ok) this._channelVIPCache.set(userId, false)
+            return response.ok
+        } catch(e) {
+            Log.e(this.TAG, 'Failed to load VIPs', e)
+        }
+        return false
     }
     // endregion
 
@@ -470,17 +541,22 @@ export default class TwitchHelixHelper {
         const url = `https://api.twitch.tv/helix/eventsub/subscriptions`
         const request = {
             method: 'POST',
-            headers: await this.getAuthHeaders(true),
+            headers: this.getAuthHeaders(true),
             body: JSON.stringify(body)
         }
-        const response = await fetch(url, request)
-        return response.ok
+        try {
+            const response = await fetch(url, request)
+            return response.ok
+        } catch(e) {
+            Log.e(this.TAG, 'Failed to load subscriptions', e)
+        }
+        return false
     }
     // endregion
 
     static async loadNamesForUsersWhoLackThem() {
         // region Chat
-        const userSettings = DataUtils.getKeyDataDictionary(DatabaseHelper.loadAll<SettingUser>(new SettingUser()) ?? {})
+        const userSettings = DataUtils.getKeyDataDictionary<SettingUser>(DatabaseHelper.loadAll<SettingUser>(new SettingUser()) ?? {})
         for(const [key, setting] of Object.entries(userSettings)) {
             if(setting.userName.length && setting.displayName.length) continue
             await TwitchHelixHelper.getUserById(key) // This will automatically update the object in the database

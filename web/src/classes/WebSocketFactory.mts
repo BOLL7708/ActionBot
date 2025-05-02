@@ -1,4 +1,6 @@
+import {AbstractData} from '../../../lib/index.mts'
 import WebSocketClient, {IWebSocketClientMessageCallback, IWebSocketClientOptions} from '../../../lib/SharedUtils/WebSocketClient.mts'
+import {IDatabaseMessage} from '../../../lib/Types/WebSocket/Database.mts'
 import UrlUtils from './UrlUtils.mts'
 import Log from '../../../lib/SharedUtils/Log.mts'
 
@@ -44,7 +46,24 @@ export default class WebSocketFactory {
 }
 
 export class DatabaseWebSocketClient {
-    
+    private client: WebSocketClient
+    constructor(client: WebSocketClient) {
+        this.client = client
+    }
+    async get<T>(instance: T&AbstractData, key: string, group: string, fill: boolean): T|undefined {
+        const nonce = this.client.getNonce()
+        const message: IDatabaseMessage = {
+            action: 'load',
+            nonce,
+            key,
+            group
+        }
+        const response = await this.client.sendMessageWithPromise(message, nonce)
+        return instance.__apply(response, fill)
+    }
+    get<T>(id: number): T|undefined {
+
+    }
 }
 
 export class PresenterWebSocketClient {

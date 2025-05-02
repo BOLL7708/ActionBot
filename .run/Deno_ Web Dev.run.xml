@@ -1,0 +1,5 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Deno: Web Dev" type="DenoConfigurationType" inputPath="$PROJECT_DIR$/web/vite.config.ts" programParameters="task dev" workingDirectory="$PROJECT_DIR$/web">
+    <method v="2" />
+  </configuration>
+</component>

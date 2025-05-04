@@ -1,45 +1,21 @@
-import {OptionCommandCategory} from '../../Options/OptionCommandCategory.mts'
-import {DataEntries} from '../AbstractData.mts'
+import {TDataSingle} from '../AbstractData.mts'
 import {DataMap} from '../DataMap.mts'
-import {PresetTest} from '../Preset/PresetTest.mts'
+import {SettingTest} from '../Setting/SettingTest.mts'
 import {AbstractTrigger} from './AbstractTrigger.mts'
 
 export class TriggerTest extends AbstractTrigger {
-    entries: string[] = ['']
-    permissions: number|DataEntries<PresetTest> = 0
-    requireUserTag = false
-    requireExactWordCount: number = 0
-    requireMinimumWordCount: number = 0
-    globalCooldown: number = 0
-    userCooldown: number = 0
-    exemptModsFromCooldowns: boolean = false
-    category: number = OptionCommandCategory.Uncategorized
-    helpInput: string[] = []
-    helpText: string = ''
+    setting: TDataSingle<SettingTest> = 0
 
     enlist() {
         DataMap.addRootInstance({
             instance: new TriggerTest(),
-            tag: '📣',
-            description: 'A chat command.',
+            tag: 'Trigger',
+            description: 'A test trigger.',
             documentation: {
-                entries: 'The commands that can be used with this trigger.',
-                permissions: 'Permission for who can execute this command.',
-                requireUserTag: 'Require this command to include a user tag to get triggered.',
-                requireExactWordCount: 'Require this command to include exactly this number of words to get triggered.',
-                requireMinimumWordCount: 'Require this command to include at least this number of words to get triggered.',
-                globalCooldown: 'The number of seconds before this can be used again, by anyone.',
-                userCooldown: 'The number of seconds before this can be used again, by the same user.',
-                exemptModsFromCooldowns: 'The streamer and moderators will not be affected by any cooldown.',
-                category: 'A category for grouping this command with others.',
-                helpInput: 'Input values for the command, used to build the help text.',
-                helpText: 'Description that is used for help documentation.'
+                setting: 'A single setting'
             },
             types: {
-                entries: 'string',
-                permissions: PresetTest.ref.id.build(),
-                category: OptionCommandCategory.ref,
-                helpInput: 'string'
+                setting: SettingTest.ref.id.build()
             }
         })
     }

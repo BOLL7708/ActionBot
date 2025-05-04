@@ -1,7 +1,16 @@
 import '../Runners/index.mts' // This is required so the prototypes get extended.
-import {assert, assertEquals} from 'jsr:@std/assert'
-import {ActionTest, ConfigExample, ConfigTest, EnlistData, EventTest, SettingTest} from '../../lib/index.mts'
-import Log, {ELogLevel} from '../../lib/SharedUtils/Log.mts'
+import { assert, assertEquals } from 'jsr:@std/assert'
+import {
+    ActionTest,
+    ConfigExample,
+    ConfigTest, DataEntries,
+    EnlistData,
+    EventTest,
+    PresetTest,
+    SettingTest,
+    TriggerTest
+} from '../../lib/index.mts'
+import Log, { ELogLevel } from '../../lib/SharedUtils/Log.mts'
 import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
 import DatabaseSingleton from '../Singletons/DatabaseSingleton.mts'
 
@@ -15,7 +24,7 @@ Deno.test('init', async () => {
         useColors: true,
         capitalizeTag: false,
         tagPrefix: '[',
-        tagPostfix: '] '
+        tagPostfix: '] ',
     })
 })
 
@@ -59,7 +68,7 @@ async function resetDatabases(): Promise<void> {
         new Promise((resolve) => {
             db.reconnect()
             setTimeout(resolve, 100)
-        })
+        }),
     ])
 }
 
@@ -105,7 +114,7 @@ Deno.test('save & load', async (t) => {
             'actionSystem-6',
             'actionSystem-7',
             'actionSystem-8',
-            'actionSystem-9'
+            'actionSystem-9',
         ]
         assertEquals(allKeys, keys)
     })
@@ -130,36 +139,34 @@ Deno.test('save & load', async (t) => {
             filledData: new SettingTest(),
             id: 1,
             key: 'Main',
-            pid: null
+            pid: null,
         }, item)
     })
     await t.step('fill sub items', async () => {
         await resetDatabases()
         // TODO: Fix
         // Create presets and load the row IDs for them
-        /*
         const childKey = 'Child'
-        const preset = new PresetTest()
-        preset.channel = 100
-        const savedChildKey = db.save(preset, childKey)
+        const setting = new SettingTest()
+        setting.numberValue = 100
+        const savedChildKey = db.save(setting, childKey)
         assert(savedChildKey)
         assertEquals(childKey, savedChildKey)
         assertEquals(childKey, savedChildKey)
-        const childId = db.loadId(preset.__getClass(), savedChildKey)
+        const childId = db.loadId(setting.__getClass(), savedChildKey)
         assert(childId)
 
         const parentKey = 'Parent'
-        const parent = new ActionAudio()
-        parent.channel = childId
+        const parent = new TriggerTest()
+        parent.setting = childId
         const savedParentKey = db.save(parent, parentKey)
 
         // Check so it saved and that the object fills properly with the right item
         assert(savedParentKey)
         const item = DatabaseHelper.loadItem(parent, parentKey, undefined, true)
-        const id = ((item?.filledData?.channel) as DataEntries<PresetTest> | undefined)?.dataSingle?.id
+        const id = ((item?.filledData?.setting) as DataEntries<PresetTest> | undefined)?.dataSingle?.id
         assert(id)
-        assertEquals(item?.data?.channel, id)
-         */
+        assertEquals(item?.data?.setting, id)
     })
     await t.step('get next key', async () => {
         await resetDatabases()
@@ -171,7 +178,7 @@ Deno.test('save & load', async (t) => {
         assert(s_p)
         const s_key = db.getNextKey(childInstance.__getClass(), s_p?.id ?? 0, true)
         assert(s_key)
-        assertEquals({key: 'Main Test 1'}, s_key)
+        assertEquals({ key: 'Main Test 1' }, s_key)
     })
     await t.step('get row IDs with labels', async () => {
         await resetDatabases()
@@ -191,11 +198,11 @@ Deno.test('save & load', async (t) => {
         let pidCount = 0
         let pidNullCount = 0
         const s_res = db.loadIdsWithLabelForClass(clazz)
-        for(const [id, row] of Object.entries(s_res)) {
+        for (const [id, row] of Object.entries(s_res)) {
             assert(parseInt(id))
             assert(row.key.startsWith('settingTest-'))
             assert(row.label.length == 0)
-            if(row.pid == null) pidNullCount++
+            if (row.pid == null) pidNullCount++
             else pidCount++
         }
         assert(pidCount == 5)
@@ -204,11 +211,11 @@ Deno.test('save & load', async (t) => {
         pidCount = 0
         pidNullCount = 0
         const s_resl = db.loadIdsWithLabelForClass(clazz, 'stringValue', undefined)
-        for(const [id, row] of Object.entries(s_resl)) {
+        for (const [id, row] of Object.entries(s_resl)) {
             assert(parseInt(id))
             assert(row.key.startsWith('settingTest-'))
             assert(row.label.startsWith('UseMeAsLabel-'))
-            if(row.pid == null) pidNullCount++
+            if (row.pid == null) pidNullCount++
             else pidCount++
         }
         assert(pidCount == 5)
@@ -217,12 +224,12 @@ Deno.test('save & load', async (t) => {
         pidCount = 0
         pidNullCount = 0
         const s_resp = db.loadIdsWithLabelForClass(clazz, 'stringValue', s_pid)
-        for(const [id, row] of Object.entries(s_resp)) {
+        for (const [id, row] of Object.entries(s_resp)) {
             assert(parseInt(id))
             assert(row.key.startsWith('settingTest-'))
             assert(row.label.startsWith('UseMeAsLabel-'))
-            if(row.pid == null) pidNullCount++
-            else if(row.pid == s_pid) pidCount++
+            if (row.pid == null) pidNullCount++
+            else if (row.pid == s_pid) pidCount++
         }
         assert(pidCount == 5)
         assert(pidNullCount == 5)
@@ -243,9 +250,9 @@ Deno.test('save & load', async (t) => {
         assertEquals(s_result[clazz], 10)
         assertEquals(
             {
-                ConfigExample: 10
+                ConfigExample: 10,
             },
-            s_result
+            s_result,
         )
 
         // List with wildcard
@@ -256,9 +263,9 @@ Deno.test('save & load', async (t) => {
         assertEquals(
             {
                 ConfigExample: 10,
-                ConfigTest: 10
+                ConfigTest: 10,
             },
-            s_result2
+            s_result2,
         )
 
         // Filter on parent, old lib cannot do this, not sure if actually used
@@ -271,7 +278,7 @@ Deno.test('save & load', async (t) => {
         assert(parentId)
         db.save(new ConfigExample(), childKey, undefined, parentId)
         const s_result3 = db.loadClassesWithCounts(clazz, parentId)
-        assertEquals(s_result3, {[clazz]: 1})
+        assertEquals(s_result3, { [clazz]: 1 })
     })
     await t.step('Load ID classes', () => {
         const s_key1 = db.saveMain(new ConfigTest())
@@ -285,9 +292,9 @@ Deno.test('save & load', async (t) => {
             [
                 'ConfigTest',
                 'ActionTest',
-                'EventTest'
+                'EventTest',
             ],
-            Object.values(s_classes)
+            Object.values(s_classes),
         )
     })
 })

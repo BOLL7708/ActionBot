@@ -1,16 +1,19 @@
 import '../Runners/index.mts' // This is required so the prototypes get extended.
-import { assert, assertEquals } from 'jsr:@std/assert'
+import {assert, assertEquals} from 'jsr:@std/assert'
 import {
+    AbstractData,
     ActionTest,
     ConfigExample,
-    ConfigTest, DataEntries,
+    ConfigTest,
+    DataEntries,
     EnlistData,
     EventTest,
+    IDatabaseItem,
     PresetTest,
     SettingTest,
     TriggerTest
 } from '../../lib/index.mts'
-import Log, { ELogLevel } from '../../lib/SharedUtils/Log.mts'
+import Log, {ELogLevel} from '../../lib/SharedUtils/Log.mts'
 import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
 import DatabaseSingleton from '../Singletons/DatabaseSingleton.mts'
 
@@ -20,7 +23,7 @@ Deno.test('init', async () => {
     DatabaseHelper.isTesting = true
     Log.setOptions({
         logLevel: ELogLevel.Warning,
-        stackLevel: ELogLevel.Warning,
+        stackLevel: ELogLevel.Error,
         useColors: true,
         capitalizeTag: false,
         tagPrefix: '[',
@@ -130,21 +133,23 @@ Deno.test('save & load', async (t) => {
     })
     await t.step('load by ID', async () => {
         await resetDatabases()
-        db.saveMain(new SettingTest())
-        const item = db.loadById(1)
+        const original = new SettingTest('Testing', 100, true)
+        const key = db.saveMain(original)
+        const id = db.loadId(original.__getClass(), `${key}`)
+        const item = db.loadById(id)
         assert(item)
-        assertEquals({
+        const compareWithThis: IDatabaseItem<AbstractData> = {
             class: 'SettingTest',
-            data: new SettingTest(),
-            filledData: new SettingTest(),
+            data: original,
+            filledData: original,
             id: 1,
             key: 'Main',
             pid: null,
-        }, item)
+        }
+        assertEquals(compareWithThis, item)
     })
     await t.step('fill sub items', async () => {
         await resetDatabases()
-        // TODO: Fix
         // Create presets and load the row IDs for them
         const childKey = 'Child'
         const setting = new SettingTest()

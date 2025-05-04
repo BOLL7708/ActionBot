@@ -18,11 +18,22 @@ interface IDatabaseHelperHeaders {
 
 export interface IDatabaseItem<T> {
     id: number
+    /**
+     * The JavaScript class name that the JSON data represents.
+     */
     class: string
     key: string
     pid: number|null
+    /**
+     * The JSON data instantiated as the referenced class.
+     * This is the object to update to save changes to the DB.
+     */
     data: (T&AbstractData)|null
-    filledData: (T&AbstractData)|null // Bonus property not from the DB, it's the data property but with references filled in.
+    /**
+     * The JSON data instantiated as the referenced class, with item references filled in.
+     * This is a bonus property not from the DB, to be used at runtime.
+     */
+    filledData: (T&AbstractData)|null
 }
 export interface IDatabaseItemRaw extends IDatabaseItem<any> {
     data: string

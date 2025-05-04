@@ -1,42 +1,19 @@
-import {ConfigExample, ConfigExampleSub, EnlistData, OptionEntryUsage} from '../../lib/index.mts'
+import {EnlistData, SettingTest} from '../../lib/index.mts'
 import Log from '../../lib/SharedUtils/Log.mts'
+import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
 
 export default class Bot {
     static readonly TAG = this.name
     static init() {
-        Log.i(this.TAG, 'Bot initialized', Bot.name)
-
         EnlistData.run()
 
-        const ce = new ConfigExample(
-            true,
-            123,
-            50,
-            'Hello world',
-            'Hello secret world',
-            '/what/is/this',
-            new ConfigExampleSub(
-                'Hello sub world',
-                100,
-                OptionEntryUsage.All
-            ),
-            100,
-            100,
-            100,
-            OptionEntryUsage.All,
-            [true, false, true],
-            OptionEntryUsage.All,
-            [1, 2, 3],
-            ['Hello', 'World'],
-            ['Hello', 'World', ''],
-            ['Hello', 'Secret', 'World'],
-            [new ConfigExampleSub(
-                'Hello sub world again',
-            100,
-                OptionEntryUsage.AllRandom
-            )]
-        )
-        Log.v(this.TAG, 'Config example:', ce)
-        Log.v(this.TAG, 'Config example:', JSON.stringify(ce, null, 2))
+        Log.i(this.TAG, 'Bot initialized', Bot.name)
+
+
+        const item = new SettingTest('Test me!', 101, true)
+        const key = DatabaseHelper.save(item, 'Yes')
+        const item2 = DatabaseHelper.loadItem(new SettingTest(), key, undefined, true)
+        const item3 = DatabaseHelper.loadById(item2.id)
+        Log.d(this.TAG, 'DONE', {in: item, out: item2.data, byId: item3.data})
     }
 }

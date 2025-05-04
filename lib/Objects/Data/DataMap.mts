@@ -1,5 +1,6 @@
-import {AbstractData} from './AbstractData.mts'
+import Log from '../../SharedUtils/Log.mts'
 import {IDictionary, IStringDictionary} from '../../Types/Dictionary.mts'
+import {AbstractData} from './AbstractData.mts'
 import {DataMeta} from './DataMeta.mts'
 
 // Types
@@ -11,6 +12,7 @@ export type TNoFunctions<T> = {
 export type TTypes = 'number'|'boolean'|'boolean|toggle'|'string'|'string|secret'|'string|code'|string & {} // the `& {}` prevents the `|string` from collapsing all options into just `string`.
 
 export class DataMap {
+    private static readonly TAG = this.constructor.name
     private static _map = new Map<string, DataObjectMeta>()
     private static addInstance<T>(
         isRoot: boolean = false,
@@ -60,7 +62,7 @@ export class DataMap {
      */
     public static getInstance({className, props, fill}: {
         className?: string,
-        props?: object,
+        props?: object&AbstractData,
         fill: boolean
     }): AbstractData|undefined {
         const invalidClassNames: TTypes[] = ['string', 'number', 'boolean']
@@ -68,9 +70,11 @@ export class DataMap {
         if(className && this.hasInstance(className)) {
             const instance = this._map.get(className)?.instance
             if(instance) {
-                return instance.__new(props, fill)
-            } else console.warn(`DataMap: Class instance was invalid: ${className}`, props)
-        } else console.warn(`DataMap: Class instance does not exist: ${className}`, props)
+                // Here we used __new even with empty props, which for some reason removed all properties, breaking loadById.
+                if(props) return instance.__new(props, fill)
+                else return instance
+            } else Log.w(this.TAG, `Class instance was invalid: ${className}`, props)
+        } else Log.w(this.TAG, `Class instance does not exist: ${className}`, props)
         return undefined
     }
 

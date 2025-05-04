@@ -1,3 +1,4 @@
+import './Runners/index.mts'
 import Log, {ELogLevel} from '../lib/SharedUtils/Log.mts'
 import Bot from './Classes/Bot.mts'
 import DatabaseHelper from './Helpers/DatabaseHelper.mts'

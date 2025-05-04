@@ -18,14 +18,14 @@ export default class DatabaseHelper {
     */
 
     // Main storage
-    private static _dataStore: Map<string, IDictionary<IDatabaseItem<any>>> = new Map() // Used for storing keyed entries in memory before saving to disk
+    private static _dataStore: Map<string, IDictionary<IDatabaseItem<AbstractData>>> = new Map() // Used for storing keyed entries in memory before saving to disk
 
     // Editor specific storage
     private static _idKeyLabelStore: Map<[string, number], IDictionary<IDatabaseListItem>> = new Map() // Used to store ID reference lists used in the editor
 
     // Reference maps, if an object has been loaded once, it exists in these maps.
-    private static _groupKeyTupleToMetaMap: Map<[string, string], IDatabaseItem<any>> = new Map()
-    private static _idToMetaMap: Map<number, IDatabaseItem<any>> = new Map()
+    private static _groupKeyTupleToMetaMap: Map<[string, string], IDatabaseItem<AbstractData>> = new Map()
+    private static _idToMetaMap: Map<number, IDatabaseItem<AbstractData>> = new Map()
 
     static testConnection(): boolean {
         return DatabaseSingleton.get(this.isTesting).test()
@@ -200,8 +200,8 @@ ON CONFLICT DO UPDATE SET parent_id=:parent_id, data_json=:data_json;
      * @param item
      * @private
      */
-    private static handleDataBaseItem<T>(item: IDatabaseItem<T>):T|undefined {
-        const itemClone = ValueUtils.clone<IDatabaseItem<T>>(item)
+    private static handleDataBaseItem<T>(item: IDatabaseItem<T&AbstractData>):T&AbstractData|undefined {
+        const itemClone = ValueUtils.clone<IDatabaseItem<T&AbstractData>>(item)
         itemClone.data = null
 
         // We cache things so we can quickly list them later, thus data is nulled.
@@ -215,7 +215,7 @@ ON CONFLICT DO UPDATE SET parent_id=:parent_id, data_json=:data_json;
             item.data = meta.instance.__new(item.data ?? undefined, false)
         }
 
-        return item.data ? item.data as T : undefined
+        return item.data ? item.data as T&AbstractData : undefined
     }
 
     /**
@@ -225,20 +225,20 @@ ON CONFLICT DO UPDATE SET parent_id=:parent_id, data_json=:data_json;
      */
     static loadAll<T>(
         emptyInstance: T&AbstractData,
-        parentId?: number,
-    ): IDictionary<IDatabaseItem<T>>|undefined {
+        parentId?: number, // TODO: Not implemented?
+    ): IDictionary<IDatabaseItem<T&AbstractData>>|undefined {
         const className = emptyInstance.constructor.name
         if(this.checkAndReportClassError(className, 'loadDictionary')) return undefined
 
         // Cache
         if(this._dataStore.has(className)) {
-            return this._dataStore.get(className) as IDictionary<IDatabaseItem<T>>
+            return this._dataStore.get(className) as IDictionary<IDatabaseItem<T&AbstractData>>
         }
 
         // DB
-        const jsonResult = this.loadJson(className) as IDatabaseItem<T>[]|undefined
+        const jsonResult = this.loadJson(className) as IDatabaseItem<T&AbstractData>[]|undefined
         if(Array.isArray(jsonResult)) {
-            const cacheDictionary: IDictionary<IDatabaseItem<T>> = {}
+            const cacheDictionary: IDictionary<IDatabaseItem<T&AbstractData>> = {}
 
             // Convert plain objects to class instances and cache them
             for(const item of jsonResult) {
@@ -311,7 +311,7 @@ ON CONFLICT DO UPDATE SET parent_id=:parent_id, data_json=:data_json;
         key: string,
         parentId?: number,
         ignoreCache?: boolean
-    ): IDatabaseItem<T>|undefined {
+    ): IDatabaseItem<T&AbstractData>|undefined {
         const className = emptyInstance.constructor.name
         if (this.checkAndReportClassError(className, 'loadSingle')) return undefined
 
@@ -319,12 +319,12 @@ ON CONFLICT DO UPDATE SET parent_id=:parent_id, data_json=:data_json;
         if(!ignoreCache && this._dataStore.has(className)) {
             const cache = this._dataStore.get(className)
             if(cache && cache.hasOwnProperty(key)) {
-                return cache[key]
+                return cache[key] as IDatabaseItem<T&AbstractData>
             }
         }
 
         // DB
-        const jsonResult = this.loadJson(className, key, parentId) as IDatabaseItem<T>[]|undefined
+        const jsonResult = this.loadJson(className, key, parentId) as IDatabaseItem<T&AbstractData>[]|undefined
         if(jsonResult && jsonResult.length == 1) {
             this.fillItemsInPlace(
                 className,
@@ -340,11 +340,11 @@ ON CONFLICT DO UPDATE SET parent_id=:parent_id, data_json=:data_json;
     static loadById(
         rowId?: string|number,
         parentId?: number
-    ): IDatabaseItem<unknown>|undefined {
+    ): IDatabaseItem<AbstractData>|undefined {
         if(!rowId) return undefined
 
         const result = this.loadJson(null, null, parentId, rowId)
-        const item: IDatabaseItem<any>|undefined = result?.[0]
+        const item: IDatabaseItem<AbstractData>|undefined = result?.[0]
         if(item) {
             this.fillItemsInPlace(item.class, item.key, null, [item])
         }
@@ -355,7 +355,7 @@ ON CONFLICT DO UPDATE SET parent_id=:parent_id, data_json=:data_json;
         className: string,
         key: string,
         emptyInstance: AbstractData|null,
-        items: IDatabaseItem<any>[]
+        items: IDatabaseItem<AbstractData>[]
     ): void {
         if(emptyInstance === null) {
             emptyInstance = DataMap.getInstance({ className, fill: false }) as AbstractData
@@ -367,7 +367,7 @@ ON CONFLICT DO UPDATE SET parent_id=:parent_id, data_json=:data_json;
 
             // Ensure dictionary exists
             if (!this._dataStore.has(className)) {
-                const newDic: IDictionary<IDatabaseItem<any>> = {}
+                const newDic: IDictionary<IDatabaseItem<AbstractData>> = {}
                 this._dataStore.set(className, newDic)
             }
             const cacheDictionary = this._dataStore.get(className)
@@ -402,7 +402,7 @@ ON CONFLICT DO UPDATE SET parent_id=:parent_id, data_json=:data_json;
         if (!result) return {}
         return Object.fromEntries(
             Object.entries(result).map(
-                ([key, data]) => [data.group_class, data.count]
+                ([_key, data]) => [data.group_class, data.count]
             )
         )
     }
@@ -449,20 +449,20 @@ ON CONFLICT DO UPDATE SET parent_id=:parent_id, data_json=:data_json;
     /**
      * Loads raw JSON a group class and key, will use cache if that is set.
      */
-    static async loadRawItem(groupClass: string, groupKey: string): Promise<IDatabaseItem<any>|undefined> {
+    static loadRawItem(groupClass: string, groupKey: string): IDatabaseItem<AbstractData>|undefined {
         const tuple: [string, string] = [groupClass, groupKey]
 
         // Return cache if it is set
         if(this._groupKeyTupleToMetaMap.has(tuple)) {
             const cachedItem = this._groupKeyTupleToMetaMap.get(tuple)
-            if(cachedItem) return cachedItem
+            if(cachedItem) return cachedItem as IDatabaseItem<AbstractData>
         }
 
         // Load from DB
         const jsonResult = this.loadJson(groupClass, groupKey, 0, null, true)
         if(jsonResult && jsonResult.length > 0) {
             const item = jsonResult[0]
-            this.handleDataBaseItem<any>(item).then() // Store cache
+            this.handleDataBaseItem<AbstractData>(item) // Store cache
             return item
         }
         return undefined
@@ -668,7 +668,7 @@ ON CONFLICT DO UPDATE SET parent_id=:parent_id, data_json=:data_json;
         const parent = this.loadById(parentId)
         let tail = groupClass
         if(shorten) tail = Utils.splitOnCaps(groupClass).splice(1).join('')
-        let newKey = `${parent?.key ?? 'New'} ${tail}`
+        const newKey = `${parent?.key ?? 'New'} ${tail}`
 
         const query = 'SELECT group_key AS `key` FROM json_store WHERE group_class = :group_class AND (group_key LIKE :group_key OR json_store.group_key LIKE :like_group_key);'
         const params = {group_class: groupClass, group_key: newKey, like_group_key: `${newKey} %`}

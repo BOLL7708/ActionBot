@@ -1,4 +1,4 @@
-import {ActionSystemRewardState, DataUtils, EventDefault, OptionTwitchRewardUsable, OptionTwitchRewardVisible, PresetReward, SettingTwitchClient, SettingTwitchRedemption, SettingTwitchTokens, SettingUser, SettingUserName, TriggerReward} from '../../lib/index.mts'
+import {ActionSystemRewardState, DataUtils, EventTest, OptionTwitchRewardUsable, OptionTwitchRewardVisible, PresetReward, SettingTwitchClient, SettingTwitchRedemption, SettingTwitchTokens, SettingUser, SettingUserName, TriggerReward} from '../../lib/index.mts'
 import {ITwitchEventSubSubscriptionPayload} from '../Classes/Api/TwitchEventSub.mts'
 import Color from '../Constants/ColorConstants.mts'
 import Log from '../../lib/SharedUtils/Log.mts'
@@ -195,7 +195,7 @@ export default class TwitchHelixHelper {
         }
     }
 
-    static async updateRewards(allEvents: {[key: string]: EventDefault}|undefined) {
+    static async updateRewards(allEvents: {[key: string]: EventTest}|undefined) {
         let updatedRewardCount = 0
         let skippedRewardCount = 0
         let failedRewardCount = 0

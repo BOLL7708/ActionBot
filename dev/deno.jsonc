@@ -1,0 +1,13 @@
+// This only exists to fix the type checking of the lib directory.
+{
+  "compilerOptions": {
+    "strict": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+    "strictBindCallApply": true
+  },
+  "tasks": {
+    "generate": "deno run --allow-read --allow-write generate.mts"
+  }
+}

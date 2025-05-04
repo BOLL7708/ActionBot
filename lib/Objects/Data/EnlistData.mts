@@ -8,7 +8,7 @@ import {AbstractData} from './AbstractData.mts'
  * If a class is not enlisted here, it will not be re-instantiated, and thus throw an error.
  */
 export class EnlistData {
-    static TAG = this.name
+    static readonly TAG = this.name
     static run() {
         const enlisted: string[] = []
         const cannotEnlist: string[] = []
@@ -32,5 +32,6 @@ export class EnlistData {
             no_method: cannotEnlist.length,
             no_constructor: cannotInstantiate.length
         })
+        Log.v(this.TAG, 'Enlisting of Data Objects verbose result:', {enlisted, cannotEnlist, cannotInstantiate})
     }
 }

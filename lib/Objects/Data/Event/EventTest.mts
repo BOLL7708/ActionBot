@@ -1,15 +1,15 @@
 import {AbstractData, DataEntries} from '../AbstractData.mts'
 import {OptionEventBehavior} from '../../Options/OptionEventBehavior.mts'
 import {DataMap} from '../DataMap.mts'
-import {PresetEventCategory} from '../Preset/PresetEventCategory.mts'
+import {PresetTest} from '../Preset/PresetTest.mts'
 import {AbstractTrigger} from '../Trigger/AbstractTrigger.mts'
 import {DataUtils} from '../DataUtils.mts'
 import {IDictionary} from '../../../Types/Dictionary.mts'
 import {OptionEventRun} from '../../Options/OptionEventRun.mts'
 import {AbstractAction} from '../Action/AbstractAction.mts'
 
-export class EventDefault extends AbstractData {
-    category: number|DataEntries<PresetEventCategory> = 0
+export class EventTest extends AbstractData {
+    category: number|DataEntries<PresetTest> = 0
     options = new EventOptions() // TODO: Put internal properties in the base root instead, as well as the reward options object.
     behavior: number = OptionEventBehavior.All
     incrementingOptions = new EventIncrementingOptions()
@@ -20,7 +20,7 @@ export class EventDefault extends AbstractData {
 
     enlist() {
         DataMap.addRootInstance({
-            instance: new EventDefault(),
+            instance: new EventTest(),
             description: 'The event that contains triggers and actions.',
             documentation: {
                 category: 'The type of this event, this is mostly used to separate out imported default events, so you can leave it as uncategorized.',
@@ -56,7 +56,7 @@ export class EventDefault extends AbstractData {
                     '<li>The rest are used in turn as the level increases.</li>'
             },
             types: {
-                category: PresetEventCategory.ref.id.build(),
+                category: PresetTest.ref.id.build(),
                 behavior: OptionEventBehavior.ref,
                 triggers: AbstractData.genericRef('Trigger').build(),
                 actions: EventActionContainer.ref.build()

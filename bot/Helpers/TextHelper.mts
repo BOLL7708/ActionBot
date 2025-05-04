@@ -1,4 +1,4 @@
-import {ConfigCleanText, ConfigSpeech, EventDefault, IActionUser, SettingAccumulatingCounter, SettingUser, SettingUserName, SettingUserVoice} from '../../lib/index.mts'
+import {ConfigCleanText, ConfigSpeech, EventTest, IActionUser, SettingAccumulatingCounter, SettingUser, SettingUserName, SettingUserVoice} from '../../lib/index.mts'
 import ValueUtils from '../../lib/SharedUtils/ValueUtils.mts'
 import {ITwitchEmotePosition} from '../Classes/Data/TwitchFactory.mts'
 import ModulesSingleton from '../Singletons/ModulesSingleton.mts'
@@ -253,8 +253,8 @@ export default class TextHelper {
         const voice = user.voice
         const now = new Date()
 
-        const eventConfig = await DatabaseHelper.loadOrEmpty<EventDefault>(new EventDefault(), userData?.eventKey ?? '')
-        const eventID = await DatabaseHelper.loadId(EventDefault.ref.build(), userData?.eventKey ?? '')
+        const eventConfig = await DatabaseHelper.loadOrEmpty<EventTest>(new EventTest(), userData?.eventKey ?? '')
+        const eventID = await DatabaseHelper.loadId(EventTest.ref.build(), userData?.eventKey ?? '')
         const eventLevel = states.multiTierEventCounters.get(eventID.toString())?.count ?? 0
         const eventLevelMax = eventConfig.multiTierOptions.maxLevel
         const eventCount = (await DatabaseHelper.load<SettingAccumulatingCounter>(new SettingAccumulatingCounter(), eventID.toString()))?.count ?? 0

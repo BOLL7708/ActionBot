@@ -4,18 +4,17 @@ import {OptionSystemActionType} from '../../Options/OptionSystemActionType.mts'
 import {OptionTwitchRewardUsable, OptionTwitchRewardVisible} from '../../Options/OptionTwitch.mts'
 import {AbstractData, DataEntries} from '../AbstractData.mts'
 import {DataMap} from '../DataMap.mts'
-import {EventDefault} from '../Event/EventDefault.mts'
-import {SettingTwitchReward} from '../Setting/SettingTwitch.mts'
-import {SettingUser} from '../Setting/SettingUser.mts'
+import {EventTest} from '../Event/EventTest.mts'
 import {AbstractAction} from './AbstractAction.mts'
+import {SettingTest} from '../Setting/SettingTest.mts'
 
-export class ActionSystem extends AbstractAction {
+export class ActionTest extends AbstractAction {
     trigger = new ActionSystemTrigger()
     toggle = new ActionSystemToggle()
 
     enlist() {
         DataMap.addRootInstance({
-            instance: new ActionSystem(),
+            instance: new ActionTest(),
             tag: '🤖',
             description: 'Trigger or change state of things, propagating input.',
             documentation: {
@@ -31,9 +30,9 @@ export class ActionSystemTrigger extends AbstractData {
     systemActionEntries_use = OptionEntryUsage.All
     commandEntries: string[] = []
     commandEntries_use = OptionEntryUsage.All
-    eventEntries: number[]|DataEntries<EventDefault> = []
+    eventEntries: number[]|DataEntries<EventTest> = []
     eventEntries_use = OptionEntryUsage.All
-    matchedEventEntries: INumberDictionary|DataEntries<EventDefault> = {}
+    matchedEventEntries: INumberDictionary|DataEntries<EventTest> = {}
     matchedEventEntries_caseSensitive = false
     matchedEventEntries_isRegex = false
     userEventEntries: ActionSystemUserEvent[] = []
@@ -57,9 +56,9 @@ export class ActionSystemTrigger extends AbstractData {
                 systemActionEntries_use: OptionEntryUsage.ref,
                 commandEntries: 'string',
                 commandEntries_use: OptionEntryUsage.ref,
-                eventEntries: EventDefault.ref.id.build(),
+                eventEntries: EventTest.ref.id.build(),
                 eventEntries_use: OptionEntryUsage.ref,
-                matchedEventEntries: EventDefault.ref.id.build(),
+                matchedEventEntries: EventTest.ref.id.build(),
                 userEventEntries: ActionSystemUserEvent.ref.build()
             }
         })
@@ -84,7 +83,7 @@ export class ActionSystemToggle extends AbstractData {
     }
 }
 export class ActionSystemRewardState extends AbstractData {
-    reward: number|DataEntries<SettingTwitchReward> = 0
+    reward: number|DataEntries<SettingTest> = 0
     reward_visible = OptionTwitchRewardVisible.NoChange
     reward_usable = OptionTwitchRewardUsable.NoChange
 
@@ -95,7 +94,7 @@ export class ActionSystemRewardState extends AbstractData {
                 reward: 'The reward to update, if it should be visible and/or redeemable.'
             },
             types: {
-                reward: SettingTwitchReward.ref.id.label.build(),
+                reward: SettingTest.ref.id.label.build(),
                 reward_visible: OptionTwitchRewardVisible.ref,
                 reward_usable: OptionTwitchRewardUsable.ref
             }
@@ -103,7 +102,7 @@ export class ActionSystemRewardState extends AbstractData {
     }
 }
 export class ActionSystemRewardStateForEvent extends AbstractData {
-    event: number|DataEntries<EventDefault> = 0
+    event: number|DataEntries<EventTest> = 0
     event_visible = OptionTwitchRewardVisible.Visible
     event_usable = OptionTwitchRewardUsable.Enabled
 
@@ -114,7 +113,7 @@ export class ActionSystemRewardStateForEvent extends AbstractData {
                 event: 'The event to look for a reward to update in, if it should be visible and/or redeemable.'
             },
             types: {
-                event: EventDefault.ref.id.build(),
+                event: EventTest.ref.id.build(),
                 event_visible: OptionTwitchRewardVisible.ref,
                 event_usable: OptionTwitchRewardUsable.ref
             }
@@ -122,8 +121,8 @@ export class ActionSystemRewardStateForEvent extends AbstractData {
     }
 }
 export class ActionSystemUserEvent extends AbstractData {
-    user: number|DataEntries<SettingUser> = 0
-    event: number|DataEntries<EventDefault> = 0
+    user: number|DataEntries<SettingTest> = 0
+    event: number|DataEntries<EventTest> = 0
 
     enlist() {
         DataMap.addSubInstance({
@@ -132,8 +131,8 @@ export class ActionSystemUserEvent extends AbstractData {
                 event: 'Trigger this event for a specific user.'
             },
             types: {
-                user: SettingUser.ref.id.label.build(),
-                event: EventDefault.ref.id.build()
+                user: SettingTest.ref.id.label.build(),
+                event: EventTest.ref.id.build()
             }
         })
     }

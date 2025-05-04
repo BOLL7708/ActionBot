@@ -1,4 +1,5 @@
 import {IDatabaseItem} from '../../Types/DatabaseHelper.mts'
+import {INumberDictionary} from '../../Types/Dictionary.mts'
 
 export type TDataCategory =
     string
@@ -144,3 +145,7 @@ export class DataEntries<T> {
     dataArray: IDatabaseItem<T>[] = []
     dataDictionary: { [key:string]: IDatabaseItem<T>} = {}
 }
+
+export type TDataSingle<T> = number | DataEntries<T>
+export type TDataArray<T> = number[] | DataEntries<T>
+export type TDataDictionary<T> = INumberDictionary | DataEntries<T>

@@ -1,12 +1,12 @@
 import {OptionCommandCategory} from '../../Options/OptionCommandCategory.mts'
 import {DataEntries} from '../AbstractData.mts'
 import {DataMap} from '../DataMap.mts'
-import {PresetPermissions} from '../Preset/PresetPermissions.mts'
+import {PresetTest} from '../Preset/PresetTest.mts'
 import {AbstractTrigger} from './AbstractTrigger.mts'
 
-export class TriggerCommand extends AbstractTrigger {
+export class TriggerTest extends AbstractTrigger {
     entries: string[] = ['']
-    permissions: number|DataEntries<PresetPermissions> = 0
+    permissions: number|DataEntries<PresetTest> = 0
     requireUserTag = false
     requireExactWordCount: number = 0
     requireMinimumWordCount: number = 0
@@ -19,7 +19,7 @@ export class TriggerCommand extends AbstractTrigger {
 
     enlist() {
         DataMap.addRootInstance({
-            instance: new TriggerCommand(),
+            instance: new TriggerTest(),
             tag: '📣',
             description: 'A chat command.',
             documentation: {
@@ -37,7 +37,7 @@ export class TriggerCommand extends AbstractTrigger {
             },
             types: {
                 entries: 'string',
-                permissions: PresetPermissions.ref.id.build(),
+                permissions: PresetTest.ref.id.build(),
                 category: OptionCommandCategory.ref,
                 helpInput: 'string'
             }

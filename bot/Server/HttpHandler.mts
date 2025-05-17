@@ -17,9 +17,10 @@ export default class HttpHandler {
                 '/test': '../web',
                 '/': '../web/dist'
             },
-            staticApi: {
+            simpleApi: {
                 root: 'api',
                 responses: {
+                    hello: {message: 'Yes!'}
                 }
             },
             loggingProxy: Log.get()

@@ -68,7 +68,7 @@ async function resetDatabases(): Promise<void> {
             }
             setTimeout(resolve, 100)
         }),
-        new Promise((resolve) => {
+        new Promise(async (resolve) => {
             db.reconnect()
             setTimeout(resolve, 100)
         }),
@@ -295,11 +295,11 @@ Deno.test('save & load', async (t) => {
         const s_classes = db.loadIdClasses([s_id1, s_id2, s_id3])
         assertEquals(
             [
-                'ConfigTest',
                 'ActionTest',
+                'ConfigTest',
                 'EventTest',
             ],
-            Object.values(s_classes),
+            Object.values(s_classes).sort(),
         )
     })
 })

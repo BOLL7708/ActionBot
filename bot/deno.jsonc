@@ -35,6 +35,7 @@
     "lineWidth": 120,
     "semiColons": false,
     "singleQuote": true,
-    "indentWidth": 4
+    "indentWidth": 4,
+    "trailingCommas": "never"
   }
 }

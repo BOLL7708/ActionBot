@@ -1,16 +1,19 @@
 <script setup lang="ts">
-import {ref} from 'vue'
+import ValueUtils from '../../lib/SharedUtils/ValueUtils.mjs'
 import AppFooter from './components/AppFooter.vue'
 import AppHeader from './components/AppHeader.vue'
-import AppHeaderButton from './components/AppHeaderButton.vue'
 
-const rootPath = ref(import.meta.env.DEV ? '/src' : '/dist')
+// const rootPath = ref(import.meta.env.DEV ? '/src' : '/dist')
+// DatabaseHelper.get(new ConfigServer(), 'Main')
+// const salt = ValueUtils.generateSalt()
+// const hash = await ValueUtils.hashPassword('test', new Uint8Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
+// console.log({salt, hash})
 </script>
 
 <template>
   <AppHeader/>
   <main>
-<!--    <img src="/actionbot_logo.svg" alt="ActionBot Logo" class="logo">-->
+    Hello, this text is in App.vue, go there to edit it!
   </main>
   <AppFooter/>
 </template>
@@ -21,6 +24,7 @@ const rootPath = ref(import.meta.env.DEV ? '/src' : '/dist')
   align-content: center;
   flex-direction: column;
 }
+
 .logo {
   width: 150pt;
 }

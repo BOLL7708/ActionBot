@@ -9,13 +9,18 @@ export default class HttpHandler {
         const config = DatabaseHelper.loadMain(new ConfigServer())
         this._server = new HttpServer({
             name: 'Static Files',
-            port: config.httpServerPort,
-            hostname: config.webSocketServerHost,
+            port: config.httpPort,
+            hostname: config.hostname,
             rootFolders: {
                 '/assets': '../_user',
                 '/data': '../_user',
                 '/test': '../web',
                 '/': '../web/dist'
+            },
+            staticApi: {
+                root: 'api',
+                responses: {
+                }
             },
             loggingProxy: Log.get()
         })

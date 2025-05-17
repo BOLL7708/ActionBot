@@ -18,9 +18,9 @@ export default class WebSocketHandler {
     constructor() {
         const config = DatabaseHelper.loadMain(new ConfigServer())
         this._server = new WebSocketServer({
-            name: 'Test',
-            port: config.webSocketServerPort,
-            hostname: config.webSocketServerHost,
+            name: 'Central Server',
+            port: config.webSocketPort,
+            hostname: config.hostname,
             keepAlive: true,
             onMessageReceived: (message, session) => {
                 switch (session.subprotocols[0]) {

@@ -1,3 +1,4 @@
+import '../Runners/index.mts'
 import {assert} from 'jsr:@std/assert'
 import {EnlistData} from '../../lib/index.mts'
 import HttpServer from '../DenoUtils/HttpServer.mts'
@@ -25,15 +26,21 @@ Deno.test('server', async (t) => {
             '/assets': '../_user/',
             '/data': '../_user/'
         },
+        staticApi: {
+            root: 'api',
+            responses: {
+                hello: {message: 'Yes!'}
+            }
+        },
         loggingProxy: Log.get()
     })
 
-    // TODO: This is actually a 404, figure that out.
-    //  I think it is because there is not native file listing feature, so a file needs to exist.
-    // const response = await fetch(`http://localhost:${port}/assets`)
-    // assert(response.ok)
-    // const text = await response.text()
-    // console.log(text)
+    // region API
+    const response = await fetch(`http://localhost:${port}/api/hello`)
+    assert(response.ok)
+    const json = await response.json()
+    console.assert(json.message === 'Yes!')
+    // endregion
 
     await httpServer.stop()
 })

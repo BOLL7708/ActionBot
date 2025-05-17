@@ -1,10 +1,13 @@
-import {assert, assertEquals} from 'jsr:@std/assert'
-import Log, {ELogLevel} from '../../lib/SharedUtils/Log.mts'
+import '../Runners/index.mts'
+import { assert, assertEquals } from 'jsr:@std/assert'
+import { EnlistData } from '../../lib/index.mts'
+import Log, { ELogLevel } from '../../lib/SharedUtils/Log.mts'
 import WebSocketClient from '../../lib/SharedUtils/WebSocketClient.mts'
-import WebSocketServer, {EWebSocketServerState} from '../DenoUtils/WebSocketServer.mts'
+import WebSocketServer, { EWebSocketServerState } from '../DenoUtils/WebSocketServer.mts'
 import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
 
 Deno.test('init', () => {
+    EnlistData.run()
     DatabaseHelper.isTesting = true
     Log.setOptions({
         logLevel: ELogLevel.Warning,
@@ -20,8 +23,8 @@ Deno.test('server + client', async (t) => {
     const subprotocolValues = ['deno.test', 'password12345']
     const r = Promise.withResolvers()
     let resolveCount = 0
-    const resolve = ()=>{
-        if(++resolveCount == 2) r.resolve(undefined)
+    const resolve = () => {
+        if (++resolveCount == 2) r.resolve(undefined)
     }
 
     const wsSrv = new WebSocketServer({
@@ -49,19 +52,19 @@ Deno.test('server + client', async (t) => {
             assertEquals(session.subprotocols[1], 'password12345')
             switch (message) {
                 case 'one': {
-                    t.step('second -> cli', ()=>{
+                    t.step('second -> cli', () => {
                         wsSrv.sendMessage('second', session.sessionId, subprotocolValues)
                     })
                     break
                 }
                 case 'two': {
-                    t.step('third -> cli', ()=>{
+                    t.step('third -> cli', () => {
                         wsSrv.sendMessage('third', session.sessionId, subprotocolValues)
                     })
                     break
                 }
                 case 'three': {
-                    t.step('terminate -> 💥', ()=>{
+                    t.step('terminate -> 💥', () => {
                         wsSrv.disconnectSession(session?.sessionId ?? '')
                         wsSrv.shutdown()
                     })
@@ -82,19 +85,19 @@ Deno.test('server + client', async (t) => {
         onMessage: (message: MessageEvent) => {
             switch (message.data) {
                 case 'first': {
-                    t.step('srv <- first', ()=>{
+                    t.step('srv <- first', () => {
                         wsClient.send('one')
                     })
                     break
                 }
                 case 'second': {
-                    t.step('srv <- second', ()=>{
+                    t.step('srv <- second', () => {
                         wsClient.send('two')
                     })
                     break
                 }
                 case 'third': {
-                    t.step('srv <- third', ()=>{
+                    t.step('srv <- third', () => {
                         wsClient.send('three')
                     })
                     break

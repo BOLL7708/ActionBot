@@ -1,5 +1,5 @@
 import Log from '../../../lib/SharedUtils/Log.mts'
-import {IDatabaseMessage} from '../../../lib/Types/WebSocket/Database.mts'
+import {IDatabaseMessage} from '../../../lib/index.mts'
 import WebSocketServer, { IWebSocketServerSession } from '../../DenoUtils/WebSocketServer.mts'
 import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
 import AbstractWebsocketHandler from './AbstractWebsocketHandler.mts'

@@ -63,15 +63,12 @@ export abstract class AbstractData {
         for(const [name, value] of Object.entries(sourceObject)) {
             entryMap.set(name, value)
         }
+
         /*
          * We loop over the properties of this object, combined with the prototype properties, just in case
          * this is an already cloned empty object, which will have all defaults in the prototype.
          * We loop over possible properties instead of the incoming properties to retain the original property order.
          */
-
-        // TODO: Here the problem is when we run tests. It turns out possibleProperties is empty
-        //  I believe this is due to the thisProxy being wrong, the properties are likely on the prototype instead of the instance
-        //  Figure this out tomorrow... yes.
         const possibleProperties = [...Object.keys(thisProxy), ...Object.keys(prototype)]
         for(const propertyName of possibleProperties) {
             let propertyValue = entryMap.has(propertyName) ? entryMap.get(propertyName) : undefined
@@ -191,7 +188,7 @@ export abstract class AbstractData {
      * @param replaceIdsWithItems
      */
     async __applyAsync(instanceOrParsedJson: object = {}, replaceIdsWithItems: boolean): Promise<void> {
-
+        Log.w(this.constructor.name, '__applyAsync not loaded correctly, should be overridden in prototype! Check AbstractDataRunner')
     }
 
     /**

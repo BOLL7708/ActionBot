@@ -1,4 +1,7 @@
 export type TWebSocketSubprotocol =
-    'db'
+    'database'
     | 'presenter'
-    | 'dashboard'
+    | 'editor'
+    | 'test'
+    | 'streamdeck'
+    | 'unknown'

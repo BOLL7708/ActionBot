@@ -1,6 +1,7 @@
 import { ConfigAuth, ConfigServer } from '../../lib/index.mts'
 import Log, { ELogLevel } from '../../lib/SharedUtils/Log.mts'
 import ValueUtils from '../../lib/SharedUtils/ValueUtils.mts'
+import ErrorCodes from '../Constants/ErrorCodes.mts'
 import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
 import HttpHandler from '../Server/HttpHandler.mts'
 import WebSocketHandler from '../Server/WebSocketHandler.mts'
@@ -47,15 +48,14 @@ export default class Bot {
             return value
         }
 
-        const actionBotAscii = `
-╔══════════════════════════════╗
-║   ╔═╗╔═╗╔╦╗╦╔═╗╔╗╔╔╗ ╔═╗╔╦╗  ║
-║   ╠═╣║   ║ ║║ ║║║║╠╩╗║ ║ ║   ║
-║   ╩ ╩╚═╝ ╩ ╩╚═╝╝╚╝╚═╝╚═╝ ╩   ║
-╚══════════════════════════════╝
- Thank your for using ActionBot
-  From: https://actionbot.app/`
-        console.log(`%c${actionBotAscii}`, 'color: gold;')
+
+        console.log('%c╔══════════════════════════════╗', 'color: red;')
+        console.log('%c║   ╔═╗╔═╗╔╦╗╦╔═╗╔╗╔╔╗ ╔═╗╔╦╗  ║', 'color: orange;')
+        console.log('%c║   ╠═╣║   ║ ║║ ║║║║╠╩╗║ ║ ║   ║', 'color: yellow;')
+        console.log('%c║   ╩ ╩╚═╝ ╩ ╩╚═╝╝╚╝╚═╝╚═╝ ╩   ║', 'color: green;')
+        console.log('%c╚══════════════════════════════╝', 'color: cyan;')
+        console.log('%c Thank your for using ActionBot', 'color: blue;')
+        console.log('%c  From: https://actionbot.app/`', 'color: violet;')
         const auth = DatabaseHelper.loadMain(new ConfigAuth())
         const server = DatabaseHelper.loadMain(new ConfigServer())
         const authNotSet = ValueUtils.isEmpty(auth.username) ||
@@ -78,27 +78,25 @@ export default class Bot {
             DatabaseHelper.saveMain(auth)
 
             printTitle('Hosting')
-            console.log('Optionally change the hostname and ports for the server components.')
-            console.log('If you are running this on your stream machine you can use the defaults.')
-            const newHostname = promptUntilOk({message: '  Hostname:', defaultValue: '127.0.0.1'})
+            console.log('Optionally change the ports for the server components.')
             const newHttpPort = promptUntilOk({message: '  HTTP Port:', defaultValue: '8080', verifyNumber: true})
-            let newWebSocketPort = promptUntilOk({message: '  WebSocket Port:', defaultValue: '7712', verifyNumber: true})
-            if (!ValueUtils.isBlank(newHostname)) server.hostname = newHostname
+            const newWebSocketPort = promptUntilOk({message: '  WebSocket Port:', defaultValue: '7712', verifyNumber: true})
             if (!ValueUtils.isBlank(newHttpPort)) server.httpPort = parseInt(newHttpPort)
             if (!ValueUtils.isBlank(newWebSocketPort)) server.webSocketPort = parseInt(newWebSocketPort)
             const key = DatabaseHelper.saveMain(server)
             if (!ValueUtils.isBlank(key)) {
                 printTitle('Setup Complete')
                 console.log('Server configuration was successfully saved to the database.')
-                console.log('To change these values in the future, rerun the setup.')
+                console.log('To change these values in the future, rerun the setup. (-s, --setup)')
             } else {
                 printError('Unable to save server configuration to database for unknown reasons. Terminating.')
-                exit() // TODO: Make a list of error codes?
+                exit(ErrorCodes.COULD_NOT_SAVE_CONFIG)
             }
         }
 
         // Launch servers
         printTitle('Servers')
+        console.log('Hosting is done on 0.0.0.0 which means any host or interface.')
         Log.setLogLevel(ELogLevel.Warning)
         const http = new HttpHandler()
         const ws = new WebSocketHandler()

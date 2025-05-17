@@ -2,7 +2,6 @@ import {AbstractData} from '../AbstractData.mts'
 import {DataMap} from '../DataMap.mts'
 
 export class ConfigServer extends AbstractData {
-    hostname: string = '127.0.0.1'
     httpPort: number = 8080
     webSocketPort: number = 7712
 

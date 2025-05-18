@@ -1,6 +1,6 @@
-import {ConfigServer} from '../../lib/index.mts'
+import {ConfigAuth, ConfigServer, TWebSocketSubprotocol} from '../../lib/index.mts'
 import Log from '../../lib/SharedUtils/Log.mts'
-import WebSocketServer, {IWebSocketServerSession} from '../DenoUtils/WebSocketServer.mts'
+import WebSocketServer, {EWebSocketServerState, IWebSocketServerSession} from '../DenoUtils/WebSocketServer.mts'
 import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
 import DatabaseHandler from './WebSocketHandlers/DatabaseHandler.mts'
 
@@ -20,11 +20,29 @@ export default class WebSocketHandler {
         this._server = new WebSocketServer({
             name: 'Central Server',
             port: config.webSocketPort,
-            hostname: config.hostname,
+            hostname: '0.0.0.0', // Any host and interface
             keepAlive: true,
-            onMessageReceived: (message, session) => {
-                switch (session.subprotocols[0]) {
-                    case 'db': {
+            onMessageReceived: (messageJson, session) => {
+                const [protocol, password] = session.subprotocols
+                const auth = DatabaseHelper.loadMain(new ConfigAuth())
+                if (password !== auth.passwordHash) {
+                    this._server.sendMessage(
+                        'Password mismatch',
+                        session.sessionId,
+                        [protocol]
+                    )
+                    this._server.disconnectSession(session.sessionId)
+                }
+
+                let message: any
+                try {
+                    message = JSON.parse(messageJson)
+                } catch (ex) {
+                    Log.e(this.TAG, 'Unable to parse message', messageJson, ex)
+                    return
+                }
+                switch (protocol as TWebSocketSubprotocol) {
+                    case 'database': {
                         const handler = new DatabaseHandler()
                         handler.handle(this._server, message, session)
                         break
@@ -40,6 +58,25 @@ export default class WebSocketHandler {
                 }
             },
             onServerEvent: (state, value, session) => {
+                if (session && state === EWebSocketServerState.ClientConnected) {
+                    const [_protocol, password] = session.subprotocols
+                    const auth = DatabaseHelper.loadMain(new ConfigAuth())
+                    if (password === auth.passwordHash) {
+                        this._server.sendMessage(
+                            JSON.stringify(
+                                {message: 'You are connected to ActionBot!'}
+                            ), session.sessionId
+                        )
+                    } else {
+                        this._server.sendMessage(
+                            JSON.stringify(
+                                {error: 'Password mismatch'}
+                            ),
+                            session.sessionId
+                        )
+                        this._server.disconnectSession(session.sessionId)
+                    }
+                }
                 Log.i(this.TAG, state.toString(), value, session)
             },
             loggingProxy: Log.get()
@@ -56,5 +93,9 @@ export default class WebSocketHandler {
 
     send(message: string, subprotocolValues: string[]) {
         this._server.sendMessageToAll(message, subprotocolValues)
+    }
+
+    async stop() {
+        await this._server.shutdown()
     }
 }

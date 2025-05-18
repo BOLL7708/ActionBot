@@ -2,8 +2,12 @@ import {AbstractData} from '../AbstractData.mts'
 import {DataMap} from '../DataMap.mts'
 
 export class ConfigServer extends AbstractData {
-    httpPort: number = 8080
-    webSocketPort: number = 7712
+    constructor(
+        public httpPort: number = 8080,
+        public webSocketPort: number = 7712
+    ) {
+        super()
+    }
 
     enlist() {
         DataMap.addRootInstance({

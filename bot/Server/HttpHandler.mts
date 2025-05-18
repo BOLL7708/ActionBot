@@ -22,7 +22,6 @@ export default class HttpHandler {
     private _fakeSaltCache: IFakeSaltItem[] = []
     constructor() {
         const TAG = this.constructor.name
-        Log.w(TAG, 'Starting HTTP server')
         const config = DatabaseHelper.loadMain(new ConfigServer())
         this._server = new HttpServer({
             name: 'Static Files',
@@ -65,7 +64,7 @@ export default class HttpHandler {
                                     } else {
                                         // We don't have a fake salt, create one
                                         const fakeSalt = ValueUtils.generateSalt()
-                                        const fakeSaltStr = ValueUtils.encodeSalt(fakeSalt)
+                                        const fakeSaltStr = ValueUtils.encodeBytes(fakeSalt)
                                         this._fakeSaltCache.push({
                                             username: username,
                                             salt: fakeSaltStr

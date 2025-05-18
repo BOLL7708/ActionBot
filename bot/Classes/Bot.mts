@@ -73,8 +73,8 @@ export default class Bot {
             const password = promptUntilOk({message: '  Password:', isPassword: true})
             const salt = ValueUtils.generateSalt()
             auth.username = username
-            auth.passwordHash = await ValueUtils.hashPassword(password, salt)
-            auth.passwordSalt = ValueUtils.encodeSalt(salt)
+            auth.passwordHash = await ValueUtils.hashPassword(password, salt, true)
+            auth.passwordSalt = ValueUtils.encodeBytes(salt, true)
             DatabaseHelper.saveMain(auth)
 
             printTitle('Hosting')

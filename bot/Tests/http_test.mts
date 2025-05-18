@@ -1,24 +1,16 @@
 import '../Runners/index.mts'
 import {assert, assertEquals} from 'jsr:@std/assert'
 import {EnlistData} from '../../lib/index.mts'
+import Log from '../../lib/SharedUtils/Log.mts'
 import ValueUtils from '../../lib/SharedUtils/ValueUtils.mts'
 import HttpServer from '../DenoUtils/HttpServer.mts'
-import Log, {ELogLevel} from '../../lib/SharedUtils/Log.mts'
 
 Deno.test('init', () => {
     EnlistData.run()
-    Log.setOptions({
-        logLevel: ELogLevel.Warning,
-        stackLevel: ELogLevel.Warning,
-        useColors: true,
-        capitalizeTag: false,
-        tagPrefix: '[',
-        tagPostfix: '] '
-    })
 })
 
 Deno.test('server', async (t) => {
-    const salt = ValueUtils.encodeSalt(ValueUtils.generateSalt())
+    const salt = ValueUtils.encodeBytes(ValueUtils.generateSalt())
     const port = 8081
     const httpServer = new HttpServer({
         name: 'TestServer',

@@ -13,82 +13,29 @@ import {
     SettingTest,
     TriggerTest
 } from '../../lib/index.mts'
-import Log, {ELogLevel} from '../../lib/SharedUtils/Log.mts'
 import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
-import DatabaseSingleton from '../Singletons/DatabaseSingleton.mts'
+import TestUtils from '../Utils/TestUtils.mts'
 
 Deno.test('init', async () => {
     EnlistData.run()
-    await resetDatabases()
+    await TestUtils.resetDatabases()
     DatabaseHelper.isTesting = true
-    Log.setOptions({
-        logLevel: ELogLevel.Warning,
-        stackLevel: ELogLevel.Error,
-        useColors: true,
-        capitalizeTag: false,
-        tagPrefix: '[',
-        tagPostfix: '] ',
-    })
 })
-
-/**
- * Reset all data to make tests more predictable
- */
-async function resetDatabases(): Promise<void> {
-    let doneOld = false
-    let count = 0
-    while (!doneOld) {
-        try {
-            Deno.removeSync('../_user/db/test_old.sqlite')
-            doneOld = true
-        } catch (e: any) {
-            if (e.name !== 'NotFound') {
-                console.warn('Unable to delete test_old.sqlite', e.name)
-            }
-        }
-        if (++count > 5) doneOld = true
-        await new Promise((resolve) => {
-            setTimeout(resolve, 100)
-        })
-    }
-
-    const db = DatabaseSingleton.get(true)
-    await Promise.all([
-        new Promise((resolve) => {
-            db.kill()
-            setTimeout(resolve, 100)
-        }),
-        new Promise((resolve) => {
-            try {
-                Deno.removeSync('../_user/db/test.sqlite')
-            } catch (e: any) {
-                if (e.name !== 'NotFound') {
-                    console.warn('Unable to delete test.sqlite', e.name)
-                }
-            }
-            setTimeout(resolve, 100)
-        }),
-        new Promise(async (resolve) => {
-            db.reconnect()
-            setTimeout(resolve, 100)
-        }),
-    ])
-}
 
 Deno.test('save & load', async (t) => {
     const db = DatabaseHelper
     await t.step('save single', async () => {
-        await resetDatabases()
+        await TestUtils.resetDatabases()
         db.saveMain(new SettingTest())
     })
     await t.step('load single', async () => {
-        await resetDatabases()
+        await TestUtils.resetDatabases()
         const settingTest = db.loadMain(new SettingTest())
         assert(settingTest)
         assertEquals(settingTest, new SettingTest())
     })
     await t.step('save main & delete', async () => {
-        await resetDatabases()
+        await TestUtils.resetDatabases()
         const instance = new ConfigTest()
         const savedKey = db.saveMain(instance)
         assert(savedKey)
@@ -98,7 +45,7 @@ Deno.test('save & load', async (t) => {
         assert(item === undefined)
     })
     await t.step('save & load multi', async () => {
-        await resetDatabases()
+        await TestUtils.resetDatabases()
         const c = 10
         const saveMe = new ActionTest()
         for (let i = 0; i < c; i++) {
@@ -117,12 +64,12 @@ Deno.test('save & load', async (t) => {
             'actionSystem-6',
             'actionSystem-7',
             'actionSystem-8',
-            'actionSystem-9',
+            'actionSystem-9'
         ]
         assertEquals(allKeys, keys)
     })
     await t.step('update key', async () => {
-        await resetDatabases()
+        await TestUtils.resetDatabases()
         const key1 = 'FirstKey', key2 = 'SecondKey'
         db.save(new ActionTest(), key1)
         let result = db.load(new ActionTest(), key1)
@@ -132,7 +79,7 @@ Deno.test('save & load', async (t) => {
         assert(result)
     })
     await t.step('load by ID', async () => {
-        await resetDatabases()
+        await TestUtils.resetDatabases()
         const original = new SettingTest('Testing', 100, true)
         const key = db.saveMain(original)
         const id = db.loadId(original.__getClass(), `${key}`)
@@ -144,12 +91,12 @@ Deno.test('save & load', async (t) => {
             filledData: original,
             id: 1,
             key: 'Main',
-            pid: null,
+            pid: null
         }
         assertEquals(compareWithThis, item)
     })
     await t.step('fill sub items', async () => {
-        await resetDatabases()
+        await TestUtils.resetDatabases()
         // Create presets and load the row IDs for them
         const childKey = 'Child'
         const setting = new SettingTest()
@@ -174,7 +121,7 @@ Deno.test('save & load', async (t) => {
         assertEquals(item?.data?.setting, id)
     })
     await t.step('get next key', async () => {
-        await resetDatabases()
+        await TestUtils.resetDatabases()
         const childInstance = new ActionTest()
 
         db.saveMain(new ConfigTest())
@@ -186,7 +133,7 @@ Deno.test('save & load', async (t) => {
         assertEquals({ key: 'Main Test 1' }, s_key)
     })
     await t.step('get row IDs with labels', async () => {
-        await resetDatabases()
+        await TestUtils.resetDatabases()
         const parent = new ConfigTest()
         const parentKey = 'ParentForLabels'
         db.save(parent, parentKey)
@@ -240,7 +187,7 @@ Deno.test('save & load', async (t) => {
         assert(pidNullCount == 5)
     })
     await t.step('classes with counts using wildcard', async () => {
-        await resetDatabases()
+        await TestUtils.resetDatabases()
         // Prepare
         const count = 10
         for (let i = 0; i < count; i++) {
@@ -255,9 +202,9 @@ Deno.test('save & load', async (t) => {
         assertEquals(s_result[clazz], 10)
         assertEquals(
             {
-                ConfigExample: 10,
+                ConfigExample: 10
             },
-            s_result,
+            s_result
         )
 
         // List with wildcard
@@ -268,9 +215,9 @@ Deno.test('save & load', async (t) => {
         assertEquals(
             {
                 ConfigExample: 10,
-                ConfigTest: 10,
+                ConfigTest: 10
             },
-            s_result2,
+            s_result2
         )
 
         // Filter on parent, old lib cannot do this, not sure if actually used
@@ -297,9 +244,9 @@ Deno.test('save & load', async (t) => {
             [
                 'ActionTest',
                 'ConfigTest',
-                'EventTest',
+                'EventTest'
             ],
-            Object.values(s_classes).sort(),
+            Object.values(s_classes).sort()
         )
     })
 })

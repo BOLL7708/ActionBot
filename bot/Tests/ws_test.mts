@@ -1,22 +1,14 @@
 import '../Runners/index.mts'
-import { assert, assertEquals } from 'jsr:@std/assert'
-import { EnlistData } from '../../lib/index.mts'
-import Log, { ELogLevel } from '../../lib/SharedUtils/Log.mts'
+import {assert, assertEquals} from 'jsr:@std/assert'
+import {EnlistData} from '../../lib/index.mts'
+import Log from '../../lib/SharedUtils/Log.mts'
 import WebSocketClient from '../../lib/SharedUtils/WebSocketClient.mts'
-import WebSocketServer, { EWebSocketServerState } from '../DenoUtils/WebSocketServer.mts'
+import WebSocketServer, {EWebSocketServerState} from '../DenoUtils/WebSocketServer.mts'
 import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
 
 Deno.test('init', () => {
     EnlistData.run()
     DatabaseHelper.isTesting = true
-    Log.setOptions({
-        logLevel: ELogLevel.Warning,
-        stackLevel: ELogLevel.Warning,
-        useColors: true,
-        capitalizeTag: false,
-        tagPrefix: '[',
-        tagPostfix: '] '
-    })
 })
 
 Deno.test('server + client', async (t) => {

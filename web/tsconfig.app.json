@@ -14,7 +14,11 @@
     "allowJs": true,
     "checkJs": true,
     "isolatedModules": true,
-    "moduleDetection": "force"
+    "moduleDetection": "force",
+    
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "lib": ["DOM", "ESNext", "DOM.Iterable"]
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.svelte"]
 }

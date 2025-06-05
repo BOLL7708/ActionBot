@@ -1,42 +1,47 @@
 <script lang="ts">
+    import {fade} from 'svelte/transition'
     import actionbotLogo from '../public/actionbot_logo.svg'
+    import StorageHelper from './Classes/StorageHelper.mjs'
     import AppButton from './Components/AppButton.svelte'
+    import AuthBarrier from './Components/AuthBarrier.svelte'
 </script>
 
-<main>
-    <div>
-        <a href="https://actionbot.app" target="_blank" rel="noreferrer">
-            <img src={actionbotLogo} class="logo" alt="ActionBot Logo"/>
-        </a>
-    </div>
+<main transition:fade>
+    <img src={actionbotLogo} class="logo" alt="ActionBot Logo"/>
     <h1>ActionBot</h1>
-    <div>
-        <AppButton buttonText="Setup"></AppButton>
-        <AppButton buttonText="Editor"></AppButton>
-        <AppButton buttonText="Dashboard"></AppButton>
-        <AppButton buttonText="Presenter"></AppButton>
-    </div>
-    <div>
-        <p>The idea here is that these buttons will lead to individual SPAs, which all run Svelte.</p>
-        <p>This page should show a login form and then redirect to Setup if authentication is missing.</p>
-        <p>After auth and setup, every other component should be accessible.</p>
-    </div>
+    <AuthBarrier>
+        <div>
+            <div>
+                <p>Signed in as: {StorageHelper.get('usr-name')}</p>
+            </div>
+            <div>
+                <AppButton buttonText="Setup"></AppButton>
+                <AppButton buttonText="Editor"></AppButton>
+                <AppButton buttonText="Dashboard"></AppButton>
+                <AppButton buttonText="Presenter"></AppButton>
+            </div>
+            <div>
+                <p>The idea here is that these buttons will lead to individual SPAs, which all run Svelte.</p>
+                <p>This page should show a login form and then redirect to Setup if authentication is missing.</p>
+                <p>After auth and setup, every other component should be accessible.</p>
+                <p>Access the <a href="https://actionbot.app" target="_blank" rel="noreferrer">official website</a>.</p>
+            </div>
+        </div>
+    </AuthBarrier>
 </main>
 
 <style>
-    h1 {
-        font-family: "Tourney", sans-serif;
-        font-weight: normal;
-        margin-bottom: 1em;
-    }
     .logo {
-        height: 16em;
-        padding: 1.5em;
-        will-change: filter;
-        transition: filter 300ms;
+        width: 16em;
     }
-
-    .logo:hover {
-        filter: drop-shadow(0 0 2em #fff);
+    main {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        place-items: center;
+    }
+    h1 {
+        font-size: 400%;
+        margin: 0;
     }
 </style>

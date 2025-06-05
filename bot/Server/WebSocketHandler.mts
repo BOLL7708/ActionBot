@@ -42,6 +42,18 @@ export default class WebSocketHandler {
                     return
                 }
                 switch (protocol as TWebSocketSubprotocol) {
+                    case 'authentication': {
+                        if (message.action === 'ping') {
+                            this._server.sendMessage(
+                                JSON.stringify({action: 'pong'}),
+                                session.sessionId,
+                                [protocol]
+                            )
+                        } else {
+                            this._server.disconnectSession(session.sessionId, 1234, 'Ping better you fool!')
+                        }
+                        break
+                    }
                     case 'database': {
                         const handler = new DatabaseHandler()
                         handler.handle(this._server, message, session)

@@ -1,79 +1,66 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  --color-background: rgb(40 40 40);
+  --color-box-background: rgb(50 50 50);
+  --color-light: rgb(180 180 180);
+  --color-dark: rgb(100 100 100);
+  --color-darker: rgb(60 60 60);
+  --color-text: rgb(225 225 225);
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  font-family: sans-serif;
+  color: var(--color-text);
+  background-color: var(--color-background);
 }
 
 a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+  border-radius: 4pt;
+  box-shadow: inset 0 0 0 0 var(--color-light);
+  color: var(--color-light);
+  margin: 0 -2pt;
+  padding: 0 2pt;
+  text-decoration: none;
 }
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+a:hover, button:hover, button:focus {
+  background-color: var(--color-darker);
+  animation: rainbow 1s linear infinite;
 }
 
 h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-.card {
-  padding: 2em;
+  font-weight: normal;
+  font-family: "Tourney", sans-serif;
 }
 
 #app {
-  max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
-  text-align: center;
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
+  border: 1pt solid var(--color-light);
+  border-radius: 10pt;
+  padding: 5pt 10pt;
+  margin: 0 5pt;
+  font-size: 150%;
+  background-color: transparent;
+  color: var(--color-text);
+  font-family: monospace;
+  font-weight: bold;
 }
-button:hover {
-  border-color: #646cff;
+fieldset[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+fieldset[disabled] button:hover {
+  animation: none !important;
+  background-color: transparent;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+@keyframes rainbow {
+  0% {
+    filter: sepia(100%) saturate(10) hue-rotate(0deg);
   }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
+  100% {
+    filter: sepia(100%) saturate(10) hue-rotate(360deg);
   }
 }
+
+@media (prefers-color-scheme: light) {}

@@ -15,10 +15,10 @@
                 <p>Signed in as: {StorageHelper.get('usr-name')}</p>
             </div>
             <div>
-                <AppButton buttonText="Setup"></AppButton>
-                <AppButton buttonText="Editor"></AppButton>
-                <AppButton buttonText="Dashboard"></AppButton>
-                <AppButton buttonText="Presenter"></AppButton>
+                <AppButton text="Setup" hash="setup"></AppButton>
+                <AppButton text="Editor" hash="editor"></AppButton>
+                <AppButton text="Dashboard" hash="dashboard"></AppButton>
+                <AppButton text="Presenter" hash="presenter"></AppButton>
             </div>
             <div>
                 <p>The idea here is that these buttons will lead to individual SPAs, which all run Svelte.</p>

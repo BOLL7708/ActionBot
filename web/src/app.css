@@ -29,9 +29,14 @@ h1 {
   font-family: "Tourney", sans-serif;
 }
 
+body {
+  margin: 0;
+  padding: 0;
+}
+
 #app {
-  margin: 0 auto;
-  padding: 2rem;
+  margin: 0;
+  padding: 0;
 }
 
 button {

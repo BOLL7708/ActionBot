@@ -1,5 +1,5 @@
 import HttpHandler from '../Server/HttpHandler.mts'
-import WebSocketHandler from '../Server/WebSocketHandler.mts'
+import WebSocketHandler from '../Server/WebSocketHandler.ts'
 
 /**
  * Contains instances of various modules

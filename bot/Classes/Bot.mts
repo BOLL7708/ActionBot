@@ -4,7 +4,7 @@ import ValueUtils from '../../lib/SharedUtils/ValueUtils.mts'
 import ErrorCodes from '../Constants/ErrorCodes.mts'
 import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
 import HttpHandler from '../Server/HttpHandler.mts'
-import WebSocketHandler from '../Server/WebSocketHandler.mts'
+import WebSocketHandler from '../Server/WebSocketHandler.ts'
 import { promptSecret } from 'jsr:@std/cli'
 import exit = Deno.exit
 

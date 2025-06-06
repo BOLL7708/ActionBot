@@ -2,13 +2,9 @@ import {AbstractData} from '../AbstractData.mts'
 import {DataMap} from '../DataMap.mts'
 
 export class ConfigAuth extends AbstractData {
-    constructor(
-        public username: string = '',
-        public passwordHash: string = '',
-        public passwordSalt: string = ''
-    ) {
-        super()
-    }
+    public username: string = ''
+    public passwordHash: string = ''
+    public passwordSalt: string = ''
 
     enlist() {
         DataMap.addRootInstance({

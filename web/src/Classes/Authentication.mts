@@ -1,6 +1,7 @@
 import Log from '../../../lib/SharedUtils/Log.mjs'
 import ValueUtils from '../../../lib/SharedUtils/ValueUtils.mjs'
 import WebSocketClient from '../../../lib/SharedUtils/WebSocketClient.mjs'
+import SystemMessage from '../../../lib/Types/WebSocket/SystemMessage.ts'
 import StorageHelper from './StorageHelper.mjs'
 
 interface ISaltResponse {
@@ -78,11 +79,13 @@ export default class Authentication {
             callback(false)
         }, 5000)
         const wsc = new WebSocketClient({
-            clientName: 'Authentication Client',
+            clientName: 'System Client',
             serverUrl: `ws://${host}:${port}`,
-            subprotocolValues: ['authentication', passwordHash],
+            subprotocolValues: ['system', passwordHash],
             onOpen: () => {
-                wsc.send(JSON.stringify({action: 'ping'}))
+                const message = new SystemMessage()
+                message.action = 'ping'
+                wsc.send(JSON.stringify(message))
             },
             onMessage: (message) => {
                 let messageObj = ValueUtils.safeJsonParse<{action:string}>(message.data)

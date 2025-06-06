@@ -1,8 +1,11 @@
 import {ConfigAuth, ConfigServer, TWebSocketSubprotocol} from '../../lib/index.mts'
+import StatusCodes from '../../lib/SharedConstants/StatusCodes.ts'
 import Log from '../../lib/SharedUtils/Log.mts'
+import ValueUtils from '../../lib/SharedUtils/ValueUtils.mts'
 import WebSocketServer, {EWebSocketServerState, IWebSocketServerSession} from '../DenoUtils/WebSocketServer.mts'
 import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
-import DatabaseHandler from './WebSocketHandlers/DatabaseHandler.mts'
+import SystemHandler from './WebSocketHandlers/SystemHandler.ts'
+import DatabaseHandler from './WebSocketHandlers/DatabaseHandler.ts'
 
 /**
  * Handles all websocket communication
@@ -22,84 +25,57 @@ export default class WebSocketHandler {
             port: config.webSocketPort,
             hostname: '0.0.0.0', // Any host and interface
             keepAlive: true,
-            onMessageReceived: (messageJson, session) => {
-                const [protocol, password] = session.subprotocols
+            onMessageReceived: (messageStr, session) => {
+                const [protocol, passwordHash] = session.subprotocols
                 const auth = DatabaseHelper.loadMain(new ConfigAuth())
-                if (password !== auth.passwordHash) {
+                if (passwordHash !== auth.passwordHash) {
                     this._server.sendMessage(
                         'Password mismatch',
                         session.sessionId,
                         [protocol]
                     )
-                    this._server.disconnectSession(session.sessionId)
-                }
-
-                let message: any
-                try {
-                    message = JSON.parse(messageJson)
-                } catch (ex) {
-                    Log.e(this.TAG, 'Unable to parse message', messageJson, ex)
-                    return
+                    this._server.disconnectSession(session.sessionId, StatusCodes.WebSocketBadPassword)
                 }
                 switch (protocol as TWebSocketSubprotocol) {
-                    case 'authentication': {
-                        if (message.action === 'ping') {
-                            this._server.sendMessage(
-                                JSON.stringify({action: 'pong'}),
-                                session.sessionId,
-                                [protocol]
-                            )
-                        } else {
-                            this._server.disconnectSession(session.sessionId, 1234, 'Ping better you fool!')
-                        }
+                    case 'system': {
+                        const handler = new SystemHandler()
+                        handler.handle(this._server, messageStr, session)
                         break
                     }
                     case 'database': {
                         const handler = new DatabaseHandler()
-                        handler.handle(this._server, message, session)
+                        handler.handle(this._server, messageStr, session)
                         break
                     }
                     case 'presenter':
                         // TODO: Switch to handler class
-                        this.handlePresenter(message, session)
+                        this.handlePresenter(messageStr, session)
                         break
                     // TODO: Add things like Stream Deck support
                     default:
-                        this.handleUnknown(message, session)
+                        this.handleUnknown(messageStr, session)
                         break
                 }
             },
             onServerEvent: (state, value, session) => {
                 if (session && state === EWebSocketServerState.ClientConnected) {
-                    const [_protocol, password] = session.subprotocols
+                    const [_protocol, passwordHash] = session.subprotocols
                     const auth = DatabaseHelper.loadMain(new ConfigAuth())
-                    if (password === auth.passwordHash) {
-                        this._server.sendMessage(
-                            JSON.stringify(
-                                {message: 'You are connected to ActionBot!'}
-                            ), session.sessionId
-                        )
-                    } else {
-                        this._server.sendMessage(
-                            JSON.stringify(
-                                {error: 'Password mismatch'}
-                            ),
-                            session.sessionId
-                        )
-                        this._server.disconnectSession(session.sessionId)
+                    if (passwordHash !== auth.passwordHash) {
+                        this._server.disconnectSession(session.sessionId, StatusCodes.WebSocketBadPassword)
                     }
                 }
-                Log.i(this.TAG, state.toString(), value, session)
+                Log.i(this.TAG, state.toString(), value, session?.sessionId)
             },
             loggingProxy: Log.get()
         })
     }
 
-    private handleUnknown(message: string, session: IWebSocketServerSession) {
-        Log.w(this.TAG, 'Unhandled WebSocket message', message, session)
+    private handleUnknown(messageStr: string, session: IWebSocketServerSession) {
+        Log.w(this.TAG, 'Unhandled WebSocket message', messageStr, session)
     }
 
-    private handlePresenter(message: string, session: IWebSocketServerSession) {
+    private handlePresenter(messageStr: string, session: IWebSocketServerSession) {
         // TODO: Implement the presenter.
     }
 

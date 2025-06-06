@@ -659,7 +659,7 @@ ON CONFLICT DO UPDATE SET parent_id=:parent_id, data_json=:data_json;
             Log.w(this.TAG, `DB: "${action}" got class "${className}" which is invalid.`)
         }
         if(!DataMap.hasInstance(className)) {
-            Log.w(this.TAG, `DB: "${action}" got class "${className}" which does not exist in the DataObjectMap! Is it added to RegisterObjects?`)
+            Log.w(this.TAG, `DB: "${action}" got class "${className}" which does not exist in the DataObjectMap! Rerun the index generation.`)
         }
         return isProblem
     }

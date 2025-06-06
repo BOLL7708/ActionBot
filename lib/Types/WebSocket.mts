@@ -1,5 +1,5 @@
 export type TWebSocketSubprotocol =
-    | 'authentication'
+    | 'system'
     | 'database'
     | 'presenter'
     | 'editor'

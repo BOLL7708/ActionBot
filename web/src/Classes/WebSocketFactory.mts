@@ -16,6 +16,8 @@ export default class WebSocketFactory {
             },
             onMessage: (message) => {
                 console.log('Received message:', message)
+                const nonce = message.data.nonce
+                console.log('Received message with nonce:', nonce)
             },
             onError: (error) => {
                 console.error('WebSocket error:', error)

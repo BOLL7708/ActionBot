@@ -85,11 +85,11 @@ export default class Authentication {
             onOpen: () => {
                 const message = new SystemMessage()
                 message.action = 'ping'
-                wsc.send(JSON.stringify(message))
+                wsc.send(message)
             },
             onMessage: (message) => {
-                let messageObj = ValueUtils.safeJsonParse<{action:string}>(message.data)
-                if(messageObj?.action === 'pong') {
+                let messageObj = new SystemMessage().__apply(message.data)
+                if(messageObj.action === 'pong') {
                     StorageHelper.set('usr-name', username)
                     StorageHelper.set('pwd-hash', passwordHash)
                     StorageHelper.setJson('ws-port', port)

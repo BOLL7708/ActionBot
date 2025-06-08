@@ -100,5 +100,7 @@ export default class Bot {
         Log.setLogLevel(ELogLevel.Warning)
         const http = new HttpHandler()
         const ws = new WebSocketHandler()
+
+        Log.setLogLevel(ELogLevel.Info)
     }
 }

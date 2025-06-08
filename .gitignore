@@ -18,7 +18,7 @@ desktop.ini
 *.zip
 *.7z
 *.exe
-index.mts
+index.*ts
 
 # node
 **/node_modules

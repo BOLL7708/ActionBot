@@ -1,13 +1,13 @@
-import '../Runners/index.mts'
+import '../Runners/index.ts'
 import {assert} from 'jsr:@std/assert'
-import {ConfigAuth, ConfigServer, EnlistData} from '../../lib/index.mts'
-import ValueUtils from '../../lib/SharedUtils/ValueUtils.mts'
-import WebSocketClient from '../../lib/SharedUtils/WebSocketClient.mts'
+import {ConfigAuth, ConfigServer, EnlistData} from '../../lib/index.ts'
+import ValueUtils from '../../lib/SharedUtils/ValueUtils.ts'
+import WebSocketClient from '../../lib/SharedUtils/WebSocketClient.ts'
 import SystemMessage from '../../lib/Types/WebSocket/SystemMessage.ts'
-import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
-import HttpHandler from '../Server/HttpHandler.mts'
+import DatabaseHelper from '../Helpers/DatabaseHelper.ts'
+import HttpHandler from '../Server/HttpHandler.ts'
 import WebSocketHandler from '../Server/WebSocketHandler.ts'
-import TestUtils from '../Utils/TestUtils.mts'
+import TestUtils from '../Utils/TestUtils.ts'
 
 let http: HttpHandler
 let ws: WebSocketHandler

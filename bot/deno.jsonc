@@ -9,11 +9,11 @@
     "strictBindCallApply": true
   },
   "tasks": {
-    "generate": "cd ../dev && deno run --allow-read --allow-write generate.mts",
-    "run": "deno run -A main.mts",
+    "generate": "cd ../dev && deno run --allow-read --allow-write generate.ts",
+    "run": "deno run -A main.ts",
 
     "run:test": "deno task generate && deno test --allow-all --trace-leaks --watch",
-    "run:dev": "deno task generate && deno run -A --watch main.mts",
+    "run:dev": "deno task generate && deno run -A --watch main.ts",
     "run:live": "deno task generate && deno task run",
 
     "run:full": "deno install && deno task generate && deno task run"

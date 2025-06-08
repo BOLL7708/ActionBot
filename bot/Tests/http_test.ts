@@ -1,9 +1,9 @@
-import '../Runners/index.mts'
+import '../Runners/index.ts'
 import {assert, assertEquals} from 'jsr:@std/assert'
-import {EnlistData} from '../../lib/index.mts'
-import Log from '../../lib/SharedUtils/Log.mts'
-import ValueUtils from '../../lib/SharedUtils/ValueUtils.mts'
-import HttpServer from '../DenoUtils/HttpServer.mts'
+import {EnlistData} from '../../lib/index.ts'
+import Log from '../../lib/SharedUtils/Log.ts'
+import ValueUtils from '../../lib/SharedUtils/ValueUtils.ts'
+import HttpServer from '../DenoUtils/HttpServer.ts'
 
 Deno.test('init', () => {
     EnlistData.run()

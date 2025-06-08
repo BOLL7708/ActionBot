@@ -1,4 +1,4 @@
-import Serializable from '../../SharedUtils/Serializable.mts'
+import Serializable from '../../SharedUtils/Serializable.ts'
 
 export type TSystemMessageAction =
     | 'unknown'

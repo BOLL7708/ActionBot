@@ -1,4 +1,4 @@
-import ValueUtils from '../../SharedUtils/ValueUtils.mts'
+import ValueUtils from '../../SharedUtils/ValueUtils.ts'
 
 export type TDatabaseMessageAction =
     | 'unknown'

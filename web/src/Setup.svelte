@@ -1,7 +1,7 @@
 <script lang="ts">
     import {fade} from 'svelte/transition'
     import type {IDatabaseMessage} from '../../lib/Types/WebSocket/DatabaseMessage.js'
-    import WebSocketFactory from './Classes/WebSocketFactory.mjs'
+    import WebSocketFactory from './Classes/WebSocketFactory.js'
     import AuthBarrier from './Components/AuthBarrier.svelte'
     import TopBar from './Components/TopBar.svelte'
 

@@ -1,9 +1,9 @@
-import Log from '../../../lib/SharedUtils/Log.mts'
-import {IDatabaseMessage} from '../../../lib/index.mts'
-import ValueUtils from '../../../lib/SharedUtils/ValueUtils.mts'
-import WebSocketServer, { IWebSocketServerSession } from '../../DenoUtils/WebSocketServer.mts'
-import DatabaseHelper from '../../Helpers/DatabaseHelper.mts'
-import AbstractWebSocketHandler from './AbstractWebSocketHandler.mts'
+import Log from '../../../lib/SharedUtils/Log.ts'
+import {IDatabaseMessage} from '../../../lib/index.ts'
+import ValueUtils from '../../../lib/SharedUtils/ValueUtils.ts'
+import WebSocketServer, { IWebSocketServerSession } from '../../DenoUtils/WebSocketServer.ts'
+import DatabaseHelper from '../../Helpers/DatabaseHelper.ts'
+import AbstractWebSocketHandler from './AbstractWebSocketHandler.ts'
 
 export default class DatabaseHandler extends AbstractWebSocketHandler {
     private readonly TAG = this.constructor.name

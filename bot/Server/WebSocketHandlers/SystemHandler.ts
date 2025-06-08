@@ -1,7 +1,7 @@
 import SystemMessage from '../../../lib/Types/WebSocket/SystemMessage.ts'
-import ErrorCodes from '../../Constants/ErrorCodes.mts'
-import WebSocketServer, {IWebSocketServerSession} from '../../DenoUtils/WebSocketServer.mts'
-import AbstractWebSocketHandler from './AbstractWebSocketHandler.mts'
+import ErrorCodes from '../../Constants/ErrorCodes.ts'
+import WebSocketServer, {IWebSocketServerSession} from '../../DenoUtils/WebSocketServer.ts'
+import AbstractWebSocketHandler from './AbstractWebSocketHandler.ts'
 
 export interface ISystemHandlerMessage {
     action: string

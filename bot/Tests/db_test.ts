@@ -1,4 +1,4 @@
-import '../Runners/index.mts' // This is required so the prototypes get extended.
+import '../Runners/index.ts' // This is required so the prototypes get extended.
 import {assert, assertEquals} from 'jsr:@std/assert'
 import {
     AbstractData,
@@ -12,9 +12,9 @@ import {
     PresetTest,
     SettingTest,
     TriggerTest
-} from '../../lib/index.mts'
-import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
-import TestUtils from '../Utils/TestUtils.mts'
+} from '../../lib/index.ts'
+import DatabaseHelper from '../Helpers/DatabaseHelper.ts'
+import TestUtils from '../Utils/TestUtils.ts'
 
 Deno.test('init', async () => {
     EnlistData.run()

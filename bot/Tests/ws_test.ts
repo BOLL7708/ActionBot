@@ -1,10 +1,10 @@
-import '../Runners/index.mts'
+import '../Runners/index.ts'
 import {assert, assertEquals} from 'jsr:@std/assert'
-import {EnlistData} from '../../lib/index.mts'
-import Log from '../../lib/SharedUtils/Log.mts'
-import WebSocketClient from '../../lib/SharedUtils/WebSocketClient.mts'
-import WebSocketServer, {EWebSocketServerState} from '../DenoUtils/WebSocketServer.mts'
-import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
+import {EnlistData} from '../../lib/index.ts'
+import Log from '../../lib/SharedUtils/Log.ts'
+import WebSocketClient from '../../lib/SharedUtils/WebSocketClient.ts'
+import WebSocketServer, {EWebSocketServerState} from '../DenoUtils/WebSocketServer.ts'
+import DatabaseHelper from '../Helpers/DatabaseHelper.ts'
 
 Deno.test('init', () => {
     EnlistData.run()

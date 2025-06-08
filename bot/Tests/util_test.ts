@@ -1,10 +1,10 @@
-import '../Runners/index.mts' // This is required so the prototypes get extended.
+import '../Runners/index.ts' // This is required so the prototypes get extended.
 import {assert, assertEquals} from 'jsr:@std/assert'
-import {ELogLevel, EnlistData} from '../../lib/index.mts'
-import Log from '../../lib/SharedUtils/Log.mts'
-import ValueUtils from '../../lib/SharedUtils/ValueUtils.mts'
-import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
-import TestUtils from '../Utils/TestUtils.mts'
+import {ELogLevel, EnlistData} from '../../lib/index.ts'
+import Log from '../../lib/SharedUtils/Log.ts'
+import ValueUtils from '../../lib/SharedUtils/ValueUtils.ts'
+import DatabaseHelper from '../Helpers/DatabaseHelper.ts'
+import TestUtils from '../Utils/TestUtils.ts'
 
 Deno.test('init', async () => {
     EnlistData.run()

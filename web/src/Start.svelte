@@ -1,7 +1,7 @@
 <script lang="ts">
     import {fade} from 'svelte/transition'
     import actionbotLogo from '../public/actionbot_logo.svg'
-    import StorageHelper from './Classes/StorageHelper.mjs'
+    import StorageHelper from './Classes/StorageHelper.js'
     import AppButton from './Components/AppButton.svelte'
     import AuthBarrier from './Components/AuthBarrier.svelte'
 </script>

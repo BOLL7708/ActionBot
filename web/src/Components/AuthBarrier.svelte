@@ -4,9 +4,9 @@
  If the user is not authenticated, it will instead show a login form.
 -->
 <script lang="ts">
-    import Authentication from '../Classes/Authentication.mjs'
-    import Constants from '../Classes/Constants.mjs'
-    import StorageHelper from '../Classes/StorageHelper.mjs'
+    import Authentication from '../Classes/Authentication.js'
+    import Constants from '../Classes/Constants.js'
+    import StorageHelper from '../Classes/StorageHelper.js'
 
     let {children} = $props<{ children?: () => any }>()
     let port = $state(Constants.DEFAULT_WS_PORT)

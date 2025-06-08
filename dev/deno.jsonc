@@ -8,6 +8,6 @@
     "strictBindCallApply": true
   },
   "tasks": {
-    "generate": "deno run --allow-read --allow-write generate.mts"
+    "generate": "deno run --allow-read --allow-write generate.ts"
   }
 }

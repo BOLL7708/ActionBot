@@ -1,12 +1,12 @@
-import '../Runners/index.mts'
+import '../Runners/index.ts'
 import {assertEquals} from 'jsr:@std/assert'
-import {ConfigAuth} from '../../lib/Objects/Data/Config/ConfigAuth.mts'
-import {ConfigTest, ConfigTestSub} from '../../lib/Objects/Data/Config/ConfigTest.mts'
-import {DataUtils} from '../../lib/Objects/Data/DataUtils.mts'
-import {EnlistData} from '../../lib/Objects/Data/EnlistData.mts'
-import {PresetTest} from '../../lib/Objects/Data/Preset/PresetTest.mts'
-import DatabaseHelper from '../Helpers/DatabaseHelper.mts'
-import TestUtils from '../Utils/TestUtils.mts'
+import {ConfigAuth} from '../../lib/Objects/Data/Config/ConfigAuth.ts'
+import {ConfigTest, ConfigTestSub} from '../../lib/Objects/Data/Config/ConfigTest.ts'
+import {DataUtils} from '../../lib/Objects/Data/DataUtils.ts'
+import {EnlistData} from '../../lib/Objects/Data/EnlistData.ts'
+import {PresetTest} from '../../lib/Objects/Data/Preset/PresetTest.ts'
+import DatabaseHelper from '../Helpers/DatabaseHelper.ts'
+import TestUtils from '../Utils/TestUtils.ts'
 
 Deno.test('init', async () => {
     EnlistData.run()

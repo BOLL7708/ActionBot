@@ -4,7 +4,8 @@
  If the user is not authenticated, it will instead show a login form.
 -->
 <script lang="ts">
-    import Authentication from '../Classes/Authentication.js'
+    import ValueUtils from '../../../lib/SharedUtils/ValueUtils.ts'
+    import Authentication, {type TAuthenticationCallback, type TAuthenticationStatus} from '../Classes/Authentication.js'
     import Constants from '../Classes/Constants.js'
     import StorageHelper from '../Classes/StorageHelper.js'
 
@@ -15,10 +16,34 @@
     let disabled = $state(false)
     let hasTriedToVerify = $state(false)
     let isAuthorized = $state(false)
+    let message = $state('')
+    let messageColor = $state('transparent')
 
-    const authCallback = (ok: boolean) => {
+    const authCallback: TAuthenticationCallback = (status: TAuthenticationStatus) => {
+        isAuthorized = false
+        message = ''
+        messageColor = 'transparent'
+        switch(status) {
+            case 'ok':
+                isAuthorized = true
+                message = ''
+                break
+            case 'bot-connection-error':
+            case 'failed-fetching-salt':
+                message = 'Could not connect to the bot, please ensure that it is running, retry or reload the page.'
+                messageColor = '#f004'
+                break
+            case 'bot-authentication-timeout':
+                message = 'Authentication failed, credentials were likely faulty, please try again.'
+                messageColor = '#f804'
+                break
+            case 'missing-credentials':
+                message = hasTriedToVerify
+                    ? 'The credentials were faulty, please try again.'
+                    : 'No credentials were found, please sign in.'
+                break
+        }
         hasTriedToVerify = true
-        isAuthorized = ok
         disabled = false
     }
 
@@ -34,9 +59,12 @@
     {#if isAuthorized}
         {@render children()}
     {:else }
+        {#if ValueUtils.isNotBlank(message)}
+            <p class="statusMessage" style="background-color: {messageColor};">{message}</p>
+        {/if}
         <form {onsubmit}>
-            <h2>Connect & Sign In</h2>
             <fieldset {disabled}>
+                <h2>Connect & Sign In</h2>
                 <label>Bot WebSocket port: <input type="number" placeholder="Port" required bind:value={port}/></label>
                 <label>Username: <input type="text"
                                         placeholder="Username"
@@ -60,15 +88,17 @@
         display: flex;
         flex-direction: column;
         gap: 1em;
-        max-width: 20em;
         margin: 0 auto;
-        border: none;
+        border: 1px solid #fff8;
+        border-radius: .5rem;
+        padding: 1.5rem;
+        max-width: 20rem;
     }
 
     input {
         padding: 0.5em;
         font-size: 1em;
-        border: 1px solid #ccc;
+        border: 1px solid #fff8;
         border-radius: 0.5em;
         background-color: transparent;
         color: white;
@@ -76,5 +106,9 @@
 
     input[type="number"] {
         max-width: 4em;
+    }
+    .statusMessage {
+        padding: .5rem;
+        border-radius: .5em;
     }
 </style>

@@ -4,11 +4,10 @@ import {AbstractData} from './AbstractData.ts'
 import {DataMeta} from './DataMeta.ts'
 
 // Types
-export type TNoFunctions<T> = {
-    [K in keyof T]: T[K] extends Function
-        ? never
-        : K
-}[keyof T]
+
+// Thanks to Burrito<nonspicyburrito> on the TypeScript Discord for helping me arrive at the below type.
+export type TNoFunctions<T, U> = { [K in keyof T as T[K] extends (...args: never) => unknown ? never : K]?: U }
+
 export type TTypes = 'number'|'boolean'|'boolean|toggle'|'string'|'string|secret'|'string|code'|string & {} // the `& {}` prevents the `|string` from collapsing all options into just `string`.
 
 export class DataMap {
@@ -20,12 +19,12 @@ export class DataMap {
         tag?: string,
         description?: string,
         help?: string,
-        documentation?: Partial<Record<TNoFunctions<T>, string>>,
-        instructions?: Partial<Record<TNoFunctions<T>, string>>,
-        types?: Partial<Record<TNoFunctions<T>, TTypes>>,
-        label?: TNoFunctions<T>,
+        documentation?: TNoFunctions<T, string>,
+        instructions?: TNoFunctions<T, string>,
+        types?: TNoFunctions<T, TTypes>,
+        label?: TNoFunctions<T, string>,
         keyMap?: IStringDictionary,
-        tools?: Partial<Record<TNoFunctions<T>, IRootTool>>,
+        tools?: TNoFunctions<T, IRootTool>,
         tasks?: IRootTool[],
         visibleForOption?: IDataMapVisibleForOption<T>
     ) {
@@ -160,32 +159,26 @@ export class RootToolResult {
 }
 export type TRootToolResponseData = undefined|string|number|boolean
 
-export type IDataMapVisibleForOption<T> = Partial<Record<
-    TNoFunctions<T>,
-    Partial<Record<
-        TNoFunctions<T>,
-        number|string
-    >>
->>
+export type IDataMapVisibleForOption<T> = TNoFunctions<T, TNoFunctions<T, number|string>>
 
 export interface IRootInstance<T> {
     instance: T&AbstractData,
     tag?: string,
     description?: string,
     help?: string,
-    documentation?: Partial<Record<TNoFunctions<T>, string>>,
-    instructions?: Partial<Record<TNoFunctions<T>, string>>
-    types?: Partial<Record<TNoFunctions<T>, TTypes>>,
-    label?: TNoFunctions<T>,
+    documentation?: TNoFunctions<T, string>,
+    instructions?: TNoFunctions<T, string>
+    types?: TNoFunctions<T, TTypes>,
+    label?: TNoFunctions<T, string>,
     keyMap?: IStringDictionary,
-    tools?: Partial<Record<TNoFunctions<T>, IRootTool>>,
+    tools?: TNoFunctions<T, IRootTool>,
     tasks?: IRootTool[],
     visibleForOption?: IDataMapVisibleForOption<T>
 }
 
 export interface ISubInstance<T> {
     instance: T&AbstractData,
-    documentation?: Partial<Record<TNoFunctions<T>, string>>,
-    instructions?: Partial<Record<TNoFunctions<T>, string>>
-    types?: Partial<Record<TNoFunctions<T>, TTypes>>
+    documentation?: TNoFunctions<T, string>,
+    instructions?: TNoFunctions<T, string>
+    types?: TNoFunctions<T, TTypes>
 }

@@ -1,9 +1,9 @@
 import '../Runners/index.ts'
 import {assert} from 'jsr:@std/assert'
 import {ConfigAuth, ConfigServer, EnlistData} from '../../lib/index.ts'
+import SystemMessage from '../../lib/Messages/WebSocket/SystemMessage.ts'
 import ValueUtils from '../../lib/SharedUtils/ValueUtils.ts'
 import WebSocketClient from '../../lib/SharedUtils/WebSocketClient.ts'
-import SystemMessage from '../../lib/Types/WebSocket/SystemMessage.ts'
 import DatabaseHelper from '../Helpers/DatabaseHelper.ts'
 import HttpHandler from '../Server/HttpHandler.ts'
 import WebSocketHandler from '../Server/WebSocketHandler.ts'
@@ -63,7 +63,6 @@ Deno.test('auth', async () => {
         messageQueueing: true,
         serverUrl: `ws://localhost:${configServer.webSocketPort}`,
         onMessage: (message) => {
-            console.log('incoming', message.data)
             assert(JSON.parse(message.data).action === 'pong')
             prr.resolve(undefined)
         },
@@ -81,7 +80,6 @@ Deno.test('auth', async () => {
     wsc.init()
     const msg = new SystemMessage()
     msg.action = 'ping'
-    console.log('outgoing', JSON.stringify(msg))
     wsc.send(msg)
 
     await prr.promise

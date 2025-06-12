@@ -1,4 +1,4 @@
-import SystemMessage from '../../../lib/Types/WebSocket/SystemMessage.ts'
+import SystemMessage from '../../../lib/Messages/WebSocket/SystemMessage.ts'
 import ErrorCodes from '../../Constants/ErrorCodes.ts'
 import WebSocketServer, {IWebSocketServerSession} from '../../DenoUtils/WebSocketServer.ts'
 import AbstractWebSocketHandler from './AbstractWebSocketHandler.ts'

@@ -33,7 +33,7 @@ export default class Bot {
             let value = ''
             while (value.length == 0) {
                 value = isPassword
-                    ? promptSecret(message, defaultValue) ?? ''
+                    ? promptSecret(message) ?? ''
                     : prompt(message, defaultValue) ?? ''
                 if (verifyNumber) {
                     const number = ValueUtils.ensureNumber(value, 0)
@@ -54,8 +54,8 @@ export default class Bot {
         console.log('%c║   ╠═╣║   ║ ║║ ║║║║╠╩╗║ ║ ║   ║', 'color: yellow;')
         console.log('%c║   ╩ ╩╚═╝ ╩ ╩╚═╝╝╚╝╚═╝╚═╝ ╩   ║', 'color: green;')
         console.log('%c╚══════════════════════════════╝', 'color: cyan;')
-        console.log('%c Thank your for using ActionBot', 'color: blue;')
-        console.log('%c  From: https://actionbot.app/`', 'color: violet;')
+        console.log('%c Thanks for choosing ActionBot', 'color: blue;')
+        console.log('%c  From: https://actionbot.app`', 'color: violet;')
         const auth = DatabaseHelper.loadMain(new ConfigAuth())
         const server = DatabaseHelper.loadMain(new ConfigServer())
         const authNotSet = ValueUtils.isEmpty(auth.username) ||
@@ -101,6 +101,6 @@ export default class Bot {
         const http = new HttpHandler()
         const ws = new WebSocketHandler()
 
-        Log.setLogLevel(ELogLevel.Info)
+        Log.setLogLevel(ELogLevel.Debug)
     }
 }

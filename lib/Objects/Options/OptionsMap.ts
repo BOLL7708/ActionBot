@@ -1,4 +1,3 @@
-// TODO: Migrate bot dependencies to shared
 import Log from '../../SharedUtils/Log.ts'
 import {IStringDictionary} from '../../Types/Dictionary.ts'
 import {TNoFunctions} from '../Data/DataMap.ts'
@@ -19,7 +18,7 @@ export class OptionsMap {
     static addPrototype<T>({prototype, description, documentation}: {
         prototype: T&AbstractOption&Function,
         description?: string|undefined,
-        documentation?: Partial<Record<TNoFunctions<T>, string>>
+        documentation?: TNoFunctions<T, string>
     }) {
         const className = prototype.name
         const meta = new OptionMeta(

@@ -1,4 +1,4 @@
-import {AbstractData} from '../Objects/Data/AbstractData.ts'
+import {AbstractData} from '../Objects/AbstractData.ts'
 
 interface IDatabaseHelperHeaders {
     groupClass?: string

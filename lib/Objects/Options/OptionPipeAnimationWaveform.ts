@@ -1,5 +1,5 @@
 import {Description, Enlist} from '../Decorators.ts'
-import {AbstractOption} from './AbstractOption.ts'
+import {AbstractOption} from '../AbstractOption.ts'
 
 @Enlist()
 @Description('The waveform for the animation curve.')

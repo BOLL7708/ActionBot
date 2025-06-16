@@ -1,5 +1,5 @@
 import Log from '../../../SharedUtils/Log.ts'
-import {AbstractData} from '../AbstractData.ts'
+import {AbstractData} from '../../AbstractData.ts'
 
 export abstract class AbstractTrigger extends AbstractData {
     /**

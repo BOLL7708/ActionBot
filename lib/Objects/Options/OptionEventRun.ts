@@ -1,5 +1,5 @@
 import {Description, Documentation} from '../Decorators.ts'
-import {AbstractOption} from './AbstractOption.ts'
+import {AbstractOption} from '../AbstractOption.ts'
 import {OptionsMap} from '../OptionsMap.ts'
 
 @Description('Will affect how the actions of this event are timed.')

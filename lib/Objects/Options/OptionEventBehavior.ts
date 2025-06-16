@@ -1,5 +1,5 @@
 import {Description, Documentation, Enlist} from '../Decorators.ts'
-import {AbstractOption} from './AbstractOption.ts'
+import {AbstractOption} from '../AbstractOption.ts'
 
 @Enlist()
 @Description('Will affect how this event uses each entry of actions set on it.')

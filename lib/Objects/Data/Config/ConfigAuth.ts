@@ -1,4 +1,4 @@
-import {AbstractData} from '../AbstractData.ts'
+import {AbstractData} from '../../AbstractData.ts'
 import {Description, Documentation, Enlist} from '../../Decorators.ts'
 import {DataMap} from '../../DataMap.ts'
 

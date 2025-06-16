@@ -1,6 +1,6 @@
 import {TRunType} from '../../Types/Exec.ts'
 import {Description, Documentation, Enlist} from '../Decorators.ts'
-import {AbstractOption} from './AbstractOption.ts'
+import {AbstractOption} from '../AbstractOption.ts'
 
 @Enlist()
 @Description('What type of input to trigger with in the action.')

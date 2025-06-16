@@ -1,5 +1,5 @@
 import {Description, Documentation, Enlist} from '../Decorators.ts'
-import {AbstractOption} from './AbstractOption.ts'
+import {AbstractOption} from '../AbstractOption.ts'
 
 @Enlist()
 @Description('The various forms of TTS speech.')

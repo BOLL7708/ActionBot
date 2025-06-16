@@ -1,4 +1,4 @@
-import {AbstractData} from '../AbstractData.ts'
+import {AbstractData} from '../../AbstractData.ts'
 import {Description, Enlist} from '../../Decorators.ts'
 
 @Enlist()

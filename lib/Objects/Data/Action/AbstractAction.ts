@@ -1,6 +1,6 @@
 import {EEventSource} from '../../../Types/Event.ts'
 import {ITwitchEventSubEventRedemption} from '../../../Types/Twitch.ts'
-import {AbstractData} from '../AbstractData.ts'
+import {AbstractData} from '../../AbstractData.ts'
 
 export abstract class AbstractAction extends AbstractData {
     /**

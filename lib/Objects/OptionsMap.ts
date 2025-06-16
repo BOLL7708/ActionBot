@@ -1,7 +1,7 @@
 import {IStringDictionary} from '../SharedUtils/Dictionary.ts'
 import {TClassConstructor} from '../SharedUtils/LanguageTypes.ts'
 import Log from '../SharedUtils/Log.ts'
-import {AbstractOption} from './Options/AbstractOption.ts'
+import {AbstractOption} from './AbstractOption.ts'
 
 
 export interface IOptionMeta {

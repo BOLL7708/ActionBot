@@ -1,6 +1,6 @@
 import {IDatabaseItem} from '../../index.ts'
 import {IDictionary} from '../../SharedUtils/Dictionary.ts'
-import {AbstractData} from './AbstractData.ts'
+import {AbstractData} from '../AbstractData.ts'
 import {DataMap} from '../DataMap.ts'
 
 export class DataUtils {

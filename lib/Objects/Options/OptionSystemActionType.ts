@@ -1,5 +1,5 @@
 import {Description, Enlist} from '../Decorators.ts'
-import {AbstractOption} from './AbstractOption.ts'
+import {AbstractOption} from '../AbstractOption.ts'
 
 /**
  * These are basically things happening in the bot that are not customizable actions, but hard-coded ones.

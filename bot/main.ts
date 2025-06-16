@@ -1,7 +1,7 @@
 import './Runners/index.ts'
-import { EnlistData } from '../lib/index.ts'
 import Log, { ELogLevel } from '../lib/SharedUtils/Log.ts'
 import Bot from './Classes/Bot.ts'
+import '../lib/index.ts'
 import DatabaseHelper from './Helpers/DatabaseHelper.ts'
 
 /**
@@ -18,7 +18,6 @@ Log.setOptions({
     capitalizeTag: false
 })
 DatabaseHelper.isTesting = false
-EnlistData.run()
 
 /* Initialization */
 Bot.init().then()

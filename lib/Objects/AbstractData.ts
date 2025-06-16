@@ -1,6 +1,6 @@
-import {IDictionary} from '../../SharedUtils/Dictionary.ts'
-import ValueUtils from '../../SharedUtils/ValueUtils.ts'
-import {ReferenceTypeBuilder, Type} from './DataType.ts'
+import {IDictionary} from '../SharedUtils/Dictionary.ts'
+import ValueUtils from '../SharedUtils/ValueUtils.ts'
+import {ReferenceTypeBuilder, Type} from './Data/DataType.ts'
 
 // What input should result in when parsed
 type TDataStoreParsed = Record<string, unknown>
@@ -51,7 +51,7 @@ export abstract class AbstractData {
     }
 
     static get ref(): ReferenceTypeBuilder {
-        return Type.reference(this.name)
+        return new ReferenceTypeBuilder(this.name)
     }
 
     /** Apply JSON data to an object */

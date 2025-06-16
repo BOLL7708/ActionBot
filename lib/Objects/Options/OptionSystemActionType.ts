@@ -1,9 +1,11 @@
+import {Description, Enlist} from '../Decorators.ts'
 import {AbstractOption} from './AbstractOption.ts'
-import {OptionsMap} from './OptionsMap.ts'
 
 /**
- * These are basically things happening in the widget that are not customizable actions, but hard-coded ones.
+ * These are basically things happening in the bot that are not customizable actions, but hard-coded ones.
  */
+@Enlist()
+@Description('References to system features that are not individual actions.')
 export class OptionSystemActionType extends AbstractOption {
     static readonly None = 0
 
@@ -46,7 +48,3 @@ export class OptionSystemActionType extends AbstractOption {
     static readonly ResetIncrementingEvents = 9600
     static readonly ResetAccumulatingEvents = 9700
 }
-OptionsMap.addPrototype({
-    prototype: OptionSystemActionType,
-    description: 'References to system features that are not individual actions.',
-})

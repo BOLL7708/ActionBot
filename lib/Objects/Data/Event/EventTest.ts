@@ -1,6 +1,6 @@
 import {AbstractData, DataEntries} from '../AbstractData.ts'
 import {OptionEventBehavior} from '../../Options/OptionEventBehavior.ts'
-import {DataMap} from '../DataMap.ts'
+import {DataMap} from '../../DataMap.ts'
 import {PresetTest} from '../Preset/PresetTest.ts'
 import {AbstractTrigger} from '../Trigger/AbstractTrigger.ts'
 import {DataUtils} from '../DataUtils.ts'

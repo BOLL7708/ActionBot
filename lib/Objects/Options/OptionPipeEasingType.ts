@@ -1,6 +1,8 @@
+import {Description, Enlist} from '../Decorators.ts'
 import {AbstractOption} from './AbstractOption.ts'
-import {OptionsMap} from './OptionsMap.ts'
 
+@Enlist()
+@Description('The easing type for the animation.')
 export class OptionPipeEasingType extends AbstractOption {
     static readonly Linear = 'Linear'
     static readonly Sine = 'Sine'
@@ -14,8 +16,3 @@ export class OptionPipeEasingType extends AbstractOption {
     static readonly Elastic = 'Elastic'
     static readonly Bounce = 'Bounce'
 }
-OptionsMap.addPrototype({
-    prototype: OptionPipeEasingType,
-    description: 'The easing type for the animation.',
-    documentation: {}
-})

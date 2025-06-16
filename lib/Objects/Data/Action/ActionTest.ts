@@ -1,12 +1,12 @@
-import {INumberDictionary} from '../../../Types/Dictionary.ts'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.ts'
 import {OptionSystemActionType} from '../../Options/OptionSystemActionType.ts'
 import {OptionTwitchRewardUsable, OptionTwitchRewardVisible} from '../../Options/OptionTwitch.ts'
 import {AbstractData, DataEntries} from '../AbstractData.ts'
-import {DataMap} from '../DataMap.ts'
+import {DataMap} from '../../DataMap.ts'
 import {EventTest} from '../Event/EventTest.ts'
 import {AbstractAction} from './AbstractAction.ts'
 import {SettingTest} from '../Setting/SettingTest.ts'
+import { INumberDictionary } from '../../../SharedUtils/Dictionary'
 
 export class ActionTest extends AbstractAction {
     trigger = new ActionSystemTrigger()

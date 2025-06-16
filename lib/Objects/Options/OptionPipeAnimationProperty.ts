@@ -1,6 +1,8 @@
+import {Description, Enlist} from '../Decorators.ts'
 import {AbstractOption} from './AbstractOption.ts'
-import {OptionsMap} from './OptionsMap.ts'
 
+@Enlist()
+@Description('The property to animate.')
 export class OptionPipeAnimationProperty extends AbstractOption {
     static readonly None = 'None'
     static readonly Yaw = 'Yaw'
@@ -12,8 +14,3 @@ export class OptionPipeAnimationProperty extends AbstractOption {
     static readonly Scale = 'Scale'
     static readonly Opacity = 'Opacity'
 }
-OptionsMap.addPrototype({
-    prototype: OptionPipeAnimationProperty,
-    description: 'The property to animate.',
-    documentation: {}
-})

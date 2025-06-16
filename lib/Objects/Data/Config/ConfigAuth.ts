@@ -1,20 +1,16 @@
 import {AbstractData} from '../AbstractData.ts'
-import {DataMap} from '../DataMap.ts'
+import {Description, Documentation, Enlist} from '../../Decorators.ts'
+import {DataMap} from '../../DataMap.ts'
 
+@Enlist()
+@Description('Authentication for the bot.')
 export class ConfigAuth extends AbstractData {
-    public username: string = ''
-    public passwordHash: string = ''
-    public passwordSalt: string = ''
+    @Documentation('The username used for authentication.')
+    username: string = ''
 
-    enlist() {
-        DataMap.addRootInstance({
-            instance: new ConfigAuth(),
-            description: 'Authentication for the bot.',
-            documentation: {
-                username: 'The username used for authentication.',
-                passwordHash: 'The hash of the password used for authentication.',
-                passwordSalt: 'The salt used for the password hash.'
-            }
-        })
-    }
+    @Documentation('The hash of the password used for authentication.')
+    passwordHash: string = ''
+
+    @Documentation('The salt used for the password hash.')
+    passwordSalt: string = ''
 }

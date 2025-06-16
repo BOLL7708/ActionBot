@@ -1,23 +1,28 @@
-import {IStringDictionary} from '../../Types/Dictionary.ts'
+import {IStringDictionary} from '../../SharedUtils/Dictionary.ts'
+import {TPrimitives, Type} from '../Data/DataType.ts'
 
 export abstract class AbstractOption {
-    /**
-     * Get the name of the class appended with the Enum flag.
-     * If this ID is referenced when instancing a class, it will be a dropdown listing the properties as alternatives.
-     */
     static get ref() {
-        return this.name+'|option|type='+this.getType()
+        return Type.option(this.name, this.getType())
     }
+    static #keyMap?: IStringDictionary
     static keyMap(): IStringDictionary {
-        const entries = Object.entries(this)
-        return Object.fromEntries(
-            entries.map(([key, value]) => [value.toString(), key.toString()])
-        ) as IStringDictionary
+        if(!this.#keyMap) {
+            const entries = Object.entries(this)
+            this.#keyMap = Object.fromEntries(
+                entries.map(([key, value]) => [value.toString(), key.toString()])
+            ) as IStringDictionary
+        }
+        return this.#keyMap
     }
+
     static nameFromKey(key: string|number): string {
         return this.keyMap()[key.toString()] ?? key.toString()
     }
-    static getType(): string {
-        return typeof Object.values(this).pop()
+
+    static getType(): TPrimitives {
+        const type = typeof Object.values(this).pop()
+        let allowedTypes: string[] = [typeof '', typeof 0, typeof false]
+        return (allowedTypes.includes(type) ? type : '') as TPrimitives
     }
 }

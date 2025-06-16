@@ -1,17 +1,10 @@
 import {AbstractData} from '../AbstractData.ts'
-import {DataMap} from '../DataMap.ts'
+import {Enlist} from '../../Decorators.ts'
+import {DataMap} from '../../DataMap.ts'
 
+@Enlist()
 export class SettingTest extends AbstractData {
-    constructor(
-        public stringValue: string = '',
-        public numberValue: number = 0,
-        public booleanValue: boolean = false
-    ) {
-        super()
-    }
-    enlist() {
-        DataMap.addRootInstance({
-            instance: new SettingTest()
-        })
-    }
+    stringValue: string = ''
+    numberValue: number = 0
+    booleanValue: boolean = false
 }

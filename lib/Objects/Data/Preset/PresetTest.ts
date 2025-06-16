@@ -1,13 +1,8 @@
 import {AbstractData} from '../AbstractData.ts'
-import {DataMap} from '../DataMap.ts'
+import {Description, Enlist} from '../../Decorators.ts'
 
+@Enlist()
+@Description('A test preset.')
 export class PresetTest extends AbstractData {
-    public value: string = ''
-
-    enlist() {
-        DataMap.addRootInstance({
-            instance: new PresetTest(),
-            description: 'A test preset.'
-        })
-    }
+    value: string = ''
 }

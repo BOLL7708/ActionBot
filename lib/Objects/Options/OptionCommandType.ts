@@ -1,16 +1,13 @@
 import {TRunType} from '../../Types/Exec.ts'
+import {Description, Documentation, Enlist} from '../Decorators.ts'
 import {AbstractOption} from './AbstractOption.ts'
-import {OptionsMap} from './OptionsMap.ts'
 
+@Enlist()
+@Description('What type of input to trigger with in the action.')
 export class OptionCommandType extends AbstractOption {
+    @Documentation('Will simulate keyboard input.')
     static readonly Keys: TRunType = 'keys'
+
+    @Documentation('Will simulate mouse input.')
     static readonly Mouse: TRunType = 'mouse'
 }
-OptionsMap.addPrototype({
-    prototype: OptionCommandType,
-    description: 'What type of input to trigger with in the action.',
-    documentation: {
-        Keys: 'Will simulate keyboard input.',
-        Mouse: 'Will simulate mouse input.'
-    }
-})

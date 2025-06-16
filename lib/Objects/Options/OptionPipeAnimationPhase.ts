@@ -1,6 +1,9 @@
+import {Description, Enlist} from '../Decorators.ts'
 import {AbstractOption} from './AbstractOption.ts'
-import {OptionsMap} from './OptionsMap.ts'
+import {OptionsMap} from '../OptionsMap.ts'
 
+@Enlist()
+@Description('The phase of the animation curve.')
 export class OptionPipeAnimationPhase extends AbstractOption {
     static readonly Linear = 'Linear'
     static readonly Sine = 'Sine'
@@ -8,8 +11,3 @@ export class OptionPipeAnimationPhase extends AbstractOption {
     static readonly NegativeSine = 'NegativeSine'
     static readonly NegativeCosine = 'NegativeCosine'
 }
-OptionsMap.addPrototype({
-    prototype: OptionPipeAnimationPhase,
-    description: 'The phase of the animation curve.',
-    documentation: {}
-})

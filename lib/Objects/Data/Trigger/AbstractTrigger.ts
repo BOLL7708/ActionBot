@@ -8,6 +8,6 @@ export abstract class AbstractTrigger extends AbstractData {
      */
     // deno-lint-ignore require-await
     async register(eventKey: string): Promise<void> {
-        Log.w(this.__getClass(), `Register not implemented for Trigger: ${eventKey}`)
+        Log.w(this.constructor.name, `Register not implemented for Trigger: ${eventKey}`)
     }
 }

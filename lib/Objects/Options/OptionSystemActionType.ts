@@ -1,11 +1,11 @@
-import {Description, Enlist} from '../Decorators.ts'
+import {Purpose, Enlist} from '../Decorators.ts'
 import {AbstractOption} from '../AbstractOption.ts'
 
 /**
  * These are basically things happening in the bot that are not customizable actions, but hard-coded ones.
  */
 @Enlist()
-@Description('References to system features that are not individual actions.')
+@Purpose('References to system features that are not individual actions.')
 export class OptionSystemActionType extends AbstractOption {
     static readonly None = 0
 

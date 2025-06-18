@@ -1,8 +1,8 @@
-import {Description, Enlist} from '../Decorators.ts'
+import {Purpose, Enlist} from '../Decorators.ts'
 import {AbstractOption} from '../AbstractOption.ts'
 
 @Enlist()
-@Description('The property to animate.')
+@Purpose('The property to animate.')
 export class OptionPipeAnimationProperty extends AbstractOption {
     static readonly None = 'None'
     static readonly Yaw = 'Yaw'

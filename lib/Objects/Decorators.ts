@@ -26,8 +26,8 @@ export function Enlist(): TClassDecorator {
         metadata.classConstructor = constructor
         const isAbstractData = constructor instanceof AbstractData || constructor.prototype instanceof AbstractData
         const isAbstractOption = constructor instanceof AbstractOption || constructor.prototype instanceof AbstractOption
-        if (isAbstractData) DataMap.add(metadata)
-        else if (isAbstractOption) OptionsMap.add(metadata)
+        if (isAbstractData) DataMap.add(metadata as IDataStoreMeta)
+        else if (isAbstractOption) OptionsMap.add(metadata as IOptionMeta)
         else Log.w('@Enlist', 'Unhandled enlisting, no matching abstract class.', constructor, {
                 data: isAbstractData,
                 option: isAbstractOption
@@ -35,17 +35,17 @@ export function Enlist(): TClassDecorator {
     }
 }
 
-export function Description(description: string): TClassDecorator {
+export function Purpose(text: string): TClassDecorator {
     return (_constructor: TClassConstructors, context) => {
         const metadata = getMetadataObject<IDataStoreMeta | IOptionMeta>(context)
-        metadata.description = description
+        metadata.purpose = text
     }
 }
 
-export function Tag(tag: string): TClassDecorator {
+export function Tag(text: string): TClassDecorator {
     return (_constructor, context) => {
         const metadata = getMetadataObject<IDataStoreMeta>(context)
-        metadata.tag = tag
+        metadata.tag = text
     }
 }
 
@@ -53,14 +53,15 @@ export function Tag(tag: string): TClassDecorator {
 
 // region Field
 // region Main Data
-export function Reference(typeBuilder: ReferenceTypeBuilder | GenericTypeBuilder): TClassFieldDecorator {
+export function Item(typeBuilder: ReferenceTypeBuilder | GenericTypeBuilder): TClassFieldDecorator {
     return (_value, context) => {
         const metadata = getMetadataObject<IDataStoreMeta>(context)
         const name = context.name.toString()
-        metadata.references ??= []
-        metadata.references.push(name)
-        metadata.types ??= {}
-        metadata.types[name] = typeBuilder.out
+        metadata.fieldTypes ??= {}
+        metadata.fieldTypes.references ??= []
+        metadata.fieldTypes.references.push(name)
+        metadata.fields ??= {}
+        metadata.fields[name] = typeBuilder.out
     }
 }
 
@@ -68,40 +69,42 @@ export function Option(typeBuilder: OptionTypeBuilder): TClassFieldDecorator {
     return (_value, context) => {
         const metadata = getMetadataObject<IDataStoreMeta>(context)
         const name = context.name.toString()
-        metadata.options ??= []
-        metadata.options.push(name)
-        metadata.types ??= {}
-        metadata.types[name] = typeBuilder.out
+        metadata.fieldTypes ??= {}
+        metadata.fieldTypes.options ??= []
+        metadata.fieldTypes.options.push(name)
+        metadata.fields ??= {}
+        metadata.fields[name] = typeBuilder.out
     }
 }
 
-export function Primitive(typeBuilder: StringTypeBuilder | NumberTypeBuilder | BooleanTypeBuilder): TClassFieldDecorator {
+export function Value(typeBuilder: StringTypeBuilder | NumberTypeBuilder | BooleanTypeBuilder): TClassFieldDecorator {
     return (_value, context) => {
         const metadata = getMetadataObject<IDataStoreMeta>(context)
         const name = context.name.toString()
-        metadata.primitives ??= []
-        metadata.primitives.push(name)
-        metadata.types ??= {}
-        metadata.types[name] = typeBuilder.out
+        metadata.fieldTypes ??= {}
+        metadata.fieldTypes.values ??= []
+        metadata.fieldTypes.values.push(name)
+        metadata.fields ??= {}
+        metadata.fields[name] = typeBuilder.out
     }
 }
 
 // endregion
 
 // region Meta Data
-export function Documentation(documentation: string): TClassFieldDecorator {
+export function About(text: string): TClassFieldDecorator {
     return (_value, context) => {
         const metadata = getMetadataObject<IDataStoreMeta | IOptionMeta>(context)
-        metadata.documentation ??= {}
-        metadata.documentation[context.name.toString()] = documentation
+        metadata.about ??= {}
+        metadata.about[context.name.toString()] = text
     }
 }
 
-export function Instruction(instruction: string): TClassFieldDecorator {
+export function Help(text: string): TClassFieldDecorator {
     return (_value, context) => {
         const metadata = getMetadataObject<IDataStoreMeta>(context)
-        metadata.instructions ??= {}
-        metadata.instructions[context.name.toString()] = instruction
+        metadata.help ??= {}
+        metadata.help[context.name.toString()] = text
     }
 }
 

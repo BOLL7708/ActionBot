@@ -6,8 +6,8 @@ import {AbstractOption} from './AbstractOption.ts'
 
 export interface IOptionMeta {
     classConstructor?: TClassConstructor & AbstractOption
-    description?: string
-    documentation?: IStringDictionary
+    purpose?: string
+    about?: IStringDictionary
 }
 
 export class OptionsMap {

@@ -1,9 +1,9 @@
-import {Description, Enlist} from '../Decorators.ts'
+import {Purpose, Enlist} from '../Decorators.ts'
 import {AbstractOption} from '../AbstractOption.ts'
 import {OptionsMap} from '../OptionsMap.ts'
 
 @Enlist()
-@Description('The phase of the animation curve.')
+@Purpose('The phase of the animation curve.')
 export class OptionPipeAnimationPhase extends AbstractOption {
     static readonly Linear = 'Linear'
     static readonly Sine = 'Sine'

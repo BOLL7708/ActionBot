@@ -1,8 +1,8 @@
-import {Description, Enlist} from '../Decorators.ts'
+import {Purpose, Enlist} from '../Decorators.ts'
 import {AbstractOption} from '../AbstractOption.ts'
 
 @Enlist()
-@Description('The easing type for the animation.')
+@Purpose('The easing type for the animation.')
 export class OptionPipeEasingType extends AbstractOption {
     static readonly Linear = 'Linear'
     static readonly Sine = 'Sine'

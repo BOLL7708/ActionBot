@@ -8,19 +8,21 @@ export interface IDataStoreMeta {
     /** The constructor used to reinstate a JSON payload as a class. */
     classConstructor?: TClassConstructor
     /** A list of how to treat the fields of this class. */
-    types?: IDictionary<IDataStoreType>
-    /** List of field names that contain references to other classes. */
-    references?: string[]
-    /** List of field names that contain values based on an Option class. */
-    options?: string[]
-    /** List of fields that contain mutable collections of single type primitives. */
-    primitives?: string[]
+    fields?: IDictionary<IDataStoreType>
+    fieldTypes: {
+        /** List of field names that contain references to other classes. */
+        references?: string[]
+        /** List of field names that contain values based on an Option class. */
+        options?: string[]
+        /** List of fields that contain mutable collections of single type primitives. */
+        values?: string[]
+    }
 
     // Interface
     tag?: string
-    description?: string
-    documentation?: IStringDictionary
-    instructions?: IStringDictionary
+    purpose?: string
+    about?: IStringDictionary
+    help?: IStringDictionary
 }
 
 export class DataMap {

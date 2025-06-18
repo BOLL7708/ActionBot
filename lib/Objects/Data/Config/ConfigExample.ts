@@ -1,102 +1,102 @@
 import {IBooleanDictionary, INumberDictionary, IStringDictionary} from '../../../SharedUtils/Dictionary.ts'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.ts'
 import {AbstractData} from '../../AbstractData.ts'
-import {Description, Documentation, Enlist, Option, Primitive, Reference} from '../../Decorators.ts'
+import {Purpose, About, Enlist, Option, Value, Item} from '../../Decorators.ts'
 
 import {Type} from '../DataType.ts'
 import {DataUtils} from '../DataUtils.ts'
 import {PresetTest} from '../Preset/PresetTest.ts'
 
 @Enlist()
-@Description('This is an example config to display all types of values an object can contain and how to use them. It is not used in the bot.')
+@Purpose('This is an example config to display all types of values an object can contain and how to use them. It is not used in the bot.')
 export class ConfigExample extends AbstractData {
-    @Documentation('A single boolean flag')
+    @About('A single boolean flag')
     singleBoolean = false
 
-    @Documentation('A single number value')
+    @About('A single number value')
     singleNumber = 0
 
-    @Documentation('A single number value with a range')
-    @Primitive(Type.number.range(-100, 100, 5))
+    @About('A single number value with a range')
+    @Value(Type.number.range(-100, 100, 5))
     singleNumberRange = 0
 
-    @Documentation('A single string value')
+    @About('A single string value')
     singleString = ''
 
-    @Documentation('A single secret string value, use for passwords or API keys, etc.')
-    @Primitive(Type.string.secret)
+    @About('A single secret string value, use for passwords or API keys, etc.')
+    @Value(Type.string.secret)
     singleSecretString = ''
 
-    @Primitive(Type.string.files(DataUtils.getImageFileExtensions()))
+    @Value(Type.string.files(DataUtils.getImageFileExtensions()))
     singleFileString = ''
 
-    @Documentation('A single ID reference to any other object')
-    @Reference(PresetTest.ref.id)
+    @About('A single ID reference to any other object')
+    @Item(PresetTest.ref.id)
     singleIdReference: number = 0
 
-    @Documentation('A single ID reference displayed with a label')
-    @Reference(PresetTest.ref.id)
+    @About('A single ID reference displayed with a label')
+    @Item(PresetTest.ref.id)
     singleIdReferenceUsingLabel: number = 0
 
-    @Documentation('Contains a single generic entry.')
-    @Reference(Type.generic('Setting'))
+    @About('Contains a single generic entry.')
+    @Item(Type.generic('Setting'))
     singleIdToGenericReference: number = 0
 
     @Option(OptionEntryUsage.ref)
     singleEnum = OptionEntryUsage.First
 
-    @Documentation('This is an array property with a partner field.')
-    @Primitive(Type.boolean)
+    @About('This is an array property with a partner field.')
+    @Value(Type.boolean)
     arrayOfBooleans: boolean[] = []
 
-    @Documentation('This is a separate property acting as the partner field.')
+    @About('This is a separate property acting as the partner field.')
     @Option(OptionEntryUsage.ref)
     arrayOfBooleans_use: number = 0
 
-    @Primitive(Type.number)
+    @Value(Type.number)
     arrayOfNumbers: number[] = []
 
-    @Primitive(Type.string)
+    @Value(Type.string)
     arrayOfStrings: string[] = []
 
-    @Primitive(Type.string)
+    @Value(Type.string)
     arrayOfStringsWithEmptyEntry: string[] = ['']
 
-    @Primitive(Type.string.secret)
+    @Value(Type.string.secret)
     arrayOfSecretStrings: string[] = []
 
-    @Primitive(Type.string.files(DataUtils.getImageFileExtensions()))
+    @Value(Type.string.files(DataUtils.getImageFileExtensions()))
     arrayOfFileStrings: string[] = []
 
-    @Reference(PresetTest.ref.id)
+    @Item(PresetTest.ref.id)
     arrayOfIdReferences: number[] = []
 
-    @Reference(PresetTest.ref.id.label)
+    @Item(PresetTest.ref.id.label)
     arrayOfIdReferencesUsingLabels: number[] = []
 
-    @Documentation('Contains an array of generic entries.')
-    @Reference(Type.generic('Setting'))
+    @About('Contains an array of generic entries.')
+    @Item(Type.generic('Setting'))
     arrayOfIdToGenericReferences: number[] = []
 
     arrayOfOptions: number[] = []
 
-    @Primitive(Type.boolean)
+    @Value(Type.boolean)
     dictionaryOfBooleans: IBooleanDictionary = {}
 
-    @Primitive(Type.number)
+    @Value(Type.number)
     dictionaryOfNumbers: INumberDictionary = {}
 
-    @Primitive(Type.string)
+    @Value(Type.string)
     dictionaryOfStrings: IStringDictionary = {}
 
-    @Reference(PresetTest.ref.id)
+    @Item(PresetTest.ref.id)
     dictionaryOfIdReferences: INumberDictionary = {}
 
-    @Reference(PresetTest.ref.id.label)
+    @Item(PresetTest.ref.id.label)
     dictionaryOfIdReferencesUsingLabels: INumberDictionary = {}
 
-    @Documentation('Contains a dictionary of generic entries.')
-    @Reference(Type.generic('Setting'))
+    @About('Contains a dictionary of generic entries.')
+    @Item(Type.generic('Setting'))
     dictionaryOfIdToGenericReferences: INumberDictionary = {}
 
     @Option(OptionEntryUsage.ref)
@@ -111,12 +111,12 @@ export class ConfigExample extends AbstractData {
     @Option(OptionEntryUsage.ref)
     partnerToSingleAdvanced_enum = OptionEntryUsage.First
 
-    @Primitive(Type.string)
+    @Value(Type.string)
     partnerToArray: string[] = []
 
     partnerToArray_withTitle = ''
 
-    @Primitive(Type.string)
+    @Value(Type.string)
     partnerToDictionary: IStringDictionary = {}
 
     partnerToDictionary_repeatsCount = 0

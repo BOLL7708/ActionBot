@@ -3,10 +3,10 @@ import ValueUtils from '../SharedUtils/ValueUtils.ts'
 import {ReferenceTypeBuilder, Type} from './Data/DataType.ts'
 
 // What input should result in when parsed
-type TDataStoreParsed = Record<string, unknown>
+type TDataParsed = Record<string, unknown>
 
 // Database meta data
-export interface IDataStoreInfo {
+export interface IDataInfo {
     rowId: number
     rowCreated: Date | undefined
     rowModified: Date | undefined
@@ -15,13 +15,13 @@ export interface IDataStoreInfo {
     parentId: number
 }
 
-type TDataStorePrimitives = boolean | number | string
-type TDataStoreMethods = (...args: never) => unknown
-type TDataStoreTypes =
-    | TDataStorePrimitives
-    | TDataStorePrimitives[]
-    | IDictionary<TDataStorePrimitives>
-    | TDataStoreMethods
+type TDataPrimitives = boolean | number | string
+type TDataMethods = (...args: never) => unknown
+type TDataTypes =
+    | TDataPrimitives
+    | TDataPrimitives[]
+    | IDictionary<TDataPrimitives>
+    | TDataMethods
 
 /**
  * A shallow data class, properties stores the most basic primitive types or an array or dictionary storing said types.
@@ -31,10 +31,10 @@ type TDataStoreTypes =
  */
 export abstract class AbstractData {
     /* We allow properties of these types */
-    [key: string]: TDataStoreTypes
+    [key: string]: TDataTypes
 
     /* Private property filled with values from the database */
-    #info: IDataStoreInfo = {
+    #info: IDataInfo = {
         rowId: 0,
         rowCreated: undefined,
         rowModified: undefined,
@@ -42,11 +42,11 @@ export abstract class AbstractData {
         groupKey: '',
         parentId: 0
     }
-    __info(): IDataStoreInfo {
+    __info(): IDataInfo {
         return this.#info
     }
 
-    __setInfo(info: IDataStoreInfo) {
+    __setInfo(info: IDataInfo) {
         this.#info = info
     }
 
@@ -55,7 +55,7 @@ export abstract class AbstractData {
     }
 
     /** Apply JSON data to an object */
-    __apply(input: string | TDataStoreParsed): typeof this {
+    __apply(input: string | TDataParsed): typeof this {
         // Skip if no input
         if (ValueUtils.isBlank(input)) {
             console.warn('Input was blank.')
@@ -64,7 +64,7 @@ export abstract class AbstractData {
         // Parse if input was a string
         if (typeof input === 'string') {
             const jsonResult = ValueUtils.safeJsonParse(input)
-            if (jsonResult && typeof jsonResult === 'object') input = jsonResult as TDataStoreParsed
+            if (jsonResult && typeof jsonResult === 'object') input = jsonResult as TDataParsed
         }
         // Check if we can use the result
         if (
@@ -107,7 +107,7 @@ export abstract class AbstractData {
 
             // Primitives are applied
             else if (allowedTypes.includes(typeof input[key])) {
-                this[key] = input[key] as TDataStoreTypes
+                this[key] = input[key] as TDataTypes
             } else console.warn(`Unable to apply ${key} to instance, value:`, input[key])
         }
         return this

@@ -1,31 +1,37 @@
 import {Database} from '@db/sqlite'
-import {IDatabaseRow, IDictionary} from '../../lib/index.ts'
+import {IDictionary, IJsonStore, TDatabaseQueryInput} from '../../lib/index.ts'
 import Log from '../../lib/SharedUtils/Log.ts'
 
+export interface IDatabaseQuery {
+    query: string
+    params?: IDictionary<TDatabaseQueryInput>
+}
+
 export default class DatabaseSingleton {
-    private static _instance: DatabaseSingleton
+    static #instance: DatabaseSingleton
 
     /**
      * Will fetch a connected DB instance.
      */
     static get(isTest: boolean = false): DatabaseSingleton {
-        if (!this._instance || !this._instance._db.open) {
-            this._instance = new DatabaseSingleton(isTest)
+        if (!this.#instance || !this.#instance.#db.open) {
+            this.#instance = new DatabaseSingleton(isTest)
         }
-        return this._instance
+        return this.#instance
     }
 
     // region Lifecycle
-    private readonly _dbPath: string
-    private _db: Database
+    readonly #dbPath: string
+    #db: Database
 
-    private TAG = this.constructor.name
+    #tag = this.constructor.name
+
     private constructor(isTest: boolean = false) {
         const dir = '../_user/db'
         Deno.mkdirSync(dir, {recursive: true})
         const file = isTest ? 'test.sqlite' : 'main.sqlite'
-        this._dbPath = `${dir}/${file}`
-        this._db = this.create(this._dbPath)
+        this.#dbPath = `${dir}/${file}`
+        this.#db = this.create(this.#dbPath)
     }
 
     private create(filePath: string): Database {
@@ -35,20 +41,23 @@ export default class DatabaseSingleton {
         })
         if (db.open) {
             const version = db.prepare('select sqlite_version()').value<[string]>()
-            Log.i(this.TAG, `Database with SQLite driver connected:`, filePath, version?.pop())
+            Log.i(this.#tag, `Database with SQLite driver connected:`, filePath, version?.pop())
 
             // Check if table exists
-            const tableName = db.prepare(`SELECT name FROM sqlite_master WHERE type='table' AND name=:name`).value({name: 'json_store'})
+            const tableName = db.prepare(`SELECT name
+                                          FROM sqlite_master
+                                          WHERE type = 'table'
+                                            AND name = :name`).value({name: 'json_store'})
             if (!tableName) {
                 const sqlBuffer = Deno.readFileSync('../sql/structure.sql')
                 const sqlStr = new TextDecoder().decode(sqlBuffer)
                 db.run(sqlStr)
-                Log.i(this.TAG, 'Table not found, ran import.')
+                Log.i(this.#tag, 'Table not found, ran import.')
             } else {
-                Log.i(this.TAG, 'Table exists:', tableName?.pop())
+                Log.i(this.#tag, 'Table exists:', tableName?.pop())
             }
         } else {
-            Log.w(this.TAG, 'Unable to initialize or connect to database!')
+            Log.w(this.#tag, 'Unable to initialize or connect to database!')
         }
         return db
     }
@@ -58,21 +67,21 @@ export default class DatabaseSingleton {
      */
     reconnect() {
         this.kill()
-        this._db = this.create(this._dbPath)
+        this.#db = this.create(this.#dbPath)
     }
 
     /**
      * Terminate the DB connection.
      */
     kill() {
-        this._db.close()
+        this.#db.close()
     }
 
     /**
      * Check if the DB is connected.
      */
     test(): boolean {
-        return this._db.open && !!this.queryValue({query: 'SELECT 1;'})
+        return this.#db.open && !!this.queryValue({query: 'SELECT 1;'})
     }
 
     // endregion
@@ -84,9 +93,9 @@ export default class DatabaseSingleton {
      */
     queryRun(options: IDatabaseQuery): number | object | undefined {
         try {
-            return this._db.prepare(options.query).run(options.params)
+            return this.#db.prepare(options.query).run(options.params)
         } catch (e) {
-            Log.e(this.TAG, '', e, options)
+            Log.e(this.#tag, '', e, options)
         }
     }
 
@@ -94,11 +103,11 @@ export default class DatabaseSingleton {
      * Returns a single row.
      * @param options
      */
-    queryGet(options: IDatabaseQuery): IDatabaseRow | undefined {
+    queryGet(options: IDatabaseQuery): IJsonStore | undefined {
         try {
-            return this._db.prepare(options.query).get(options.params)
+            return this.#db.prepare(options.query).get(options.params)
         } catch (e) {
-            Log.e(this.TAG, '', e, options)
+            Log.e(this.#tag, '', e, options)
         }
     }
 
@@ -106,11 +115,11 @@ export default class DatabaseSingleton {
      * Returns a collection of rows.
      * @param options
      */
-    queryAll(options: IDatabaseQuery): IDatabaseRow[] | undefined {
+    queryAll(options: IDatabaseQuery): IJsonStore[] | undefined {
         try {
-            return this._db.prepare(options.query).all(options.params)
+            return this.#db.prepare(options.query).all(options.params)
         } catch (e) {
-            Log.e(this.TAG, '', e, options)
+            Log.e(this.#tag, '', e, options)
         }
     }
 
@@ -121,12 +130,13 @@ export default class DatabaseSingleton {
      */
     queryValue<T>(options: IDatabaseQuery): T | undefined {
         try {
-            const arr = this._db.prepare(options.query).value<T[]>(options.params)
+            const arr = this.#db.prepare(options.query).value<T[]>(options.params)
             if (arr) return arr.pop()
         } catch (e) {
-            Log.e(this.TAG, '', e, options)
+            Log.e(this.#tag, '', e, options)
         }
     }
+
     /**
      * Get the first values in the result, will return those values without keys.
      * Used to get values not in the main table.
@@ -134,31 +144,26 @@ export default class DatabaseSingleton {
      */
     queryValues<T>(options: IDatabaseQuery): T[] | undefined {
         try {
-            const arr = this._db.prepare(options.query).values<T[]>(options.params)
-            if (arr) return arr.map((it)=>{return it.pop()}).filter((it)=>it !== undefined)
+            const arr = this.#db.prepare(options.query).values<T[]>(options.params)
+            if (arr) return arr.map((it) => {
+                return it.pop()
+            }).filter((it) => it !== undefined)
         } catch (e) {
-            Log.e(this.TAG, '', e, options)
+            Log.e(this.#tag, '', e, options)
         }
     }
 
     queryDictionary<T>(options: IDatabaseQuery): IDictionary<T> | undefined {
         try {
-            const dic = this._db.prepare(options.query).all(options.params)
-            if(dic) return Object.fromEntries(
+            const dic = this.#db.prepare(options.query).all(options.params)
+            if (dic) return Object.fromEntries(
                 Object.entries(dic)
-                    .map(([a, b])=>[a, b as T])
+                    .map(([a, b]) => [a, b as T])
             )
-        } catch(e) {
-            Log.e(this.TAG, '', e, options)
+        } catch (e) {
+            Log.e(this.#tag, '', e, options)
         }
     }
 
     // endregion
-}
-
-export type TDatabaseQueryInput = null | undefined | number | bigint | string | boolean | Date | Uint8Array | {} | []
-
-export interface IDatabaseQuery {
-    query: string
-    params?: IDictionary<TDatabaseQueryInput>
 }

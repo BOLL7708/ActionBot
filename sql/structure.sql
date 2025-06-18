@@ -8,10 +8,15 @@ CREATE TABLE IF NOT EXISTS json_store
     row_created  TEXT NOT NULL DEFAULT (datetime('now')),
     row_modified TEXT NOT NULL DEFAULT (datetime('now')),
     group_class  TEXT NOT NULL,
-    group_key    TEXT NOT NULL,
+    group_key    TEXT,
     parent_id    INTEGER,
-    data_json    TEXT NOT NULL,
-    FOREIGN KEY (parent_id) REFERENCES json_store (row_id) ON DELETE CASCADE
+    json_blob    BLOB NOT NULL,
+    FOREIGN KEY (parent_id) REFERENCES json_store (row_id) ON DELETE CASCADE,
+    CONSTRAINT require_exactly_one
+        /* If we have a parent we don't need a key, only use a key with no parent */
+        CHECK ((group_key IS NOT NULL AND parent_id IS NULL)
+            OR
+               (group_key IS NULL AND parent_id IS NOT NULL))
 );
 
 /* Add non-primary indices. */

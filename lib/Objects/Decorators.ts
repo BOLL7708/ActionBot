@@ -5,16 +5,22 @@ import {AbstractData} from './AbstractData.ts'
 import {AbstractOption} from './AbstractOption.ts'
 import {
     BooleanTypeBuilder,
-    GenericTypeBuilder,
+    AbstractTypeBuilder,
     NumberTypeBuilder,
     OptionTypeBuilder,
-    ReferenceTypeBuilder,
+    ItemTypeBuilder,
     StringTypeBuilder
 } from './Data/DataType.ts'
-import {DataMap, IDataStoreMeta} from './DataMap.ts'
+import {DataMap, IDataMeta} from './DataMap.ts'
 import {IOptionMeta, OptionsMap} from './OptionsMap.ts'
 
 // region Class
+export interface IMetaBase {
+    /** The constructor used to reinstate a JSON payload as a class. */
+    classConstructor?: TClassConstructor
+    className?: string
+    abstractClassName?: string
+}
 type TClassConstructors = (TClassConstructor & AbstractData) | (TClassConstructor & AbstractOption)
 
 export function Enlist(): TClassDecorator {
@@ -22,11 +28,13 @@ export function Enlist(): TClassDecorator {
         constructor: TClassConstructors,
         context: ClassDecoratorContext
     ) => {
-        const metadata = getMetadataObject<IDataStoreMeta | IOptionMeta>(context)
+        const metadata = getMetadataObject<IDataMeta | IOptionMeta>(context)
         metadata.classConstructor = constructor
+        metadata.className = constructor.name
+        metadata.abstractClassName = Object.getPrototypeOf(constructor).name
         const isAbstractData = constructor instanceof AbstractData || constructor.prototype instanceof AbstractData
         const isAbstractOption = constructor instanceof AbstractOption || constructor.prototype instanceof AbstractOption
-        if (isAbstractData) DataMap.add(metadata as IDataStoreMeta)
+        if (isAbstractData) DataMap.add(metadata as IDataMeta)
         else if (isAbstractOption) OptionsMap.add(metadata as IOptionMeta)
         else Log.w('@Enlist', 'Unhandled enlisting, no matching abstract class.', constructor, {
                 data: isAbstractData,
@@ -37,14 +45,14 @@ export function Enlist(): TClassDecorator {
 
 export function Purpose(text: string): TClassDecorator {
     return (_constructor: TClassConstructors, context) => {
-        const metadata = getMetadataObject<IDataStoreMeta | IOptionMeta>(context)
+        const metadata = getMetadataObject<IDataMeta | IOptionMeta>(context)
         metadata.purpose = text
     }
 }
 
 export function Tag(text: string): TClassDecorator {
     return (_constructor, context) => {
-        const metadata = getMetadataObject<IDataStoreMeta>(context)
+        const metadata = getMetadataObject<IDataMeta>(context)
         metadata.tag = text
     }
 }
@@ -53,13 +61,13 @@ export function Tag(text: string): TClassDecorator {
 
 // region Field
 // region Main Data
-export function Item(typeBuilder: ReferenceTypeBuilder | GenericTypeBuilder): TClassFieldDecorator {
+export function Item(typeBuilder: ItemTypeBuilder | AbstractTypeBuilder): TClassFieldDecorator {
     return (_value, context) => {
-        const metadata = getMetadataObject<IDataStoreMeta>(context)
+        const metadata = getMetadataObject<IDataMeta>(context)
         const name = context.name.toString()
         metadata.fieldTypes ??= {}
-        metadata.fieldTypes.references ??= []
-        metadata.fieldTypes.references.push(name)
+        metadata.fieldTypes.items ??= []
+        metadata.fieldTypes.items.push(name)
         metadata.fields ??= {}
         metadata.fields[name] = typeBuilder.out
     }
@@ -67,7 +75,7 @@ export function Item(typeBuilder: ReferenceTypeBuilder | GenericTypeBuilder): TC
 
 export function Option(typeBuilder: OptionTypeBuilder): TClassFieldDecorator {
     return (_value, context) => {
-        const metadata = getMetadataObject<IDataStoreMeta>(context)
+        const metadata = getMetadataObject<IDataMeta>(context)
         const name = context.name.toString()
         metadata.fieldTypes ??= {}
         metadata.fieldTypes.options ??= []
@@ -79,7 +87,7 @@ export function Option(typeBuilder: OptionTypeBuilder): TClassFieldDecorator {
 
 export function Value(typeBuilder: StringTypeBuilder | NumberTypeBuilder | BooleanTypeBuilder): TClassFieldDecorator {
     return (_value, context) => {
-        const metadata = getMetadataObject<IDataStoreMeta>(context)
+        const metadata = getMetadataObject<IDataMeta>(context)
         const name = context.name.toString()
         metadata.fieldTypes ??= {}
         metadata.fieldTypes.values ??= []
@@ -94,7 +102,7 @@ export function Value(typeBuilder: StringTypeBuilder | NumberTypeBuilder | Boole
 // region Meta Data
 export function About(text: string): TClassFieldDecorator {
     return (_value, context) => {
-        const metadata = getMetadataObject<IDataStoreMeta | IOptionMeta>(context)
+        const metadata = getMetadataObject<IDataMeta | IOptionMeta>(context)
         metadata.about ??= {}
         metadata.about[context.name.toString()] = text
     }
@@ -102,7 +110,7 @@ export function About(text: string): TClassFieldDecorator {
 
 export function Help(text: string): TClassFieldDecorator {
     return (_value, context) => {
-        const metadata = getMetadataObject<IDataStoreMeta>(context)
+        const metadata = getMetadataObject<IDataMeta>(context)
         metadata.help ??= {}
         metadata.help[context.name.toString()] = text
     }

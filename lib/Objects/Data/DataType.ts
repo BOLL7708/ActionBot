@@ -12,8 +12,8 @@ export interface ITypeBuilder {
 }
 
 export class Type {
-    static generic(genericLike: string): GenericTypeBuilder {
-        return new GenericTypeBuilder(genericLike)
+    static generic(genericLike: string): AbstractTypeBuilder {
+        return new AbstractTypeBuilder(genericLike)
     }
 
     static get string(): StringTypeBuilder {
@@ -29,7 +29,7 @@ export class Type {
     }
 }
 
-export class ReferenceTypeBuilder implements ITypeBuilder {
+export class ItemTypeBuilder implements ITypeBuilder {
     #type: IDataStoreType
 
     constructor(className: string) {
@@ -39,18 +39,18 @@ export class ReferenceTypeBuilder implements ITypeBuilder {
     }
 
     /** Will reference the database entry by rowId */
-    get id(): ReferenceTypeBuilder {
+    get id(): ItemTypeBuilder {
         this.#type.primitive = 'number'
         return this
     }
 
     /** Will reference the database entry by groupKey */
-    get key(): ReferenceTypeBuilder {
+    get key(): ItemTypeBuilder {
         this.#type.primitive = 'string'
         return this
     }
 
-    get label(): ReferenceTypeBuilder {
+    get label(): ItemTypeBuilder {
         this.#type.useLabel = true
         return this
     }
@@ -75,8 +75,8 @@ export class OptionTypeBuilder implements ITypeBuilder {
     }
 }
 
-export class GenericTypeBuilder implements ITypeBuilder {
-    #type: IDataStoreType
+export class AbstractTypeBuilder implements ITypeBuilder {
+    #type: IDataStoreType // TODO: Update to store and use and filter on abstractClassName
 
     constructor(genericLike: string) { // TODO: Build a type for this?
         this.#type = {}

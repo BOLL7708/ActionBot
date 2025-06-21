@@ -1,3 +1,4 @@
+/** TODO: Does this really need all these types? */
 export type TDatabaseQueryInput = null | undefined | number | bigint | string | boolean | Date | Uint8Array | [] | Record<PropertyKey, never>
 
 /** The data entry that comes out of the database */

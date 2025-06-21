@@ -44,4 +44,9 @@ export default class TestUtils {
             })
         ])
     }
+
+    static truncateDatabase(): boolean {
+        const db = DatabaseSingleton.get(true)
+        return !!db.queryRun({query: 'DELETE FROM json_store WHERE 1;'})
+    }
 }

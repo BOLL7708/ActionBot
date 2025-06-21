@@ -1,11 +1,8 @@
 import {IStringDictionary} from '../SharedUtils/Dictionary.ts'
-import {TClassConstructor} from '../SharedUtils/LanguageTypes.ts'
 import Log from '../SharedUtils/Log.ts'
-import {AbstractOption} from './AbstractOption.ts'
+import {IMetaBase} from './Decorators.ts'
 
-
-export interface IOptionMeta {
-    classConstructor?: TClassConstructor & AbstractOption
+export interface IOptionMeta extends IMetaBase {
     purpose?: string
     about?: IStringDictionary
 }

@@ -1,4 +1,4 @@
-import {Database} from '@db/sqlite'
+import {Database} from 'jsr:@db/sqlite'
 import {IDictionary, IJsonStore, TDatabaseQueryInput} from '../../lib/index.ts'
 import Log from '../../lib/SharedUtils/Log.ts'
 

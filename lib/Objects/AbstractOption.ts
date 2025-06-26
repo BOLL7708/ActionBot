@@ -1,5 +1,5 @@
 import {IStringDictionary} from '../SharedUtils/Dictionary.ts'
-import {OptionTypeBuilder, TPrimitives} from './Data/DataType.ts'
+import {OptionTypeBuilder, TPrimitives} from './DecoratorType.ts'
 
 export abstract class AbstractOption {
     static get ref() {

@@ -56,8 +56,8 @@ export default class Bot {
         console.log('%c╚══════════════════════════════╝', 'color: cyan;')
         console.log('%c Thanks for choosing ActionBot', 'color: blue;')
         console.log('%c  From: https://actionbot.app`', 'color: violet;')
-        const auth = DatabaseHelper.loadMain(new ConfigAuth())
-        const server = DatabaseHelper.loadMain(new ConfigServer())
+        const auth = DatabaseHelper.loadMain(ConfigAuth)
+        const server = DatabaseHelper.loadMain(ConfigServer)
         const authNotSet = ValueUtils.isEmpty(auth.username) ||
             ValueUtils.isEmpty(auth.passwordHash) ||
             ValueUtils.isEmpty(auth.passwordSalt)

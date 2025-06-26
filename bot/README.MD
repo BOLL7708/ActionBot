@@ -40,7 +40,7 @@ Static methods that will perform the same action always, depending on input.
     * It creates the database with table(s) if needed.
 2. DatabaseHelper
     * Contains all the queries that are used to interact with the database.
-3. AbstractData
+3. AbstractItem
     * This is the base class for all data objects that are stored in the database.
     * It includes methods to re-instantiate classes from the class name and a JSON string.
 4. AbstractDataRunner

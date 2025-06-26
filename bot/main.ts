@@ -1,8 +1,8 @@
 import './Runners/index.ts'
-import Log, { ELogLevel } from '../lib/SharedUtils/Log.ts'
-import Bot from './Classes/Bot.ts'
 import '../lib/index.ts'
-import DatabaseHelper from './Helpers/DatabaseHelper.ts'
+import Log, {ELogLevel} from '../lib/SharedUtils/Log.ts'
+import Bot from './Classes/Bot.ts'
+import JsonStoreHelper from './Helpers/JsonStoreHelper.ts'
 
 /**
  * Will initialize the bot backend component, this is run by the server.
@@ -10,14 +10,9 @@ import DatabaseHelper from './Helpers/DatabaseHelper.ts'
 
 /* Logging and testing settings */
 Log.setOptions({
-    logLevel: ELogLevel.None,
-    stackLevel: ELogLevel.Error,
-    useColors: true,
-    tagPrefix: '[',
-    tagPostfix: '] ',
-    capitalizeTag: false
+    logLevel: ELogLevel.Verbose
 })
-DatabaseHelper.isTesting = false
+JsonStoreHelper.isTesting = false
 
 /* Initialization */
 Bot.init().then()

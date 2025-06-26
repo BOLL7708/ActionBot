@@ -1,5 +1,12 @@
+import {TItemParsed} from '../Objects/AbstractItem.ts'
+
 /** TODO: Does this really need all these types? */
 export type TDatabaseQueryInput = null | undefined | number | bigint | string | boolean | Date | Uint8Array | [] | Record<PropertyKey, never>
+
+export interface IJsonStoreDecoded {
+    jsonObj: TItemParsed
+    jsonStore: IJsonStore
+}
 
 /** The data entry that comes out of the database */
 export interface IJsonStore extends IJsonStoreInput {

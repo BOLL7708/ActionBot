@@ -22,7 +22,7 @@ export default class HttpHandler {
     private _fakeSaltCache: IFakeSaltItem[] = []
     constructor() {
         const TAG = this.constructor.name
-        const config = DatabaseHelper.loadMain(new ConfigServer())
+        const config = DatabaseHelper.loadMain(ConfigServer)
         this._server = new HttpServer({
             name: 'Static Files',
             port: config.httpPort,
@@ -46,11 +46,11 @@ export default class HttpHandler {
                             const [bearer, b64str] = header.split(' ')
                             if(bearer === 'Bearer') {
                                 const username = ValueUtils.safeBase64Decode(b64str)
-                                if(!username) {
+                                if(!username || typeof username !== 'string') {
                                     const response: IErrorResponse = { error: 'Invalid bearer value' }
                                     return response
                                 }
-                                const configAuth = DatabaseHelper.loadMain(new ConfigAuth())
+                                const configAuth = DatabaseHelper.loadMain(ConfigAuth)
                                 if(username == configAuth.username) {
                                     // We have a match, use real salt
                                     Log.i(TAG, 'Using real salt for', username)

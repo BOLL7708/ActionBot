@@ -1,3 +1,5 @@
+import {TItemParsed} from '../../../../Objects/AbstractItem.ts'
+import {IDictionary} from '../../../../SharedUtils/Dictionary.ts'
 import Serializable from '../../../../SharedUtils/Serializable.ts'
 
 export type TDatabaseAction =
@@ -9,9 +11,9 @@ export type TDatabaseAction =
 export default class DatabaseRequest extends Serializable {
     action: TDatabaseAction = 'unknown' // Perform various actions
     messageId: string = '' // Identify the message
-    rowId: number = 0 // Select on row ID
-    groupClass: string = '' // Select from group
-    groupKey: string = '' // Select on group key
-    parentId: number = 0 // Filter on parent ID
-    dataJsonBase64: string = '' // Ingoing data, encoded
+    groupClass?: string // Select from group
+    groupKey?: string // Select on group key
+    rowId?: number // Select on row ID
+    parentId?: number // Filter on parent ID
+    data: IDictionary<TItemParsed> = {} // Ingoing data, encoded
 }

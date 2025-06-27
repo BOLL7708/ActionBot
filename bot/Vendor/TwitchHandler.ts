@@ -1,13 +1,13 @@
 
 import {RefreshingAuthProvider} from 'npm:@twurple/auth'
 import {SettingTwitchClient, SettingTwitchTokens} from '../../lib/index.ts'
-import DatabaseHelper from '../Helpers/DatabaseHelper.ts'
+import ItemStore from '../Database/ItemStore.ts'
 
 export default class TwitchHandler {
     authProvider: RefreshingAuthProvider
 
     constructor() {
-        const twitchClient = DatabaseHelper.loadMain(new SettingTwitchClient())
+        const twitchClient = ItemStore.loadMain(new SettingTwitchClient())
         const clientId = twitchClient.clientId
         const clientSecret = twitchClient.clientSecret
 
@@ -20,14 +20,14 @@ export default class TwitchHandler {
             tokens.userId = userId
             tokens.refreshToken = newTokenData.refreshToken ?? ''
             tokens.accessToken = newTokenData.accessToken
-            DatabaseHelper.saveMain(tokens)
+            ItemStore.saveMain(tokens)
         })
 
         // this.authProvider.addUser()
     }
 
     auth(): boolean {
-        const twitchTokens = DatabaseHelper.loadMain(new SettingTwitchTokens())
+        const twitchTokens = ItemStore.loadMain(new SettingTwitchTokens())
         return false
     }
 }

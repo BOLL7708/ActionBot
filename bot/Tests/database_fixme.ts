@@ -13,18 +13,18 @@ import {
     SettingTest,
     TriggerTest
 } from '../../lib/index.ts'
-import DatabaseHelper from '../Helpers/DatabaseHelper.ts'
-import JsonStoreHelper from '../Helpers/JsonStoreHelper.ts'
+import ItemStore from '../Database/ItemStore.ts'
+import JsonStore from '../Database/JsonStore.ts'
 import TestUtils from '../Utils/TestUtils.ts'
 
 Deno.test('init', async () => {
     EnlistData.run()
     await TestUtils.resetDatabases()
-    JsonStoreHelper.isTesting = true
+    JsonStore.isTesting = true
 })
 
 Deno.test('save & load', async (t) => {
-    const db = DatabaseHelper
+    const db = ItemStore
     await t.step('save single', async () => {
         await TestUtils.resetDatabases()
         db.saveMain(new SettingTest())
@@ -40,9 +40,9 @@ Deno.test('save & load', async (t) => {
         const instance = new ConfigTest()
         const savedKey = db.saveMain(instance)
         assert(savedKey)
-        const success = JsonStoreHelper.deleteJsonByGroupAndKey(ConfigTest.name, JsonStoreHelper.OBJECT_MAIN_KEY)
+        const success = JsonStore.deleteByGroupAndKey(ConfigTest.name, JsonStore.OBJECT_MAIN_KEY)
         assert(success)
-        const item = JsonStoreHelper.loadJsonByGroupAndKey(ConfigTest.name, JsonStoreHelper.OBJECT_MAIN_KEY)
+        const item = JsonStore.loadByGroupAndKey(ConfigTest.name, JsonStore.OBJECT_MAIN_KEY)
         assert(item === undefined)
     })
     await t.step('save & load multi', async () => {
@@ -50,7 +50,7 @@ Deno.test('save & load', async (t) => {
         const c = 10
         const saveMe = new ActionTest()
         for (let i = 0; i < c; i++) {
-            JsonStoreHelper.saveJson({
+            JsonStore.save({
                 group_class: ActionTest.name,
                 group_key: `actionSystem-${i}`,
                 json_blob: JSON.stringify(saveMe),
@@ -121,7 +121,7 @@ Deno.test('save & load', async (t) => {
 
         // Check so it saved and that the object fills properly with the right item
         assert(savedParentKey)
-        const item = DatabaseHelper.loadItem(parent, parentKey, undefined, true)
+        const item = ItemStore.loadItem(parent, parentKey, undefined, true)
         const id = ((item?.filledData?.setting) as DataEntries<PresetTest> | undefined)?.dataSingle?.id
         assert(id)
         assertEquals(item?.data?.setting, id)
@@ -267,5 +267,5 @@ Deno.test('save & load', async (t) => {
 // })
 
 Deno.test('close db', () => {
-    JsonStoreHelper.closeConnection()
+    JsonStore.closeConnection()
 })

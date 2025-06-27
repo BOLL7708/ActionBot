@@ -3,7 +3,7 @@ import StatusCodes from '../../lib/SharedConstants/StatusCodes.ts'
 import Log from '../../lib/SharedUtils/Log.ts'
 import ValueUtils from '../../lib/SharedUtils/ValueUtils.ts'
 import WebSocketServer, {EWebSocketServerState, IWebSocketServerSession} from '../DenoUtils/WebSocketServer.ts'
-import DatabaseHelper from '../Helpers/DatabaseHelper.ts'
+import ItemStore from '../Database/ItemStore.ts'
 import SystemHandler from './WebSocketHandlers/SystemHandler.ts'
 import DatabaseHandler from './WebSocketHandlers/DatabaseHandler.ts'
 
@@ -19,7 +19,7 @@ export default class WebSocketHandler {
     private readonly _server: WebSocketServer
 
     constructor() {
-        const config = DatabaseHelper.loadMain(ConfigServer)
+        const config = ItemStore.loadMain(ConfigServer)
         this._server = new WebSocketServer({
             name: 'Central Server',
             port: config.webSocketPort,
@@ -27,7 +27,7 @@ export default class WebSocketHandler {
             keepAlive: true,
             onMessageReceived: (messageStr, session) => {
                 const [protocol, passwordHash] = session.subprotocols
-                const auth = DatabaseHelper.loadMain(ConfigAuth)
+                const auth = ItemStore.loadMain(ConfigAuth)
                 if (passwordHash !== auth.passwordHash) {
                     this._server.sendMessage(
                         'Password mismatch',
@@ -60,7 +60,7 @@ export default class WebSocketHandler {
             onServerEvent: (state, value, session) => {
                 if (session && state === EWebSocketServerState.ClientConnected) {
                     const [_protocol, passwordHash] = session.subprotocols
-                    const auth = DatabaseHelper.loadMain(ConfigAuth)
+                    const auth = ItemStore.loadMain(ConfigAuth)
                     if (passwordHash !== auth.passwordHash) {
                         this._server.disconnectSession(session.sessionId, StatusCodes.WebSocketBadPassword)
                     }

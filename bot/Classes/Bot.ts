@@ -2,7 +2,7 @@ import { ConfigAuth, ConfigServer } from '../../lib/index.ts'
 import Log, { ELogLevel } from '../../lib/SharedUtils/Log.ts'
 import ValueUtils from '../../lib/SharedUtils/ValueUtils.ts'
 import ErrorCodes from '../Constants/ErrorCodes.ts'
-import DatabaseHelper from '../Helpers/DatabaseHelper.ts'
+import ItemStore from '../Database/ItemStore.ts'
 import HttpHandler from '../Server/HttpHandler.ts'
 import WebSocketHandler from '../Server/WebSocketHandler.ts'
 import { promptSecret } from 'jsr:@std/cli'
@@ -56,8 +56,8 @@ export default class Bot {
         console.log('%c╚══════════════════════════════╝', 'color: cyan;')
         console.log('%c Thanks for choosing ActionBot', 'color: blue;')
         console.log('%c  From: https://actionbot.app`', 'color: violet;')
-        const auth = DatabaseHelper.loadMain(ConfigAuth)
-        const server = DatabaseHelper.loadMain(ConfigServer)
+        const auth = ItemStore.loadMain(ConfigAuth)
+        const server = ItemStore.loadMain(ConfigServer)
         const authNotSet = ValueUtils.isEmpty(auth.username) ||
             ValueUtils.isEmpty(auth.passwordHash) ||
             ValueUtils.isEmpty(auth.passwordSalt)
@@ -75,7 +75,7 @@ export default class Bot {
             auth.username = username
             auth.passwordHash = await ValueUtils.hashPassword(password, salt, true)
             auth.passwordSalt = ValueUtils.encodeBytes(salt, true)
-            DatabaseHelper.saveMain(auth)
+            ItemStore.saveMain(auth)
 
             printTitle('Hosting')
             console.log('Optionally change the ports for the server components.')
@@ -83,7 +83,7 @@ export default class Bot {
             const newWebSocketPort = promptUntilOk({message: '  WebSocket Port:', defaultValue: '7712', verifyNumber: true})
             if (!ValueUtils.isBlank(newHttpPort)) server.httpPort = parseInt(newHttpPort)
             if (!ValueUtils.isBlank(newWebSocketPort)) server.webSocketPort = parseInt(newWebSocketPort)
-            const key = DatabaseHelper.saveMain(server)
+            const key = ItemStore.saveMain(server)
             if (!ValueUtils.isBlank(key)) {
                 printTitle('Setup Complete')
                 console.log('Server configuration was successfully saved to the database.')

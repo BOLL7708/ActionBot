@@ -3,7 +3,7 @@ import {ITwitchEventSubSubscriptionPayload} from '../Classes/Api/TwitchEventSub.
 import Color from '../Constants/ColorConstants.ts'
 import Log from '../../lib/SharedUtils/Log.ts'
 import Utils from '../Utils/Utils.ts'
-import DatabaseHelper from './DatabaseHelper.ts'
+import ItemStore from '../Database/ItemStore.ts'
 import EventHelper from './EventHelper.ts'
 import TextHelper from './TextHelper.ts'
 
@@ -19,8 +19,8 @@ export default class TwitchHelixHelper {
     static _channelModeratorCache: Map<number, boolean> = new Map()
 
     private static getAuthHeaders(addJsonHeader: boolean = false): Headers {
-        const tokens = DatabaseHelper.load<SettingTwitchTokens>(new SettingTwitchTokens(), 'Channel')
-        const client = DatabaseHelper.load<SettingTwitchClient>(new SettingTwitchClient(), 'Main')
+        const tokens = ItemStore.load<SettingTwitchTokens>(new SettingTwitchTokens(), 'Channel')
+        const client = ItemStore.load<SettingTwitchClient>(new SettingTwitchClient(), 'Main')
         const headers = new Headers()
         headers.append('Authorization', `Bearer ${tokens?.accessToken}`)
         headers.append('Client-Id', client?.clientId ?? '')
@@ -28,7 +28,7 @@ export default class TwitchHelixHelper {
         return headers
     }
     static getBroadcasterUserId(): number {
-        const tokens = DatabaseHelper.load<SettingTwitchTokens>(new SettingTwitchTokens(), 'Channel')
+        const tokens = ItemStore.load<SettingTwitchTokens>(new SettingTwitchTokens(), 'Channel')
         return tokens?.userId ?? 0
     }
 
@@ -89,7 +89,7 @@ export default class TwitchHelixHelper {
             const id = data.id
             Log.d(this.TAG, `Loaded user: ${id}`)
             if(id) {
-                let user = DatabaseHelper.load<SettingUser>(new SettingUser(), id.toString())
+                let user = ItemStore.load<SettingUser>(new SettingUser(), id.toString())
                 if(!user || !user.userName.length || ! user.displayName.length) {
                     user = new SettingUser()
                     user.userName = data.login
@@ -97,7 +97,7 @@ export default class TwitchHelixHelper {
                     user.name = new SettingUserName()
                     user.name.shortName = TextHelper.cleanName(data.login)
                     user.name.datetime = Utils.getISOTimestamp()
-                    DatabaseHelper.save(user, id.toString())
+                    ItemStore.save(user, id.toString())
                 }
                 this._userCache.set(id, data)
                 this._userNameToId.set(data.login, id)
@@ -556,7 +556,7 @@ export default class TwitchHelixHelper {
 
     static async loadNamesForUsersWhoLackThem() {
         // region Chat
-        const userSettings = DataUtils.getKeyDataDictionary<SettingUser>(DatabaseHelper.loadAll<SettingUser>(new SettingUser()) ?? {})
+        const userSettings = DataUtils.getKeyDataDictionary<SettingUser>(ItemStore.loadAll<SettingUser>(new SettingUser()) ?? {})
         for(const [key, setting] of Object.entries(userSettings)) {
             if(setting.userName.length && setting.displayName.length) continue
             await TwitchHelixHelper.getUserById(key) // This will automatically update the object in the database

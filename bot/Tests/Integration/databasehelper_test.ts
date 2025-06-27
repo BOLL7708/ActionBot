@@ -1,13 +1,13 @@
 import '../../Runners/index.ts'
 import {assertEquals} from 'jsr:@std/assert'
 import {ConfigAuth, ConfigTest, PresetTest} from '../../../lib/index.ts'
-import DatabaseHelper from '../../Helpers/DatabaseHelper.ts'
-import JsonStoreHelper from '../../Helpers/JsonStoreHelper.ts'
+import ItemStore from '../../Database/ItemStore.ts'
+import JsonStore from '../../Database/JsonStore.ts'
 import TestUtils from '../../Utils/TestUtils.ts'
 
 Deno.test('init', async () => {
     await TestUtils.resetDatabases()
-    JsonStoreHelper.isTesting = true
+    JsonStore.isTesting = true
 })
 
 Deno.test('simple data reinstantiation', () => {
@@ -25,13 +25,13 @@ Deno.test('complex data reinstantiation', () => {
     const data = new ConfigTest()
     const preset = new PresetTest()
     preset.value = 'A test is ongoing!'
-    const presetId = DatabaseHelper.saveMain(preset) ?? ''
+    const presetId = ItemStore.saveMain(preset) ?? ''
 
     data.singleReference = presetId
     data.singleString = 'ThisIsNotSub'
-    DatabaseHelper.saveMain(data) // TODO: This can explode when tests are run in batch, but fine solo... ?
+    ItemStore.saveMain(data) // TODO: This can explode when tests are run in batch, but fine solo... ?
 
-    const data2 = DatabaseHelper.loadMain<ConfigTest>(ConfigTest)
+    const data2 = ItemStore.loadMain<ConfigTest>(ConfigTest)
     assertEquals(data, data2)
     assertEquals(data2.singleReference, presetId)
     const preset2 = new PresetTest()
@@ -40,5 +40,5 @@ Deno.test('complex data reinstantiation', () => {
 })
 
 Deno.test('shut down', () => {
-    JsonStoreHelper.closeConnection()
+    JsonStore.closeConnection()
 })

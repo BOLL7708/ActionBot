@@ -1,8 +1,8 @@
 import ItemHelper from '../../lib/Classes/ItemHelper.ts'
 import {AbstractItem, TClassConstructor} from '../../lib/index.ts'
-import JsonStoreHelper from './JsonStoreHelper.ts'
+import JsonStore from './JsonStore.ts'
 
-export default class DatabaseHelper {
+export default class ItemStore {
     static readonly #mainKey: string = 'Main'
 
     static loadMain<T extends AbstractItem>(classConstructor: TClassConstructor<T>): T {
@@ -12,12 +12,12 @@ export default class DatabaseHelper {
         return this.save(item, this.#mainKey)
     }
     static load<T extends AbstractItem>(classConstructor: TClassConstructor<T>, key: string): T {
-        const items = JsonStoreHelper.loadJsonAndItemsByGroupAndKey(classConstructor.name, key)
+        const items = JsonStore.loadWithChildrenByGroupAndKey(classConstructor.name, key)
         const recreatedItem = ItemHelper.recreate<T>(items)
         return recreatedItem ?? new classConstructor()
     }
     static save<T extends AbstractItem>(item: T, key: string): number {
-        return JsonStoreHelper.saveJson({
+        return JsonStore.save({
             group_class: item.constructor.name,
             group_key: key,
             parent_id: null,

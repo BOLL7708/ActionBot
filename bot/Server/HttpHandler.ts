@@ -2,7 +2,7 @@ import {ConfigAuth, ConfigServer} from '../../lib/index.ts'
 import Log from '../../lib/SharedUtils/Log.ts'
 import ValueUtils from '../../lib/SharedUtils/ValueUtils.ts'
 import HttpServer from '../DenoUtils/HttpServer.ts'
-import DatabaseHelper from '../Helpers/DatabaseHelper.ts'
+import ItemStore from '../Database/ItemStore.ts'
 
 interface IFakeSaltItem {
     username: string
@@ -22,7 +22,7 @@ export default class HttpHandler {
     private _fakeSaltCache: IFakeSaltItem[] = []
     constructor() {
         const TAG = this.constructor.name
-        const config = DatabaseHelper.loadMain(ConfigServer)
+        const config = ItemStore.loadMain(ConfigServer)
         this._server = new HttpServer({
             name: 'Static Files',
             port: config.httpPort,
@@ -50,7 +50,7 @@ export default class HttpHandler {
                                     const response: IErrorResponse = { error: 'Invalid bearer value' }
                                     return response
                                 }
-                                const configAuth = DatabaseHelper.loadMain(ConfigAuth)
+                                const configAuth = ItemStore.loadMain(ConfigAuth)
                                 if(username == configAuth.username) {
                                     // We have a match, use real salt
                                     Log.i(TAG, 'Using real salt for', username)

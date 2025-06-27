@@ -4,7 +4,7 @@ import {ITwitchEmotePosition} from '../Classes/Data/TwitchFactory.ts'
 import ModulesSingleton from '../Singletons/ModulesSingleton.ts'
 import StatesSingleton from '../Singletons/StatesSingleton.ts'
 import Utils from '../Utils/Utils.ts'
-import DatabaseHelper from './DatabaseHelper.ts'
+import ItemStore from '../Database/ItemStore.ts'
 import SteamStoreHelper from './SteamStoreHelper.ts'
 import TwitchHelixHelper, {ITwitchHelixUsersResponseData} from './TwitchHelixHelper.ts'
 
@@ -20,7 +20,7 @@ export default class TextHelper {
         }
         const userId = userData?.id ?? ''
         const userName = userData?.login ?? ''
-        const user = await DatabaseHelper.loadOrEmpty<SettingUser>(new SettingUser(), userId)
+        const user = await ItemStore.loadOrEmpty<SettingUser>(new SettingUser(), userId)
         let cleanName = Utils.getFirstValidString(user.name.shortName, userName)
         if(cleanName.length == 0) {
             cleanName = this.cleanName(userName)
@@ -28,7 +28,7 @@ export default class TextHelper {
             cleanNameSetting.shortName = cleanName
             cleanNameSetting.datetime = Utils.getISOTimestamp()
             user.name = cleanNameSetting
-            await DatabaseHelper.save(user, userId)
+            await ItemStore.save(user, userId)
         }
         return cleanName
     }
@@ -75,7 +75,7 @@ export default class TextHelper {
         let text = textInput ?? ''
 
         if(!config) {
-            const ttsConfig = await DatabaseHelper.loadMain<ConfigSpeech>(new ConfigSpeech())
+            const ttsConfig = await ItemStore.loadMain<ConfigSpeech>(new ConfigSpeech())
             config = ttsConfig.cleanTextConfig
         }
         if(!config?.keepCase) text = text.toLowerCase()
@@ -218,7 +218,7 @@ export default class TextHelper {
             // If we have a possible login, get the user data, if they exist
             const channelData = await TwitchHelixHelper.getChannelByName(userLogin)
             if(channelData) {
-                const voice = await DatabaseHelper.load<SettingUserVoice>(new SettingUserVoice(), channelData.broadcaster_id)
+                const voice = await ItemStore.load<SettingUserVoice>(new SettingUserVoice(), channelData.broadcaster_id)
                 tags.targetId = channelData.broadcaster_id
                 tags.targetLogin = channelData.broadcaster_login
                 tags.targetName = channelData.broadcaster_name
@@ -247,17 +247,17 @@ export default class TextHelper {
     private static async getDefaultTags(userData?: IActionUser): Promise<ITextTags> {
         const states = StatesSingleton.getInstance()
         const userIdStr = userData?.id?.toString() ?? ''
-        const user = await DatabaseHelper.loadOrEmpty<SettingUser>(new SettingUser(), userIdStr)
+        const user = await ItemStore.loadOrEmpty<SettingUser>(new SettingUser(), userIdStr)
         const subs = user.sub
         const cheers = user.cheer
         const voice = user.voice
         const now = new Date()
 
-        const eventConfig = await DatabaseHelper.loadOrEmpty<EventTest>(new EventTest(), userData?.eventKey ?? '')
-        const eventID = await DatabaseHelper.loadId(EventTest.ref.build(), userData?.eventKey ?? '')
+        const eventConfig = await ItemStore.loadOrEmpty<EventTest>(new EventTest(), userData?.eventKey ?? '')
+        const eventID = await ItemStore.loadId(EventTest.ref.build(), userData?.eventKey ?? '')
         const eventLevel = states.multiTierEventCounters.get(eventID.toString())?.count ?? 0
         const eventLevelMax = eventConfig.multiTierOptions.maxLevel
-        const eventCount = (await DatabaseHelper.load<SettingAccumulatingCounter>(new SettingAccumulatingCounter(), eventID.toString()))?.count ?? 0
+        const eventCount = (await ItemStore.load<SettingAccumulatingCounter>(new SettingAccumulatingCounter(), eventID.toString()))?.count ?? 0
         const eventGoal = eventConfig.accumulatingOptions.goal
 
         const userBits = (userData?.bits ?? 0) > 0

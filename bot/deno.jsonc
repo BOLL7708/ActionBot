@@ -9,14 +9,18 @@
     "strictBindCallApply": true
   },
   "tasks": {
+    // Base
     "generate": "cd ../dev && deno run --allow-read --allow-write generate.ts",
-    "run": "deno run -A main.ts",
+    "run": "deno run --allow-all main.ts",
+    "watch": "deno run --allow-all --watch main.ts",
 
-    "run:test": "deno task generate && deno test --allow-all --trace-leaks --watch",
-    "run:dev": "deno task generate && deno run -A --watch main.ts",
-    "run:live": "deno task generate && deno task run",
+    // General
+    "test": "deno task generate && deno test --allow-all --trace-leaks --watch",
+    "dev": "deno task generate && deno task watch",
+    "live": "deno task generate && deno task run",
 
-    "run:full": "deno install && deno task generate && deno task run"
+    // Install
+    "full": "deno install && deno task generate && deno task run"
   },
   "imports": {
     "@std/assert": "jsr:@std/assert@1",

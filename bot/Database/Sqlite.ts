@@ -7,15 +7,15 @@ export interface IDatabaseQuery {
     params?: IDictionary<TDatabaseQueryInput>
 }
 
-export default class DatabaseSingleton {
-    static #instance: DatabaseSingleton
+export default class Sqlite {
+    static #instance: Sqlite
 
     /**
      * Will fetch a connected DB instance.
      */
-    static get(isTest: boolean = false): DatabaseSingleton {
+    static get(isTest: boolean = false): Sqlite {
         if (!this.#instance || !this.#instance.#db.open) {
-            this.#instance = new DatabaseSingleton(isTest)
+            this.#instance = new Sqlite(isTest)
         }
         return this.#instance
     }

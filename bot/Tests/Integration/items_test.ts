@@ -4,12 +4,12 @@ import ItemHelper from '../../../lib/Classes/ItemHelper.ts'
 import {ConfigTest, PresetTest} from '../../../lib/index.ts'
 import Log, {ELogLevel} from '../../../lib/SharedUtils/Log.ts'
 import ValueUtils from '../../../lib/SharedUtils/ValueUtils.ts'
-import JsonStoreHelper from '../../Helpers/JsonStoreHelper.ts'
+import JsonStore from '../../Database/JsonStore.ts'
 import TestUtils from '../../Utils/TestUtils.ts'
 
 Deno.test('init', () => {
     Log.setLogLevel(ELogLevel.Verbose)
-    JsonStoreHelper.isTesting = true
+    JsonStore.isTesting = true
 })
 
 Deno.test('recreate', () => {
@@ -17,7 +17,7 @@ Deno.test('recreate', () => {
 
     const preset = new PresetTest()
     preset.value = 'Yes please!'
-    const presetId = JsonStoreHelper.saveJson({
+    const presetId = JsonStore.save({
         group_class: PresetTest.name,
         group_key: 'ChildTest',
         parent_id: null,
@@ -29,7 +29,7 @@ Deno.test('recreate', () => {
     config.singleString = 'PLEASE WORK'
     config.singleNumber = 123456
     config.singleReference = presetId
-    const configId = JsonStoreHelper.saveJson({
+    const configId = JsonStore.save({
         group_class: ConfigTest.name,
         group_key: 'ParentTest',
         parent_id: null,
@@ -37,7 +37,7 @@ Deno.test('recreate', () => {
     })
     assert(configId)
 
-    const loadedConfig = JsonStoreHelper.loadJsonAndItemsByRowId(configId) ?? []
+    const loadedConfig = JsonStore.loadWithChildrenByRowId(configId) ?? []
     const recreatedConfig = ItemHelper.recreate<ConfigTest>(loadedConfig)
     assertEquals(configId, recreatedConfig?.__info().rowId ?? 0)
     assertEquals(presetId, ValueUtils.ensureNumber(Object.keys(recreatedConfig?.__children() ?? {})?.pop()))

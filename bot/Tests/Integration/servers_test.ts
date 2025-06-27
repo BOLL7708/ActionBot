@@ -4,8 +4,8 @@ import SystemMessage from '../../../lib/Messages/WebSocket/SystemMessage.ts'
 import Log from '../../../lib/SharedUtils/Log.ts'
 import ValueUtils from '../../../lib/SharedUtils/ValueUtils.ts'
 import WebSocketClient from '../../../lib/SharedUtils/WebSocketClient.ts'
-import DatabaseHelper from '../../Helpers/DatabaseHelper.ts'
-import JsonStoreHelper from '../../Helpers/JsonStoreHelper.ts'
+import ItemStore from '../../Database/ItemStore.ts'
+import JsonStore from '../../Database/JsonStore.ts'
 import HttpHandler from '../../Server/HttpHandler.ts'
 import WebSocketHandler from '../../Server/WebSocketHandler.ts'
 import TestUtils from '../../Utils/TestUtils.ts'
@@ -16,13 +16,13 @@ const tag = import.meta.filename ?? 'tag'
 
 Deno.test('init', async () => {
     await TestUtils.resetDatabases()
-    JsonStoreHelper.isTesting = true
+    JsonStore.isTesting = true
 
     // Save server settings that will not conflict with any running dev environment
     const configServer = new ConfigServer()
     configServer.httpPort = 8079
     configServer.webSocketPort = 7707
-    DatabaseHelper.saveMain(configServer)
+    ItemStore.saveMain(configServer)
 
     // Save auth for tests
     const salt = ValueUtils.generateSalt()
@@ -34,12 +34,12 @@ Deno.test('init', async () => {
     config.passwordSalt = saltStr
     config.passwordHash = passwordHash
 
-    const key = DatabaseHelper.saveMain(config)
+    const key = ItemStore.saveMain(config)
     assert(key)
 })
 Deno.test('auth', async () => {
     const prr = Promise.withResolvers()
-    const configServer = DatabaseHelper.loadMain(ConfigServer)
+    const configServer = ItemStore.loadMain(ConfigServer)
 
     // Launch servers
     http = new HttpHandler()
@@ -87,5 +87,5 @@ Deno.test('auth', async () => {
     wsc.disconnect()
     http.stop()
     await ws.stop()
-    JsonStoreHelper.closeConnection()
+    JsonStore.closeConnection()
 })

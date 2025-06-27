@@ -3,7 +3,7 @@ import DatabaseRequest from '../../../lib/Messages/WebSocket/Database/Inbound/Da
 import DatabaseResponse from '../../../lib/Messages/WebSocket/Database/Outbound/DatabaseResponse.ts'
 import Log from '../../../lib/SharedUtils/Log.ts'
 import WebSocketServer, {IWebSocketServerSession} from '../../DenoUtils/WebSocketServer.ts'
-import JsonStoreHelper from '../../Helpers/JsonStoreHelper.ts'
+import JsonStore from '../../Database/JsonStore.ts'
 import AbstractWebSocketHandler from './AbstractWebSocketHandler.ts'
 
 export default class DatabaseHandler extends AbstractWebSocketHandler {
@@ -19,12 +19,12 @@ export default class DatabaseHandler extends AbstractWebSocketHandler {
                 let data: IJsonStore[]|undefined = []
                 if(request.groupClass) {
                     if(request.groupKey) {
-                        data = JsonStoreHelper.loadJsonByGroupAndKey(request.groupClass,request.groupKey)
+                        data = JsonStore.loadByGroupAndKey(request.groupClass,request.groupKey)
                     } else {
                         data = [] // JsonStoreHelper.loadJsonByGroup(request.groupClass) // TODO: Implement when needed.
                     }
                 } else if(request.rowId) {
-                    data = JsonStoreHelper.loadJsonByRowId(request.rowId, request.parentId)
+                    data = JsonStore.loadByRowId(request.rowId, request.parentId)
                 }
                 Log.i(this.TAG, 'DatabaseMessage', {data})
                 if(data) {

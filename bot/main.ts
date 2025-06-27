@@ -2,7 +2,7 @@ import './Runners/index.ts'
 import '../lib/index.ts'
 import Log, {ELogLevel} from '../lib/SharedUtils/Log.ts'
 import Bot from './Classes/Bot.ts'
-import JsonStoreHelper from './Helpers/JsonStoreHelper.ts'
+import JsonStore from './Database/JsonStore.ts'
 
 /**
  * Will initialize the bot backend component, this is run by the server.
@@ -12,7 +12,7 @@ import JsonStoreHelper from './Helpers/JsonStoreHelper.ts'
 Log.setOptions({
     logLevel: ELogLevel.Verbose
 })
-JsonStoreHelper.isTesting = false
+JsonStore.isTesting = false
 
 /* Initialization */
 Bot.init().then()

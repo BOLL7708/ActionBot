@@ -8,24 +8,24 @@ import {
     TItemParsed
 } from '../../lib/index.ts'
 import ValueUtils from '../../lib/SharedUtils/ValueUtils.ts'
-import DatabaseSingleton from '../Singletons/DatabaseSingleton.ts'
+import Sqlite from './Sqlite.ts'
 
 export interface IDatabaseQueryKeys {
     where: string[]
     params: IDictionary<TDatabaseQueryInput>
 }
 
-export default class JsonStoreHelper {
+export default class JsonStore {
     static readonly #tag = this.name
     static readonly OBJECT_MAIN_KEY: string = 'Main'
     static isTesting: boolean = false
 
     static testConnection(): boolean {
-        return DatabaseSingleton.get(this.isTesting).test()
+        return Sqlite.get(this.isTesting).test()
     }
 
     static closeConnection() {
-        return DatabaseSingleton.get(this.isTesting).kill()
+        return Sqlite.get(this.isTesting).kill()
     }
 
     // region Json Store
@@ -75,11 +75,11 @@ export default class JsonStoreHelper {
 
     // endregion
     // region Load
-    static loadJsonByGroupAndKey(
+    static loadByGroupAndKey(
         group_class: string,
         group_key: string | string[]
     ): IJsonStore[] | undefined {
-        const db = DatabaseSingleton.get(this.isTesting)
+        const db = Sqlite.get(this.isTesting)
         const queryValues = this.buildQueryValues(
             ['group_class = :group_class'],
             {group_class},
@@ -92,11 +92,11 @@ export default class JsonStoreHelper {
         return db.queryAll({query, params: queryValues.params})
     }
 
-    static loadJsonByRowId(
+    static loadByRowId(
         row_id: number | number[],
         parent_id?: number
     ): IJsonStore[] | undefined {
-        const db = DatabaseSingleton.get(this.isTesting)
+        const db = Sqlite.get(this.isTesting)
         const queryValues = this.buildQueryValues(
             [],
             {},
@@ -123,10 +123,10 @@ export default class JsonStoreHelper {
      * Will insert or update an entry, matching either the group values or a specific row ID.
      * @param input
      */
-    static saveJson(
+    static save(
         input: IJsonStoreInput
     ): number {
-        const db = DatabaseSingleton.get(this.isTesting)
+        const db = Sqlite.get(this.isTesting)
         let result: number | object | undefined
         if (typeof input.row_id === 'number') {
             // Update
@@ -166,12 +166,12 @@ export default class JsonStoreHelper {
      * @param group_key
      * @param parent_id
      */
-    static deleteJsonByGroupAndKey(
+    static deleteByGroupAndKey(
         group_class: string,
         group_key: string | string[],
         parent_id?: number
     ): number {
-        const db = DatabaseSingleton.get(this.isTesting)
+        const db = Sqlite.get(this.isTesting)
         const queryValues = this.buildQueryValues(
             ['group_class = :group_class'],
             {group_class},
@@ -186,11 +186,11 @@ export default class JsonStoreHelper {
         return typeof result === 'number' ? result : -1
     }
 
-    static deleteJsonById(
+    static deleteByRowId(
         row_id: number | number[],
         parent_id?: number
     ): number {
-        const db = DatabaseSingleton.get(this.isTesting)
+        const db = Sqlite.get(this.isTesting)
         const queryValues = this.buildQueryValues(
             [],
             {},
@@ -210,18 +210,21 @@ export default class JsonStoreHelper {
 
     // region Convenience Actions
     /** Will load one item as well as all items referenced inside that item, propagating recursively. */
-    static loadJsonAndItemsByGroupAndKey(
+    static loadWithChildrenByGroupAndKey(
         group_class: string,
         group_key: string
     ): IDictionary<IJsonStoreDecoded> {
-        const rootItem = this.loadJsonByGroupAndKey(group_class, group_key)?.pop()
+        const rootItem = this.loadByGroupAndKey(group_class, group_key)?.pop()
         if (rootItem === undefined) return {}
         return this.#recursiveItemLoader(rootItem)
     }
 
     /** Will load one item as well as all items referenced inside that item, propagating recursively. */
-    static loadJsonAndItemsByRowId(row_id: number, parent_id?: number): IDictionary<IJsonStoreDecoded> {
-        const rootItem = this.loadJsonByRowId(row_id, parent_id)?.pop()
+    static loadWithChildrenByRowId(
+        row_id: number,
+        parent_id?: number
+    ): IDictionary<IJsonStoreDecoded> {
+        const rootItem = this.loadByRowId(row_id, parent_id)?.pop()
         if (rootItem === undefined) return {}
         return this.#recursiveItemLoader(rootItem)
     }
@@ -252,7 +255,7 @@ export default class JsonStoreHelper {
         }
 
         let result: IDictionary<IJsonStoreDecoded> = {[`id_${rootItem.row_id}`]: {jsonObj, jsonStore: rootItem}}
-        const children = this.loadJsonByRowId(
+        const children = this.loadByRowId(
             childrenIds.filter(id => !loadedIds.includes(id))
         ) ?? []
         for (const child of children) {

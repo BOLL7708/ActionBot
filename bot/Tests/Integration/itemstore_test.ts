@@ -5,8 +5,8 @@ import ItemStore from '../../Database/ItemStore.ts'
 import JsonStore from '../../Database/JsonStore.ts'
 import TestUtils from '../../Utils/TestUtils.ts'
 
-Deno.test('init', async () => {
-    await TestUtils.resetDatabases()
+Deno.test('init', () => {
+    TestUtils.truncateDatabase()
     JsonStore.isTesting = true
 })
 

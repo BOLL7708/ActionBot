@@ -10,7 +10,7 @@ export default class ItemHelper {
     // TODO: Handle the conversion to and from data objects here
     //  THIS SHOULD BE CROSS PLATFORM, SO WE CAN RECREATE THINGS FROM DATA OVER WEBSOCKETS! YEAH!
 
-    static recreate<T extends AbstractItem>(items: IDictionary<IJsonStoreDecoded> | IDictionary<IJsonStore> | IJsonStore[]): T | undefined {
+    static recreateWithChildren<T extends AbstractItem>(items: IDictionary<IJsonStoreDecoded> | IDictionary<IJsonStore> | IJsonStore[]): T | undefined {
         // 1. Recreate the whole list of items, fill the private info property
         let rootItem: T | undefined
         const recreatedItems: IDictionary<AbstractItem> = {}

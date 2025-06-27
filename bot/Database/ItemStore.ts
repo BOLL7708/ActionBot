@@ -12,8 +12,8 @@ export default class ItemStore {
         return this.save(item, this.#mainKey)
     }
     static load<T extends AbstractItem>(classConstructor: TClassConstructor<T>, key: string): T {
-        const items = JsonStore.loadWithChildrenByGroupAndKey(classConstructor.name, key)
-        const recreatedItem = ItemHelper.recreate<T>(items)
+        const rootAndChildren = JsonStore.loadWithChildrenByGroupAndKey(classConstructor.name, key)
+        const recreatedItem = ItemHelper.recreateWithChildren<T>(rootAndChildren)
         return recreatedItem ?? new classConstructor()
     }
     static save<T extends AbstractItem>(item: T, key: string): number {

@@ -38,7 +38,7 @@ Deno.test('recreate', () => {
     assert(configId)
 
     const loadedConfig = JsonStore.loadWithChildrenByRowId(configId) ?? []
-    const recreatedConfig = ItemHelper.recreate<ConfigTest>(loadedConfig)
+    const recreatedConfig = ItemHelper.recreateWithChildren<ConfigTest>(loadedConfig)
     assertEquals(configId, recreatedConfig?.__info().rowId ?? 0)
     assertEquals(presetId, ValueUtils.ensureNumber(Object.keys(recreatedConfig?.__children() ?? {})?.pop()))
 })

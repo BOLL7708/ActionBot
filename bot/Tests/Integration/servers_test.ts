@@ -15,7 +15,7 @@ let ws: WebSocketHandler
 const tag = import.meta.filename ?? 'tag'
 
 Deno.test('init', async () => {
-    await TestUtils.resetDatabases()
+    TestUtils.truncateDatabase()
     JsonStore.isTesting = true
 
     // Save server settings that will not conflict with any running dev environment
@@ -47,7 +47,7 @@ Deno.test('auth', async () => {
 
     // Test auth
     const authResponse = await fetch(`http://localhost:${configServer.httpPort}/api/salt`, {
-        headers: { Authorization: `Bearer ${ValueUtils.safeBase64Encode('test')}` }
+        headers: {Authorization: `Bearer ${ValueUtils.safeBase64Encode('test')}`}
     })
     assert(authResponse.ok)
     const json = await authResponse.json()

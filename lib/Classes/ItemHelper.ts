@@ -7,6 +7,9 @@ import {IJsonStore, IJsonStoreDecoded} from '../Types/Database.ts'
 
 export default class ItemHelper {
     static readonly #tag = this.name
+    static readonly #mainKey = 'Main'
+    static get mainKey(): string { return this.#mainKey }
+
     // TODO: Handle the conversion to and from data objects here
     //  THIS SHOULD BE CROSS PLATFORM, SO WE CAN RECREATE THINGS FROM DATA OVER WEBSOCKETS! YEAH!
 

@@ -1,7 +1,7 @@
 import {ConfigCleanText, ConfigSpeech, EventTest, IActionUser, SettingAccumulatingCounter, SettingUser, SettingUserName, SettingUserVoice} from '../../lib/index.ts'
 import ValueUtils from '../../lib/SharedUtils/ValueUtils.ts'
 import {ITwitchEmotePosition} from '../Classes/Data/TwitchFactory.ts'
-import ModulesSingleton from '../Singletons/ModulesSingleton.ts'
+import Modules from '../Singletons/Modules.ts'
 import StatesSingleton from '../Singletons/StatesSingleton.ts'
 import Utils from '../Utils/Utils.ts'
 import ItemStore from '../Database/ItemStore.ts'
@@ -184,7 +184,7 @@ export default class TextHelper {
      */
     static async replaceTagsInText(text: string|undefined, userData?: IActionUser, extraTags: { [key:string]: string } = {}): Promise<string> {
         if(!text) return ''
-        const modules = ModulesSingleton.getInstance()
+        const modules = Modules.get()
         const states = StatesSingleton.getInstance()
 
         // Default tags from incoming user data

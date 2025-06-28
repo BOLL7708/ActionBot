@@ -3,13 +3,13 @@ import {AbstractItem, TClassConstructor} from '../../lib/index.ts'
 import JsonStore from './JsonStore.ts'
 
 export default class ItemStore {
-    static readonly #mainKey: string = 'Main'
+
 
     static loadMain<T extends AbstractItem>(classConstructor: TClassConstructor<T>): T {
-        return this.load(classConstructor, this.#mainKey)
+        return this.load(classConstructor, ItemHelper.mainKey)
     }
     static saveMain<T extends AbstractItem>(item: T): number {
-        return this.save(item, this.#mainKey)
+        return this.save(item, ItemHelper.mainKey)
     }
     static load<T extends AbstractItem>(classConstructor: TClassConstructor<T>, key: string): T {
         const rootAndChildren = JsonStore.loadWithChildrenByGroupAndKey(classConstructor.name, key)

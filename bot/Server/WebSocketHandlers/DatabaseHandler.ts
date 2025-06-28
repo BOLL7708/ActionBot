@@ -16,6 +16,7 @@ export default class DatabaseHandler extends AbstractWebSocketHandler {
                 Log.w(this.TAG, 'Received unknown action', {message: request, session})
                 break
             case 'load': {
+                // Load from database
                 let data: IJsonStore[]|undefined = []
                 if(request.groupClass) {
                     if(request.groupKey) {
@@ -27,6 +28,8 @@ export default class DatabaseHandler extends AbstractWebSocketHandler {
                     data = JsonStore.loadByRowId(request.rowId, request.parentId)
                 }
                 Log.i(this.TAG, 'DatabaseMessage', {data})
+
+                // Build response
                 if(data) {
                     const response = new DatabaseResponse()
                     response.messageId = request.messageId

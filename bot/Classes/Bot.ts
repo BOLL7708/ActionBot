@@ -6,6 +6,7 @@ import ItemStore from '../Database/ItemStore.ts'
 import HttpHandler from '../Server/HttpHandler.ts'
 import WebSocketHandler from '../Server/WebSocketHandler.ts'
 import { promptSecret } from 'jsr:@std/cli'
+import Modules from '../Singletons/Modules.ts'
 import exit = Deno.exit
 
 type TPromptOptions = {
@@ -47,7 +48,6 @@ export default class Bot {
             }
             return value
         }
-
 
         console.log('%c╔══════════════════════════════╗', 'color: red;')
         console.log('%c║   ╔═╗╔═╗╔╦╗╦╔═╗╔╗╔╔╗ ╔═╗╔╦╗  ║', 'color: orange;')
@@ -97,10 +97,10 @@ export default class Bot {
         // Launch servers
         printTitle('Servers')
         console.log('Hosting is done on 0.0.0.0 which means any host or interface.')
+        console.log(`HTTP port: ${server.httpPort}, WebSocket port: ${server.webSocketPort}`)
         Log.setLogLevel(ELogLevel.Warning)
-        const http = new HttpHandler()
-        const ws = new WebSocketHandler()
+        Modules.get()
 
-        Log.setLogLevel(ELogLevel.Debug)
+        // Log.setLogLevel(ELogLevel.Debug)
     }
 }

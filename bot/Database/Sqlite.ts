@@ -15,6 +15,7 @@ export default class Sqlite {
      */
     static get(isTest: boolean = false): Sqlite {
         if (!this.#instance || !this.#instance.#db.open) {
+            this.#isInternal = true
             this.#instance = new Sqlite(isTest)
         }
         return this.#instance
@@ -23,18 +24,21 @@ export default class Sqlite {
     // region Lifecycle
     readonly #dbPath: string
     #db: Database
-
     #tag = this.constructor.name
+    static #isInternal: boolean = false
 
     private constructor(isTest: boolean = false) {
+        if(!Sqlite.#isInternal) throw new TypeError('Class is not directly constructable.')
+        Sqlite.#isInternal = false
+
         const dir = '../_user/db'
         Deno.mkdirSync(dir, {recursive: true})
         const file = isTest ? 'test.sqlite' : 'main.sqlite'
         this.#dbPath = `${dir}/${file}`
-        this.#db = this.create(this.#dbPath)
+        this.#db = this.#create(this.#dbPath)
     }
 
-    private create(filePath: string): Database {
+    #create(filePath: string): Database {
         const db = new Database(filePath, {
             int64: true,
             unsafeConcurrency: true
@@ -67,7 +71,7 @@ export default class Sqlite {
      */
     reconnect() {
         this.kill()
-        this.#db = this.create(this.#dbPath)
+        this.#db = this.#create(this.#dbPath)
     }
 
     /**

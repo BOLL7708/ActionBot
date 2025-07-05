@@ -19,7 +19,7 @@ export default class WebSocketHandler {
     private readonly _server: WebSocketServer
 
     constructor() {
-        const config = ItemStore.loadMain(ConfigServer)
+        const config = ItemStore.do.loadMain(ConfigServer)
         this._server = new WebSocketServer({
             name: 'Central Server',
             port: config.webSocketPort,
@@ -27,7 +27,7 @@ export default class WebSocketHandler {
             keepAlive: true,
             onMessageReceived: (messageStr, session) => {
                 const [protocol, passwordHash] = session.subprotocols
-                const auth = ItemStore.loadMain(ConfigAuth)
+                const auth = ItemStore.do.loadMain(ConfigAuth)
                 if (passwordHash !== auth.passwordHash) {
                     this._server.sendMessage(
                         'Password mismatch',
@@ -60,7 +60,7 @@ export default class WebSocketHandler {
             onServerEvent: (state, value, session) => {
                 if (session && state === EWebSocketServerState.ClientConnected) {
                     const [_protocol, passwordHash] = session.subprotocols
-                    const auth = ItemStore.loadMain(ConfigAuth)
+                    const auth = ItemStore.do.loadMain(ConfigAuth)
                     if (passwordHash !== auth.passwordHash) {
                         this._server.disconnectSession(session.sessionId, StatusCodes.WebSocketBadPassword)
                     }

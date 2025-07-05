@@ -57,7 +57,7 @@ Deno.test('save & load', async (t) => {
             JsonStore.save({
                 group_class: ActionTest.name,
                 group_key: `actionSystem-${i}`,
-                json_blob: JSON.stringify(saveMe),
+                json_text: JSON.stringify(saveMe),
                 parent_id: null
             })
         }

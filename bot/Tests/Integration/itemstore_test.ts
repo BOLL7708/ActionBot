@@ -7,7 +7,6 @@ import TestUtils from '../../Utils/TestUtils.ts'
 
 Deno.test('init', () => {
     TestUtils.truncateDatabase()
-    JsonStore.isTesting = true
 })
 
 Deno.test('simple data reinstantiation', () => {
@@ -25,13 +24,13 @@ Deno.test('complex data reinstantiation', () => {
     const data = new ConfigTest()
     const preset = new PresetTest()
     preset.value = 'A test is ongoing!'
-    const presetId = ItemStore.saveMain(preset) ?? ''
+    const presetId = ItemStore.do.saveMain(preset) ?? ''
 
     data.singleReference = presetId
     data.singleString = 'ThisIsNotSub'
-    ItemStore.saveMain(data) // TODO: This can explode when tests are run in batch, but fine solo... ?
+    ItemStore.do.saveMain(data)
 
-    const data2 = ItemStore.loadMain<ConfigTest>(ConfigTest)
+    const data2 = ItemStore.do.loadMain<ConfigTest>(ConfigTest)
     assertEquals(data, data2)
     assertEquals(data2.singleReference, presetId)
     const preset2 = new PresetTest()

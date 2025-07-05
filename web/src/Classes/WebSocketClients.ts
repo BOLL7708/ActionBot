@@ -1,13 +1,15 @@
 import DatabaseResponse from '../../../lib/Messages/WebSocket/Database/Outbound/DatabaseResponse.ts'
+import Log from '../../../lib/SharedUtils/Log.ts'
 import ValueUtils from '../../../lib/SharedUtils/ValueUtils.ts'
 import WebSocketClient from '../../../lib/SharedUtils/WebSocketClient.js'
 import Constants from './Constants.js'
 import StorageHelper from './StorageHelper.js'
 
-export default class WebSocketFactory {
-    static _databaseClient: WebSocketClient|undefined = undefined
-    static getDatabaseClient(): WebSocketClient {
-        if(this._databaseClient) return this._databaseClient
+export default class WebSocketClients {
+    static #tag = this.name
+    static #databaseClient: WebSocketClient|undefined = undefined
+    static get database(): WebSocketClient {
+        if(this.#databaseClient) return this.#databaseClient
 
         const passwordHash = StorageHelper.get('pwd-hash') ?? ''
         const port = StorageHelper.get('ws-port') ?? Constants.DEFAULT_WS_PORT
@@ -16,8 +18,10 @@ export default class WebSocketFactory {
             clientName: 'Database Client',
             serverUrl: `ws://${host}:${port}`,
             subprotocolValues: ['database', passwordHash],
+            messageQueueing: true,
+            messageMaxQueueSeconds: 10, // This should be generous as this ought to be a local request.
             onOpen: () => {
-                console.log('WebSocket connection opened for database client.')
+                Log.i(this.#tag, 'WebSocket connection opened for database client.')
             },
             onMessage: (message) => {
                 const response = new DatabaseResponse().__apply(message.data)
@@ -26,13 +30,12 @@ export default class WebSocketFactory {
                 }
             },
             onError: (error) => {
-                console.error('WebSocket error:', error)
+                Log.e(this.#tag, 'WebSocket error:', error)
             },
             onClose: () => {
-                console.log('WebSocket connection closed for database client.')
+                Log.i(this.#tag, 'WebSocket connection closed for database client.')
             }
         })
-        this._databaseClient = wsc
-        return wsc
+        return this.#databaseClient = wsc
     }
 }

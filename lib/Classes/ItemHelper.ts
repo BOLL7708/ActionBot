@@ -25,7 +25,7 @@ export default class ItemHelper {
                 itemData = (item as IJsonStoreDecoded).jsonObj
             } else {
                 jsonStore = (item as IJsonStore)
-                itemData = (item as IJsonStore).json_blob
+                itemData = (item as IJsonStore).json_text
             }
             const className = jsonStore.group_class
             const id = jsonStore.row_id
@@ -66,4 +66,12 @@ export default class ItemHelper {
         const instance = new constructor()
         return instance.__apply(jsonObj)
     }
+}
+
+export abstract class AbstractItemHelper {
+    abstract load<T extends AbstractItem>(classConstructor: TClassConstructor<T>, keyOrId: string): T|Promise<T>
+    abstract save<T extends AbstractItem>(item: T, keyOrParentId: string|number): number|Promise<number>
+    abstract loadMain<T extends AbstractItem>(classConstructor: TClassConstructor<T>): T|Promise<T>
+    abstract saveMain<T extends AbstractItem>(item: T): number|Promise<number>
+    abstract delete(rowId: number): number|Promise<number>
 }

@@ -7,8 +7,10 @@ import {
     TDatabaseQueryInput,
     TItemParsed
 } from '../../lib/index.ts'
+import Log from '../../lib/SharedUtils/Log.ts'
 import ValueUtils from '../../lib/SharedUtils/ValueUtils.ts'
-import Sqlite from './Sqlite.ts'
+import FileUtils from '../DenoUtils/FileUtils.ts'
+import Sqlite from '../DenoUtils/Sqlite.ts'
 
 export interface IDatabaseQueryKeys {
     where: string[]
@@ -19,13 +21,29 @@ export default class JsonStore {
     static readonly #tag = this.name
     static readonly OBJECT_MAIN_KEY: string = 'Main'
     static isTesting: boolean = false
+    static #db: Sqlite|undefined
+    static get #do():Sqlite {
+        if(!this.#db) {
+            const directory = '../_user/db'
+            Deno.mkdirSync(directory, { recursive: true })
+            const filename = this.isTesting ? 'test.sqlite' : 'main.sqlite'
+            this.#db = new Sqlite({
+                name: this.OBJECT_MAIN_KEY,
+                directory,
+                filename,
+                loggingProxy: Log,
+                structure: {json_store: [FileUtils.loadTextFile('../sql/structure.sql') ?? '']}
+            })
+        }
+        return this.#db
+    }
 
     static testConnection(): boolean {
-        return Sqlite.get(this.isTesting).test()
+        return this.#do.test()
     }
 
     static closeConnection() {
-        return Sqlite.get(this.isTesting).kill()
+        return this.#do.kill()
     }
 
     // region Json Store
@@ -79,7 +97,6 @@ export default class JsonStore {
         group_class: string,
         group_key: string | string[]
     ): IJsonStore[] | undefined {
-        const db = Sqlite.get(this.isTesting)
         const queryValues = this.buildQueryValues(
             ['group_class = :group_class'],
             {group_class},
@@ -89,14 +106,13 @@ export default class JsonStore {
         const query = `SELECT *
                        FROM json_store
                        WHERE ${queryValues.where.join(' AND ')};`
-        return db.queryAll({query, params: queryValues.params})
+        return this.#do.queryAll({query, params: queryValues.params})
     }
 
     static loadByRowId(
         row_id: number | number[],
         parent_id?: number
     ): IJsonStore[] | undefined {
-        const db = Sqlite.get(this.isTesting)
         const queryValues = this.buildQueryValues(
             [],
             {},
@@ -107,7 +123,7 @@ export default class JsonStore {
         const query = `SELECT *
                        FROM json_store
                        WHERE ${queryValues.where.join(' AND ')};`
-        return db.queryAll({query, params: queryValues.params})
+        return this.#do.queryAll({query, params: queryValues.params})
     }
 
     // // TODO: Possibly respect wildcards in incoming string, and do not add it by default?
@@ -126,17 +142,16 @@ export default class JsonStore {
     static save(
         input: IJsonStoreInput
     ): number {
-        const db = Sqlite.get(this.isTesting)
         let result: number | object | undefined
         if (typeof input.row_id === 'number') {
             // Update
-            result = db.queryValue({
+            result = this.#do.queryValue({
                 query: `
                     UPDATE json_store
                     SET group_class = :group_class,
                         group_key   = :group_key,
                         parent_id   = :parent_id,
-                        json_blob   = :json_blob
+                        json_text   = :json_text
                     WHERE row_id = :row_id
                     RETURNING row_id;
                 `,
@@ -144,12 +159,12 @@ export default class JsonStore {
             })
         } else {
             // Upsert
-            result = db.queryValue({
+            result = this.#do.queryValue({
                 query: `
-                    INSERT INTO json_store (group_class, group_key, parent_id, json_blob)
-                    VALUES (:group_class, :group_key, :parent_id, :json_blob)
+                    INSERT INTO json_store (group_class, group_key, parent_id, json_text)
+                    VALUES (:group_class, :group_key, :parent_id, :json_text)
                     ON CONFLICT DO UPDATE SET parent_id=:parent_id,
-                                              json_blob=:json_blob
+                                              json_text=:json_text
                     RETURNING row_id;
                 `,
                 params: input
@@ -171,7 +186,6 @@ export default class JsonStore {
         group_key: string | string[],
         parent_id?: number
     ): number {
-        const db = Sqlite.get(this.isTesting)
         const queryValues = this.buildQueryValues(
             ['group_class = :group_class'],
             {group_class},
@@ -182,7 +196,7 @@ export default class JsonStore {
         const query = `DELETE
                        FROM json_store
                        WHERE ${queryValues.where.join(' AND ')};`
-        const result = db.queryRun({query, params: queryValues.params})
+        const result = this.#do.queryRun({query, params: queryValues.params})
         return typeof result === 'number' ? result : -1
     }
 
@@ -190,7 +204,6 @@ export default class JsonStore {
         row_id: number | number[],
         parent_id?: number
     ): number {
-        const db = Sqlite.get(this.isTesting)
         const queryValues = this.buildQueryValues(
             [],
             {},
@@ -201,8 +214,17 @@ export default class JsonStore {
         const query = `DELETE
                        FROM json_store
                        WHERE ${queryValues.where.join(' AND ')};`
-        const result = db.queryRun({query, params: queryValues.params})
+        const result = this.#do.queryRun({query, params: queryValues.params})
         return typeof result === 'number' ? result : -1
+    }
+
+    static deleteAll(): boolean {
+        if(this.isTesting) {
+            return !!this.#do.queryRun({query: 'DELETE FROM json_store WHERE 1;'})
+        } else {
+            Log.w(this.#tag, 'Blocked attempt to delete all data as we are not testing.')
+            return false
+        }
     }
 
     // endregion
@@ -242,7 +264,7 @@ export default class JsonStore {
         const itemMeta = ItemMap.get(rootItem.group_class)
         if (itemMeta === undefined) return {}
 
-        const jsonObj = ValueUtils.safeJsonParse<TItemParsed>(rootItem.json_blob)
+        const jsonObj = ValueUtils.safeJsonParse<TItemParsed>(rootItem.json_text)
         if (jsonObj === undefined) return {}
 
         const childrenIds: number[] = []

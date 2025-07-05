@@ -22,7 +22,7 @@ export default class HttpHandler {
     private _fakeSaltCache: IFakeSaltItem[] = []
     constructor() {
         const TAG = this.constructor.name
-        const config = ItemStore.loadMain(ConfigServer)
+        const config = ItemStore.do.loadMain(ConfigServer)
         this._server = new HttpServer({
             name: 'Static Files',
             port: config.httpPort,
@@ -50,7 +50,7 @@ export default class HttpHandler {
                                     const response: IErrorResponse = { error: 'Invalid bearer value' }
                                     return response
                                 }
-                                const configAuth = ItemStore.loadMain(ConfigAuth)
+                                const configAuth = ItemStore.do.loadMain(ConfigAuth)
                                 if(username == configAuth.username) {
                                     // We have a match, use real salt
                                     Log.i(TAG, 'Using real salt for', username)

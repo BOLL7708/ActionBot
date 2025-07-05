@@ -56,8 +56,8 @@ export default class Bot {
         console.log('%c╚══════════════════════════════╝', 'color: cyan;')
         console.log('%c Thanks for choosing ActionBot', 'color: blue;')
         console.log('%c  From: https://actionbot.app`', 'color: violet;')
-        const auth = ItemStore.loadMain(ConfigAuth)
-        const server = ItemStore.loadMain(ConfigServer)
+        const auth = ItemStore.do.loadMain(ConfigAuth)
+        const server = ItemStore.do.loadMain(ConfigServer)
         const authNotSet = ValueUtils.isEmpty(auth.username) ||
             ValueUtils.isEmpty(auth.passwordHash) ||
             ValueUtils.isEmpty(auth.passwordSalt)
@@ -75,7 +75,7 @@ export default class Bot {
             auth.username = username
             auth.passwordHash = await ValueUtils.hashPassword(password, salt, true)
             auth.passwordSalt = ValueUtils.encodeBytes(salt, true)
-            ItemStore.saveMain(auth)
+            ItemStore.do.saveMain(auth)
 
             printTitle('Hosting')
             console.log('Optionally change the ports for the server components.')
@@ -83,7 +83,7 @@ export default class Bot {
             const newWebSocketPort = promptUntilOk({message: '  WebSocket Port:', defaultValue: '7712', verifyNumber: true})
             if (!ValueUtils.isBlank(newHttpPort)) server.httpPort = parseInt(newHttpPort)
             if (!ValueUtils.isBlank(newWebSocketPort)) server.webSocketPort = parseInt(newWebSocketPort)
-            const key = ItemStore.saveMain(server)
+            const key = ItemStore.do.saveMain(server)
             if (!ValueUtils.isBlank(key)) {
                 printTitle('Setup Complete')
                 console.log('Server configuration was successfully saved to the database.')
@@ -96,9 +96,8 @@ export default class Bot {
 
         // Launch servers
         printTitle('Servers')
-        console.log('Hosting is done on 0.0.0.0 which means any host or interface.')
-        console.log(`HTTP port: ${server.httpPort}, WebSocket port: ${server.webSocketPort}`)
-        Log.setLogLevel(ELogLevel.Warning)
+        console.log('Hosting on 0.0.0.0 which means any host or interface.')
+        console.log(`Ports used: HTTP = ${server.httpPort}, WebSocket = ${server.webSocketPort}`)
         Modules.get()
 
         // Log.setLogLevel(ELogLevel.Debug)

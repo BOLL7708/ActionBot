@@ -1,27 +1,68 @@
-import ItemHelper from '../../lib/Classes/ItemHelper.ts'
-import {AbstractItem, TClassConstructor} from '../../lib/index.ts'
+import ItemHelper, {AbstractItemHelper} from '../../lib/Classes/ItemHelper.ts'
+import {AbstractItem, IDictionary, IJsonStoreDecoded, IJsonStoreInput, TClassConstructor} from '../../lib/index.ts'
 import JsonStore from './JsonStore.ts'
 
-export default class ItemStore {
+export default class ItemStore implements AbstractItemHelper {
+    static #instance: ItemStore | undefined
+    static #isInternal: boolean = false
 
+    /**
+     * This is a singleton only due to implementing abstract methods, which cannot be static.
+     */
+    static get do(): ItemStore {
+        if (this.#instance == undefined) {
+            this.#isInternal = true
+            this.#instance = new ItemStore()
+        }
+        return this.#instance
+    }
 
-    static loadMain<T extends AbstractItem>(classConstructor: TClassConstructor<T>): T {
-        return this.load(classConstructor, ItemHelper.mainKey)
+    private constructor() {
+        if (!ItemStore.#isInternal) throw new TypeError('Class is not constructable.')
+        ItemStore.#isInternal = false
     }
-    static saveMain<T extends AbstractItem>(item: T): number {
-        return this.save(item, ItemHelper.mainKey)
-    }
-    static load<T extends AbstractItem>(classConstructor: TClassConstructor<T>, key: string): T {
-        const rootAndChildren = JsonStore.loadWithChildrenByGroupAndKey(classConstructor.name, key)
+
+    load<T extends AbstractItem>(classConstructor: TClassConstructor<T>, keyOrId: string | number): T {
+        let rootAndChildren: IDictionary<IJsonStoreDecoded> = {}
+        switch (typeof keyOrId) {
+            case 'string':
+                rootAndChildren = JsonStore.loadWithChildrenByGroupAndKey(classConstructor.name, keyOrId)
+                break
+            case 'number':
+                rootAndChildren = JsonStore.loadWithChildrenByRowId(keyOrId)
+                break
+        }
         const recreatedItem = ItemHelper.recreateWithChildren<T>(rootAndChildren)
         return recreatedItem ?? new classConstructor()
     }
-    static save<T extends AbstractItem>(item: T, key: string): number {
-        return JsonStore.save({
+
+    save<T extends AbstractItem>(item: T, keyOrParentId: string | number): number {
+        const input: IJsonStoreInput = {
             group_class: item.constructor.name,
-            group_key: key,
+            group_key: null,
             parent_id: null,
-            json_blob: JSON.stringify(item)
-        })
+            json_text: JSON.stringify(item)
+        }
+        switch (typeof keyOrParentId) {
+            case 'string':
+                input.group_key = keyOrParentId
+                break
+            case 'number':
+                input.parent_id = keyOrParentId
+                break
+        }
+        return JsonStore.save(input)
+    }
+
+    loadMain<T extends AbstractItem>(classConstructor: TClassConstructor<T>): T {
+        return this.load(classConstructor, ItemHelper.mainKey)
+    }
+
+    saveMain<T extends AbstractItem>(item: T): number {
+        return this.save(item, ItemHelper.mainKey)
+    }
+
+    delete(rowId: number): number {
+        return JsonStore.deleteByRowId(rowId)
     }
 }

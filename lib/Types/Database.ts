@@ -28,7 +28,7 @@ export interface IJsonStoreInput extends Record<string, TDatabaseQueryInput> {
     /** This is mutually exclusive to group_key */
     parent_id: number|null
     /** Needs to be a valid JSON string */
-    json_blob: string
+    json_text: string
     /** When set, will cause an explicit update. */
     row_id?: number
 }

@@ -2,26 +2,22 @@ import '../../../lib/index.ts'
 import {assert, assertEquals} from '@std/assert'
 import ItemHelper from '../../../lib/Classes/ItemHelper.ts'
 import {ConfigTest, PresetTest} from '../../../lib/index.ts'
-import Log, {ELogLevel} from '../../../lib/SharedUtils/Log.ts'
 import ValueUtils from '../../../lib/SharedUtils/ValueUtils.ts'
 import JsonStore from '../../Database/JsonStore.ts'
 import TestUtils from '../../Utils/TestUtils.ts'
 
 Deno.test('init', () => {
-    Log.setLogLevel(ELogLevel.Verbose)
-    JsonStore.isTesting = true
+    TestUtils.truncateDatabase()
 })
 
 Deno.test('recreate', () => {
-    TestUtils.truncateDatabase()
-
     const preset = new PresetTest()
     preset.value = 'Yes please!'
     const presetId = JsonStore.save({
         group_class: PresetTest.name,
         group_key: 'ChildTest',
         parent_id: null,
-        json_blob: JSON.stringify(preset)
+        json_text: JSON.stringify(preset)
     })
     assert(presetId)
 
@@ -33,7 +29,7 @@ Deno.test('recreate', () => {
         group_class: ConfigTest.name,
         group_key: 'ParentTest',
         parent_id: null,
-        json_blob: JSON.stringify(config)
+        json_text: JSON.stringify(config)
     })
     assert(configId)
 

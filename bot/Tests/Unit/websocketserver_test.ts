@@ -3,13 +3,8 @@ import {assert, assertEquals} from 'jsr:@std/assert'
 import Log from '../../../lib/SharedUtils/Log.ts'
 import WebSocketClient from '../../../lib/SharedUtils/WebSocketClient.ts'
 import WebSocketServer, {EWebSocketServerState} from '../../DenoUtils/WebSocketServer.ts'
-import JsonStore from '../../Database/JsonStore.ts'
 
 const tag = import.meta.filename ?? 'tag'
-
-Deno.test('init', () => {
-    JsonStore.isTesting = true
-})
 
 Deno.test('server + client', async (t) => {
     const subprotocolValues = ['deno.test', 'password12345']

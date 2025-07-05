@@ -16,13 +16,12 @@ const tag = import.meta.filename ?? 'tag'
 
 Deno.test('init', async () => {
     TestUtils.truncateDatabase()
-    JsonStore.isTesting = true
 
     // Save server settings that will not conflict with any running dev environment
     const configServer = new ConfigServer()
     configServer.httpPort = 8079
     configServer.webSocketPort = 7707
-    ItemStore.saveMain(configServer)
+    ItemStore.do.saveMain(configServer)
 
     // Save auth for tests
     const salt = ValueUtils.generateSalt()
@@ -34,12 +33,12 @@ Deno.test('init', async () => {
     config.passwordSalt = saltStr
     config.passwordHash = passwordHash
 
-    const key = ItemStore.saveMain(config)
+    const key = ItemStore.do.saveMain(config)
     assert(key)
 })
 Deno.test('auth', async () => {
     const prr = Promise.withResolvers()
-    const configServer = ItemStore.loadMain(ConfigServer)
+    const configServer = ItemStore.do.loadMain(ConfigServer)
 
     // Launch servers
     http = new HttpHandler()

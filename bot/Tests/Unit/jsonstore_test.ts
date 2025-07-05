@@ -1,14 +1,12 @@
-import {assertFalse} from 'jsr:@std/assert/false'
 import {assert, assertEquals} from 'jsr:@std/assert'
 import '../../../lib/index.ts'
+import {assertFalse} from 'jsr:@std/assert/false'
 import {ConfigExample, ConfigTest, PresetTest} from '../../../lib/index.ts'
-import Log, {ELogLevel} from '../../../lib/SharedUtils/Log.ts'
 import JsonStore from '../../Database/JsonStore.ts'
 import TestUtils from '../../Utils/TestUtils.ts'
 
 Deno.test('init', () => {
-    Log.setLogLevel(ELogLevel.Verbose)
-    JsonStore.isTesting = true
+    TestUtils.truncateDatabase()
 })
 
 Deno.test('single save & load with key, check values', () => {
@@ -18,17 +16,17 @@ Deno.test('single save & load with key, check values', () => {
     const config = new ConfigTest()
     config.singleNumber = 1024
     config.singleString = 'We are testing'
-    const json_blob = JSON.stringify(config)
-    assert(json_blob.length > 0)
+    const json_text = JSON.stringify(config)
+    assert(json_text.length > 0)
     assert(!!JsonStore.save({
         group_key: JsonStore.OBJECT_MAIN_KEY,
         group_class: ConfigTest.name,
-        json_blob: json_blob,
+        json_text: json_text,
         parent_id: null
     }))
     const result = JsonStore.loadByGroupAndKey(ConfigTest.name, JsonStore.OBJECT_MAIN_KEY)
-    const loadedJson = result?.[0].json_blob ?? ''
-    assertEquals(json_blob, loadedJson)
+    const loadedJson = result?.[0].json_text ?? ''
+    assertEquals(json_text, loadedJson)
     const remadeItem = new ConfigTest().__apply(loadedJson)
     assertEquals(config, remadeItem)
     assertEquals(remadeItem.singleNumber, config.singleNumber)
@@ -46,7 +44,7 @@ Deno.test('save & load many with keys and IDs, test failure cases, delete', () =
         const id = JsonStore.save({
             group_key: key,
             group_class: ConfigTest.name,
-            json_blob: JSON.stringify(config),
+            json_text: JSON.stringify(config),
             parent_id: null
         })
         assert(id)
@@ -62,7 +60,7 @@ Deno.test('save & load many with keys and IDs, test failure cases, delete', () =
         const id = JsonStore.save({
             group_key: `Other-${i}`,
             group_class: ConfigExample.name,
-            json_blob: JSON.stringify(other),
+            json_text: JSON.stringify(other),
             parent_id: null
         })
         assert(id)
@@ -101,7 +99,7 @@ Deno.test('parent id, associate child and cascade delete', () => {
     const parent_id = JsonStore.save({
         group_key: JsonStore.OBJECT_MAIN_KEY,
         group_class: ConfigTest.name,
-        json_blob: JSON.stringify(parent),
+        json_text: JSON.stringify(parent),
         parent_id: null
     })
     assert(parent_id)
@@ -109,7 +107,7 @@ Deno.test('parent id, associate child and cascade delete', () => {
     const child_id = JsonStore.save({
         group_key: null,
         group_class: PresetTest.name,
-        json_blob: JSON.stringify(child),
+        json_text: JSON.stringify(child),
         parent_id
     })
     assert(child_id)
@@ -117,7 +115,7 @@ Deno.test('parent id, associate child and cascade delete', () => {
     assert(JsonStore.save({
         group_key: JsonStore.OBJECT_MAIN_KEY,
         group_class: ConfigTest.name,
-        json_blob: JSON.stringify(parent),
+        json_text: JSON.stringify(parent),
         parent_id: null,
         row_id: parent_id
     }))
@@ -144,7 +142,7 @@ Deno.test('convenience actions', () => {
     const childId = JsonStore.save({
         group_key: 'GlobalPreset',
         group_class: PresetTest.name,
-        json_blob: JSON.stringify(child),
+        json_text: JSON.stringify(child),
         parent_id: null
     })
     const parent = new ConfigTest()
@@ -152,7 +150,7 @@ Deno.test('convenience actions', () => {
     const parentId = JsonStore.save({
         group_key: 'Parent',
         group_class: ConfigTest.name,
-        json_blob: JSON.stringify(parent),
+        json_text: JSON.stringify(parent),
         parent_id: null
     })
     const result = JsonStore.loadWithChildrenByGroupAndKey(ConfigTest.name, 'Parent')

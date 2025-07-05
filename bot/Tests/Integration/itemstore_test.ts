@@ -3,13 +3,13 @@ import {assertEquals} from 'jsr:@std/assert'
 import {ConfigAuth, ConfigTest, PresetTest} from '../../../lib/index.ts'
 import ItemStore from '../../Database/ItemStore.ts'
 import JsonStore from '../../Database/JsonStore.ts'
-import TestUtils from '../../Utils/TestUtils.ts'
+import Test from '../../Utils/Test.ts'
 
-Deno.test('init', () => {
-    TestUtils.truncateDatabase()
+Test.run('init', () => {
+    Test.truncateData()
 })
 
-Deno.test('simple data reinstantiation', () => {
+Test.run('simple data reinstantiation', () => {
     const data = new ConfigAuth()
     data.username = 'HELLO'
     data.passwordSalt = 'SALT'
@@ -20,7 +20,7 @@ Deno.test('simple data reinstantiation', () => {
     assertEquals(data, data2)
 })
 
-Deno.test('complex data reinstantiation', () => {
+Test.run('complex data reinstantiation', () => {
     const data = new ConfigTest()
     const preset = new PresetTest()
     preset.value = 'A test is ongoing!'
@@ -38,6 +38,6 @@ Deno.test('complex data reinstantiation', () => {
     assertEquals(preset, preset2)
 })
 
-Deno.test('shut down', () => {
+Test.run('shut down', () => {
     JsonStore.closeConnection()
 })

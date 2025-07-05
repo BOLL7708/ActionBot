@@ -1,7 +1,8 @@
 import {assert, assertEquals} from 'jsr:@std/assert'
 import ValueUtils from '../../../lib/SharedUtils/ValueUtils.ts'
+import Test from '../../Utils/Test.ts'
 
-Deno.test('value utils', async () => {
+Test.run('value utils', async () => {
     const value = 'test value'
 
     // B64

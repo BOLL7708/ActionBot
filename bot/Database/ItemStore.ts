@@ -22,6 +22,7 @@ export default class ItemStore implements AbstractItemHelper {
         ItemStore.#isInternal = false
     }
 
+    // region Base
     load<T extends AbstractItem>(classConstructor: TClassConstructor<T>, keyOrId: string | number): T {
         let rootAndChildren: IDictionary<IJsonStoreDecoded> = {}
         switch (typeof keyOrId) {
@@ -54,6 +55,13 @@ export default class ItemStore implements AbstractItemHelper {
         return JsonStore.save(input)
     }
 
+    delete(rowId: number): number {
+        return JsonStore.deleteByRowId(rowId)
+    }
+
+    // endregion
+
+    // region Convenience
     loadMain<T extends AbstractItem>(classConstructor: TClassConstructor<T>): T {
         return this.load(classConstructor, ItemHelper.mainKey)
     }
@@ -62,7 +70,5 @@ export default class ItemStore implements AbstractItemHelper {
         return this.save(item, ItemHelper.mainKey)
     }
 
-    delete(rowId: number): number {
-        return JsonStore.deleteByRowId(rowId)
-    }
+    // endregion
 }

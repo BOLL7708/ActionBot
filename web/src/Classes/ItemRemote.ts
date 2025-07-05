@@ -11,7 +11,10 @@ export default class ItemRemote implements AbstractItemHelper {
     static #instance: ItemRemote | undefined
     static #isInternal: boolean = false
 
-    static get run(): ItemRemote {
+    /**
+     * This is a singleton only due to implementing abstract methods, which cannot be static.
+     */
+    static get do(): ItemRemote {
         if (this.#instance == undefined) {
             this.#isInternal = true
             this.#instance = new ItemRemote()
@@ -28,6 +31,7 @@ export default class ItemRemote implements AbstractItemHelper {
         this.#db?.init()
     }
 
+    // region Base
     async load<T extends AbstractItem>(classConstructor: TClassConstructor<T>, keyOrId: string | number): Promise<T> {
         if (this.#db === undefined) return new classConstructor()
 
@@ -76,14 +80,6 @@ export default class ItemRemote implements AbstractItemHelper {
         return -1
     }
 
-    async loadMain<T extends AbstractItem>(classConstructor: TClassConstructor<T>): Promise<T> {
-        return await this.load(classConstructor, ItemHelper.mainKey)
-    }
-
-    async saveMain<T extends AbstractItem>(item: T): Promise<number> {
-        return await this.save(item, ItemHelper.mainKey)
-    }
-
     async delete(rowId: number): Promise<number> {
         if (this.#db === undefined) return -1
 
@@ -97,4 +93,17 @@ export default class ItemRemote implements AbstractItemHelper {
         }
         return -1
     }
+
+    // endregion
+
+    // region Convenience
+    async loadMain<T extends AbstractItem>(classConstructor: TClassConstructor<T>): Promise<T> {
+        return await this.load(classConstructor, ItemHelper.mainKey)
+    }
+
+    async saveMain<T extends AbstractItem>(item: T): Promise<number> {
+        return await this.save(item, ItemHelper.mainKey)
+    }
+
+    // endregion
 }

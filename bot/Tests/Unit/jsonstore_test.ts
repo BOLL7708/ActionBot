@@ -3,14 +3,14 @@ import '../../../lib/index.ts'
 import {assertFalse} from 'jsr:@std/assert/false'
 import {ConfigExample, ConfigTest, PresetTest} from '../../../lib/index.ts'
 import JsonStore from '../../Database/JsonStore.ts'
-import TestUtils from '../../Utils/TestUtils.ts'
+import Test from '../../Utils/Test.ts'
 
-Deno.test('init', () => {
-    TestUtils.truncateDatabase()
+Test.run('init', () => {
+    Test.truncateData()
 })
 
-Deno.test('single save & load with key, check values', () => {
-    TestUtils.truncateDatabase()
+Test.run('single save & load with key, check values', () => {
+    Test.truncateData()
     const mainConfigTest = JsonStore.loadByGroupAndKey(ConfigTest.name, JsonStore.OBJECT_MAIN_KEY)
     assertEquals(mainConfigTest, [])
     const config = new ConfigTest()
@@ -32,8 +32,8 @@ Deno.test('single save & load with key, check values', () => {
     assertEquals(remadeItem.singleNumber, config.singleNumber)
     assertEquals(remadeItem.singleString, config.singleString)
 })
-Deno.test('save & load many with keys and IDs, test failure cases, delete', () => {
-    TestUtils.truncateDatabase()
+Test.run('save & load many with keys and IDs, test failure cases, delete', () => {
+    Test.truncateData()
     const config = new ConfigTest()
     const configKeys: string[] = []
     const configIds: number[] = []
@@ -93,8 +93,8 @@ Deno.test('save & load many with keys and IDs, test failure cases, delete', () =
     assertEquals(0, JsonStore.loadByRowId(otherIds)?.length)
 })
 
-Deno.test('parent id, associate child and cascade delete', () => {
-    TestUtils.truncateDatabase()
+Test.run('parent id, associate child and cascade delete', () => {
+    Test.truncateData()
     const parent = new ConfigTest()
     const parent_id = JsonStore.save({
         group_key: JsonStore.OBJECT_MAIN_KEY,
@@ -135,8 +135,8 @@ Deno.test('parent id, associate child and cascade delete', () => {
     assertFalse(JsonStore.loadByRowId(child_id)?.length)
 })
 
-Deno.test('convenience actions', () => {
-    TestUtils.truncateDatabase()
+Test.run('convenience actions', () => {
+    Test.truncateData()
     const child = new PresetTest()
     child.value = 'Testing'
     const childId = JsonStore.save({
@@ -159,6 +159,6 @@ Deno.test('convenience actions', () => {
     // TODO: Is this enough, more?
 })
 
-Deno.test('deinit', () => {
+Test.run('deinit', () => {
     JsonStore.closeConnection()
 })

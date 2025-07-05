@@ -3,10 +3,11 @@ import {assert, assertEquals} from 'jsr:@std/assert'
 import Log from '../../../lib/SharedUtils/Log.ts'
 import WebSocketClient from '../../../lib/SharedUtils/WebSocketClient.ts'
 import WebSocketServer, {EWebSocketServerState} from '../../DenoUtils/WebSocketServer.ts'
+import Test from '../../Utils/Test.ts'
 
 const tag = import.meta.filename ?? 'tag'
 
-Deno.test('server + client', async (t) => {
+Test.run('server + client', async (t) => {
     const subprotocolValues = ['deno.test', 'password12345']
     const r = Promise.withResolvers()
     let resolveCount = 0

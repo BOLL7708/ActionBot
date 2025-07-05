@@ -1,5 +1,5 @@
 import {assert} from 'jsr:@std/assert'
-import {ConfigAuth, ConfigServer} from '../../../lib/index.ts'
+import {ConfigServer} from '../../../lib/index.ts'
 import SystemMessage from '../../../lib/Messages/WebSocket/SystemMessage.ts'
 import Log from '../../../lib/SharedUtils/Log.ts'
 import ValueUtils from '../../../lib/SharedUtils/ValueUtils.ts'
@@ -8,35 +8,22 @@ import ItemStore from '../../Database/ItemStore.ts'
 import JsonStore from '../../Database/JsonStore.ts'
 import HttpHandler from '../../Server/HttpHandler.ts'
 import WebSocketHandler from '../../Server/WebSocketHandler.ts'
-import TestUtils from '../../Utils/TestUtils.ts'
+import Test from '../../Utils/Test.ts'
 
 let http: HttpHandler
 let ws: WebSocketHandler
 const tag = import.meta.filename ?? 'tag'
 
-Deno.test('init', async () => {
-    TestUtils.truncateDatabase()
+Test.run('init', async () => {
+    Test.truncateData()
 
-    // Save server settings that will not conflict with any running dev environment
-    const configServer = new ConfigServer()
-    configServer.httpPort = 8079
-    configServer.webSocketPort = 7707
-    ItemStore.do.saveMain(configServer)
+    const stack = new Error().stack
+    console.log(stack?.includes('DenoTest'), stack)
 
-    // Save auth for tests
-    const salt = ValueUtils.generateSalt()
-    const saltStr = ValueUtils.encodeBytes(salt, true)
-    const password = 'test'
-    const passwordHash = await ValueUtils.hashPassword(password, salt, true)
-    const config = new ConfigAuth()
-    config.username = 'test'
-    config.passwordSalt = saltStr
-    config.passwordHash = passwordHash
-
-    const key = ItemStore.do.saveMain(config)
-    assert(key)
+    const ok = await Test.initializeData()
+    assert(ok)
 })
-Deno.test('auth', async () => {
+Test.run('auth', async () => {
     const prr = Promise.withResolvers()
     const configServer = ItemStore.do.loadMain(ConfigServer)
 

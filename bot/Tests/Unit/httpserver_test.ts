@@ -3,8 +3,9 @@ import {assert, assertEquals} from 'jsr:@std/assert'
 import Log from '../../../lib/SharedUtils/Log.ts'
 import ValueUtils from '../../../lib/SharedUtils/ValueUtils.ts'
 import HttpServer from '../../DenoUtils/HttpServer.ts'
+import Test from '../../Utils/Test.ts'
 
-Deno.test('server', async (t) => {
+Test.run('server', async (t) => {
     const salt = ValueUtils.encodeBytes(ValueUtils.generateSalt())
     const port = 8081
     const httpServer = new HttpServer({

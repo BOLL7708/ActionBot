@@ -69,9 +69,13 @@ export default class ItemHelper {
 }
 
 export abstract class AbstractItemHelper {
+    /** If the keyOrId value is a string, it will be used as a key, if it is a number, it will be used as an id. */
     abstract load<T extends AbstractItem>(classConstructor: TClassConstructor<T>, keyOrId: string): T|Promise<T>
+    /** If the keyOrParentId value is a string, it will be used as a key, if it is a number, it will be used as a parent id. */
     abstract save<T extends AbstractItem>(item: T, keyOrParentId: string|number): number|Promise<number>
+    /** Only deletes on id as every single thing in the database has an id. */
+    abstract delete(rowId: number): number|Promise<number>
+
     abstract loadMain<T extends AbstractItem>(classConstructor: TClassConstructor<T>): T|Promise<T>
     abstract saveMain<T extends AbstractItem>(item: T): number|Promise<number>
-    abstract delete(rowId: number): number|Promise<number>
 }

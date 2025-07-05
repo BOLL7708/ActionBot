@@ -15,11 +15,11 @@ import {
 } from '../../lib/index.ts'
 import ItemStore from '../Database/ItemStore.ts'
 import JsonStore from '../Database/JsonStore.ts'
-import TestUtils from '../Utils/TestUtils.ts'
+import Test from '../Utils/Test.ts'
 
 Deno.test('init', () => {
     EnlistData.run()
-    TestUtils.truncateDatabase()
+    Test.truncateData()
     JsonStore.isTesting = true
 })
 
@@ -30,17 +30,17 @@ Deno.test('init', () => {
 Deno.test('save & load', async (t) => {
     const db = ItemStore
     await t.step('save single', async () => {
-        TestUtils.truncateDatabase()
+        Test.truncateData()
         db.saveMain(new SettingTest())
     })
     await t.step('load single', async () => {
-        TestUtils.truncateDatabase()
+        Test.truncateData()
         const settingTest = db.loadMain(SettingTest)
         assert(settingTest)
         assertEquals(settingTest, new SettingTest())
     })
     await t.step('save main & delete', async () => {
-        TestUtils.truncateDatabase()
+        Test.truncateData()
         const instance = new ConfigTest()
         const savedKey = db.saveMain(instance)
         assert(savedKey)
@@ -50,7 +50,7 @@ Deno.test('save & load', async (t) => {
         assert(item === undefined)
     })
     await t.step('save & load multi', async () => {
-        TestUtils.truncateDatabase()
+        Test.truncateData()
         const c = 10
         const saveMe = new ActionTest()
         for (let i = 0; i < c; i++) {
@@ -79,7 +79,7 @@ Deno.test('save & load', async (t) => {
         assertEquals(allKeys, keys)
     })
     await t.step('update key', () => {
-        TestUtils.truncateDatabase()
+        Test.truncateData()
         const key1 = 'FirstKey', key2 = 'SecondKey'
         db.save(new ActionTest(), key1)
         let result = db.load(new ActionTest(), key1)
@@ -89,7 +89,7 @@ Deno.test('save & load', async (t) => {
         assert(result)
     })
     await t.step('load by ID', () => {
-        TestUtils.truncateDatabase()
+        Test.truncateData()
         const original = new SettingTest('Testing', 100, true)
         const key = db.saveMain(original)
         const id = db.loadId(original.__getClass(), `${key}`)
@@ -106,7 +106,7 @@ Deno.test('save & load', async (t) => {
         assertEquals(compareWithThis, item)
     })
     await t.step('fill sub items', () => {
-        TestUtils.truncateDatabase()
+        Test.truncateData()
         // Create presets and load the row IDs for them
         const childKey = 'Child'
         const setting = new SettingTest()
@@ -131,7 +131,7 @@ Deno.test('save & load', async (t) => {
         assertEquals(item?.data?.setting, id)
     })
     await t.step('get next key', () => {
-        TestUtils.truncateDatabase()
+        Test.truncateData()
         const childInstance = new ActionTest()
 
         db.saveMain(new ConfigTest())
@@ -143,7 +143,7 @@ Deno.test('save & load', async (t) => {
         assertEquals({ key: 'Main Test 1' }, s_key)
     })
     await t.step('get row IDs with labels', () => {
-        TestUtils.truncateDatabase()
+        Test.truncateData()
         const parent = new ConfigTest()
         const parentKey = 'ParentForLabels'
         db.save(parent, parentKey)
@@ -197,7 +197,7 @@ Deno.test('save & load', async (t) => {
         assert(pidNullCount == 5)
     })
     await t.step('classes with counts using wildcard', () => {
-        TestUtils.truncateDatabase()
+        Test.truncateData()
         // Prepare
         const count = 10
         for (let i = 0; i < count; i++) {

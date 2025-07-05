@@ -4,13 +4,13 @@ import ItemHelper from '../../../lib/Classes/ItemHelper.ts'
 import {ConfigTest, PresetTest} from '../../../lib/index.ts'
 import ValueUtils from '../../../lib/SharedUtils/ValueUtils.ts'
 import JsonStore from '../../Database/JsonStore.ts'
-import TestUtils from '../../Utils/TestUtils.ts'
+import Test from '../../Utils/Test.ts'
 
-Deno.test('init', () => {
-    TestUtils.truncateDatabase()
+Test.run('init', () => {
+    Test.truncateData()
 })
 
-Deno.test('recreate', () => {
+Test.run('recreate', () => {
     const preset = new PresetTest()
     preset.value = 'Yes please!'
     const presetId = JsonStore.save({

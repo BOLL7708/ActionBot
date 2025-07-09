@@ -16,10 +16,6 @@ const tag = import.meta.filename ?? 'tag'
 
 Test.run('init', async () => {
     Test.truncateData()
-
-    const stack = new Error().stack
-    console.log(stack?.includes('DenoTest'), stack)
-
     const ok = await Test.initializeData()
     assert(ok)
 })

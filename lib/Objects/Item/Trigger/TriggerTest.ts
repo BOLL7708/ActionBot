@@ -8,6 +8,6 @@ import {AbstractTrigger} from './AbstractTrigger.ts'
 @Tag('Trigger')
 export class TriggerTest extends AbstractTrigger {
     @About('A single setting')
-    @Item(SettingTest.ref.id)
+    @Item(SettingTest.ref)
     setting: number = 0
 }

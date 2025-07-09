@@ -31,12 +31,12 @@ type TDataTypes =
  *
  */
 export abstract class AbstractItem {
-    /* We allow properties of these types */
-    [key: string]: TDataTypes
+    /* We allow fields of these types */
+    [key: string]: NonNullable<TDataTypes>
 
     readonly #tag = 'AbstractItem'
 
-    /* Private property filled with values from the database */
+    /* Private fields filled with values from the database */
     #info: IItemInfo = {
         rowId: 0,
         rowCreated: undefined,
@@ -68,52 +68,62 @@ export abstract class AbstractItem {
         return new ItemTypeBuilder(this.name, !!this.name.match(/^abstract/i))
     }
 
-    /** Apply JSON data to an object */
+    /** Apply JSON or JSON derived data to an object */
     __apply(input: string | TItemParsed): typeof this {
         // Skip if no input
         if (ValueUtils.isBlank(input)) {
             Log.w(this.#tag, 'Input was blank.')
             return this
         }
+
         // Parse if input was a string
         if (typeof input === 'string') {
             const jsonResult = ValueUtils.safeJsonParse<TItemParsed>(input)
             if (jsonResult && typeof jsonResult === 'object') input = jsonResult
             else Log.w(this.#tag, 'Input was string but not JSON.', {input})
         }
+
         // Check if we can use the result
         if (
-            typeof input !== 'object'
-            || Array.isArray(input)
+            Array.isArray(input)
+            || typeof input !== 'object'
         ) {
-            Log.w(this.#tag, 'The parsed input is not an object or an array object.', typeof input)
+            Log.w(this.#tag, 'The parsed input is an array object or not an object.', typeof input)
             return this
         }
+
         // Map the values from input to this instance
+        const allowedTypes = [typeof false, typeof 0, typeof ''] as string[]
         const keys = [...new Set([
             ...Object.keys(this),
             ...Object.keys(Object.getPrototypeOf(this))
         ])]
+        const keysMap = ValueUtils.getCaseMap(keys)
+        const keysLowerCase = Object.keys(keysMap)
         const inputKeys = Object.keys(input)
-        const allowedTypes = [typeof false, typeof 0, typeof ''] as string[]
-        for (const key of keys) {
+        const inputKeysMap = ValueUtils.getCaseMap(inputKeys)
+        const inputKeysLowerCase = Object.keys(inputKeysMap)
+        for (const keyLowerCase of keysLowerCase) {
             // The input property must exist on the instance.
-            if (!inputKeys.includes(key)) {
+            if (!inputKeysLowerCase.includes(keyLowerCase)) {
                 continue
             }
+            const key = keysMap[keyLowerCase]
+            const inputKey = inputKeysMap[keyLowerCase]
+
             // Input value must not be null nor undefined.
-            if (input[key] === null || input[key] === undefined) {
-                Log.v(this.#tag, 'Skipped due to input being null or undefined:', key, input[key])
+            if (input[inputKey] === null || input[inputKey] === undefined) {
+                Log.v(this.#tag, 'Skipped due to input being null or undefined:', key, input[inputKey])
                 continue
             }
             // Types between input and instance properties must match each other.
-            if (typeof this[key] !== typeof input[key]) {
+            if (typeof this[key] !== typeof input[inputKey]) {
                 // We try to convert here because JavaScript can put string values from inputs into number fields on a class, annoyingly.
-                const newInput = ValueUtils.tryToMatchTypes(this[key], input[key])
+                const newInput = ValueUtils.tryToMatchTypes(this[key], input[inputKey])
                 if (newInput !== undefined) {
-                    input[key] = newInput
+                    input[inputKey] = newInput
                 } else {
-                    Log.v(this.#tag, 'Skipped due being the wrong type:', key, input[key])
+                    Log.v(this.#tag, 'Skipped due being the wrong type:', key, input[inputKey])
                     continue
                 }
             }
@@ -122,22 +132,22 @@ export abstract class AbstractItem {
             // values are simply applied naively, we just filter on allowed types.
 
             // Arrays are checked explicitly as they are also objects but should be handled differently.
-            if (Array.isArray(this[key]) && Array.isArray(input[key])) {
-                this[key] = input[key].filter(item => allowedTypes.includes(typeof item))
+            if (Array.isArray(this[key]) && Array.isArray(input[inputKey])) {
+                this[key] = input[inputKey].filter(item => allowedTypes.includes(typeof item))
             }
 
             // Object values are also filtered on allowed primitives, where numbers can also be references.
-            else if (typeof input[key] === 'object' && input[key] !== null) {
+            else if (typeof input[inputKey] === 'object' && input[inputKey] !== null) {
                 this[key] = Object.fromEntries(
-                    Object.entries(input[key])
+                    Object.entries(input[inputKey])
                         .filter(([_key, value]) => allowedTypes.includes(typeof value))
                 )
             }
 
             // Primitives are applied
-            else if (allowedTypes.includes(typeof input[key])) {
-                this[key] = input[key] as TDataTypes
-            } else Log.w(this.#tag, `Unable to apply ${key} to instance, value:`, input[key])
+            else if (allowedTypes.includes(typeof input[inputKey])) {
+                this[key] = input[inputKey] as TDataTypes
+            } else Log.w(this.#tag, `Unable to apply ${key} to instance, value:`, input[inputKey])
         }
         return this
     }

@@ -63,6 +63,7 @@ export function Tag(text: string): TClassDecorator {
 // region Main Data
 export function Item(typeBuilder: ItemTypeBuilder | AbstractTypeBuilder): TClassFieldDecorator {
     return (_value, context) => {
+        Primitive(_value, context)
         const metadata = getMetadataObject<IItemMeta>(context)
         const name = context.name.toString()
         metadata.fieldTypes ??= {}
@@ -75,6 +76,7 @@ export function Item(typeBuilder: ItemTypeBuilder | AbstractTypeBuilder): TClass
 
 export function Option(typeBuilder: OptionTypeBuilder): TClassFieldDecorator {
     return (_value, context) => {
+        Primitive(_value, context)
         const metadata = getMetadataObject<IItemMeta>(context)
         const name = context.name.toString()
         metadata.fieldTypes ??= {}
@@ -87,6 +89,7 @@ export function Option(typeBuilder: OptionTypeBuilder): TClassFieldDecorator {
 
 export function Value(typeBuilder: StringTypeBuilder | NumberTypeBuilder | BooleanTypeBuilder): TClassFieldDecorator {
     return (_value, context) => {
+        Primitive(_value, context)
         const metadata = getMetadataObject<IItemMeta>(context)
         const name = context.name.toString()
         metadata.fieldTypes ??= {}
@@ -95,6 +98,43 @@ export function Value(typeBuilder: StringTypeBuilder | NumberTypeBuilder | Boole
         metadata.fields ??= {}
         metadata.fields[name] = typeBuilder.out
     }
+}
+
+/**  */
+export function Primitive<This, Value>(_value: undefined, context: ClassFieldDecoratorContext<This, Value>) {
+    context.addInitializer(function(this: This) {
+        const descriptor = Object.getOwnPropertyDescriptor(this, context.name)
+        if(!descriptor || typeof descriptor.value === 'undefined') return
+
+        const initialValue = descriptor.value
+        let expectedType: string | undefined
+        if(initialValue !== undefined && initialValue !== null) {
+            const type = typeof initialValue
+            if(['string', 'number', 'boolean'].includes(type)) {
+                expectedType = type
+            }
+        }
+        if(!expectedType) return
+
+        let currentValue = initialValue
+        Object.defineProperty(this, context.name, {
+            get: ()=>{
+                return currentValue
+            },
+            set: (value: Value) => {
+                if(value !== undefined && value !== null) {
+                    const actualType = typeof value
+                    if (actualType !== expectedType) {
+                        Log.e(String(context.name), `Primitive Decorator: Type ${actualType} should have been ${expectedType}, skipping assignment.`)
+                    } else {
+                        currentValue = value
+                    }
+                }
+            },
+            enumerable: descriptor.enumerable,
+            configurable: descriptor.configurable
+        })
+    })
 }
 
 // endregion

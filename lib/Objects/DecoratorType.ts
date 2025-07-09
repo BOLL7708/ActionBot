@@ -38,15 +38,10 @@ export class ItemTypeBuilder implements ITypeBuilder {
             this.#type.className = className
         }
         this.#type.isItem = true
+        this.#type.primitive = 'number' // We default to id due to that being the common use
     }
 
-    /** Will reference the database entry by rowId */
-    get id(): ItemTypeBuilder {
-        this.#type.primitive = 'number'
-        return this
-    }
-
-    /** Will reference the database entry by groupKey */
+    /** Will reference the database entry by group key instead of row id */
     get key(): ItemTypeBuilder {
         this.#type.primitive = 'string'
         return this

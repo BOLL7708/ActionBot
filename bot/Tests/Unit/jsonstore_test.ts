@@ -147,7 +147,7 @@ Test.run('convenience actions', () => {
     })
     const parent = new ConfigTest()
     parent.singleReference = childId
-    const parentId = JsonStore.save({
+    const _parentId = JsonStore.save({
         group_key: 'Parent',
         group_class: ConfigTest.name,
         json_text: JSON.stringify(parent),

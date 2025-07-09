@@ -31,7 +31,7 @@ export default class JsonStore {
                 name: this.OBJECT_MAIN_KEY,
                 directory,
                 filename,
-                loggingProxy: Log,
+                loggingProxy: Log.get(),
                 structure: {json_store: [FileUtils.loadTextFile('../sql/structure.sql') ?? '']}
             })
         }

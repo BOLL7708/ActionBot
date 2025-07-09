@@ -18,12 +18,12 @@ interface IErrorResponse {
 }
 
 export default class HttpHandler {
-    private _server: HttpServer
-    private _fakeSaltCache: IFakeSaltItem[] = []
+    #server: HttpServer
+    #fakeSaltCache: IFakeSaltItem[] = []
+    #tag = this.constructor.name
     constructor() {
-        const TAG = this.constructor.name
         const config = ItemStore.do.loadMain(ConfigServer)
-        this._server = new HttpServer({
+        this.#server = new HttpServer({
             name: 'Static Files',
             port: config.httpPort,
             hostname: '0.0.0.0', // Any host and interface
@@ -53,25 +53,25 @@ export default class HttpHandler {
                                 const configAuth = ItemStore.do.loadMain(ConfigAuth)
                                 if(username == configAuth.username) {
                                     // We have a match, use real salt
-                                    Log.i(TAG, 'Using real salt for', username)
+                                    Log.i(this.#tag, 'Using real salt for', username)
                                     salt = configAuth.passwordSalt
                                 } else {
-                                    const fakeSaltItem = this._fakeSaltCache.find(it => it.username == username)
+                                    const fakeSaltItem = this.#fakeSaltCache.find(it => it.username == username)
                                     if(fakeSaltItem) {
                                         // We have a fake salt, use it
-                                        Log.i(TAG, 'Using fake salt for', username)
+                                        Log.i(this.#tag, 'Using fake salt for', username)
                                         salt = fakeSaltItem.salt
                                     } else {
                                         // We don't have a fake salt, create one
                                         const fakeSalt = ValueUtils.generateSalt()
                                         const fakeSaltStr = ValueUtils.encodeBytes(fakeSalt)
-                                        this._fakeSaltCache.push({
+                                        this.#fakeSaltCache.push({
                                             username: username,
                                             salt: fakeSaltStr
                                         })
-                                        Log.i(TAG, 'Using new fake salt for', username)
+                                        Log.i(this.#tag, 'Using new fake salt for', username)
                                         // Limit the cache size
-                                        if(this._fakeSaltCache.length > 32) this._fakeSaltCache.shift()
+                                        if(this.#fakeSaltCache.length > 32) this.#fakeSaltCache.shift()
                                         salt = fakeSaltStr
                                     }
                                 }
@@ -94,6 +94,6 @@ export default class HttpHandler {
     }
 
     public stop() {
-        this._server.stop().then()
+        this.#server.stop().then()
     }
 }

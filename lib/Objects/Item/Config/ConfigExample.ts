@@ -1,5 +1,5 @@
 import {IBooleanDictionary, INumberDictionary, IStringDictionary} from '../../../SharedUtils/Dictionary.ts'
-import {About, Enlist, Item, Option, Purpose, Value} from '../../Decorators.ts'
+import {About, Enlist, Item, Option, Primitive, Purpose, Value} from '../../Decorators.ts'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.ts'
 
 import {FileTypePresets, Type} from '../../DecoratorType.ts'
@@ -10,9 +10,11 @@ import {AbstractConfig} from './AbstractConfig.ts'
 @Purpose('This is an example config to display all types of values an object can contain and how to use them. It is not used in the bot.')
 export class ConfigExample extends AbstractConfig {
     @About('A single boolean flag')
+    @Primitive
     singleBoolean = false
 
     @About('A single number value')
+    @Primitive
     singleNumber = 0
 
     @About('A single number value with a range')
@@ -20,6 +22,7 @@ export class ConfigExample extends AbstractConfig {
     singleNumberRange = 0
 
     @About('A single string value')
+    @Primitive
     singleString = ''
 
     @About('A single secret string value, use for passwords or API keys, etc.')
@@ -30,11 +33,11 @@ export class ConfigExample extends AbstractConfig {
     singleFileString = ''
 
     @About('A single ID reference to any other object')
-    @Item(PresetTest.ref.id)
+    @Item(PresetTest.ref)
     singleIdReference: number = 0
 
     @About('A single ID reference displayed with a label')
-    @Item(PresetTest.ref.id)
+    @Item(PresetTest.ref)
     singleIdReferenceUsingLabel: number = 0
 
     @About('Contains a single generic entry.')
@@ -67,16 +70,17 @@ export class ConfigExample extends AbstractConfig {
     @Value(Type.string.files(FileTypePresets.imageFileExtensions))
     arrayOfFileStrings: string[] = []
 
-    @Item(PresetTest.ref.id)
+    @Item(PresetTest.ref)
     arrayOfIdReferences: number[] = []
 
-    @Item(PresetTest.ref.id.label)
+    @Item(PresetTest.ref.label)
     arrayOfIdReferencesUsingLabels: number[] = []
 
     @About('Contains an array of generic entries.')
     @Item(Type.generic('Setting'))
     arrayOfIdToGenericReferences: number[] = []
 
+    @Option(OptionEntryUsage.ref)
     arrayOfOptions: number[] = []
 
     @Value(Type.boolean)
@@ -88,10 +92,10 @@ export class ConfigExample extends AbstractConfig {
     @Value(Type.string)
     dictionaryOfStrings: IStringDictionary = {}
 
-    @Item(PresetTest.ref.id)
+    @Item(PresetTest.ref)
     dictionaryOfIdReferences: INumberDictionary = {}
 
-    @Item(PresetTest.ref.id.label)
+    @Item(PresetTest.ref.label)
     dictionaryOfIdReferencesUsingLabels: INumberDictionary = {}
 
     @About('Contains a dictionary of generic entries.')
@@ -101,10 +105,13 @@ export class ConfigExample extends AbstractConfig {
     @Option(OptionEntryUsage.ref)
     dictionaryOfEnums: INumberDictionary = {}
 
+    @Primitive
     partnerToSingle = ''
 
+    @Primitive
     partnerToSingle_active = false
 
+    @Primitive
     partnerToSingleAdvanced = ''
 
     @Option(OptionEntryUsage.ref)
@@ -113,25 +120,33 @@ export class ConfigExample extends AbstractConfig {
     @Value(Type.string)
     partnerToArray: string[] = []
 
+    @Primitive
     partnerToArray_withTitle = ''
 
     @Value(Type.string)
     partnerToDictionary: IStringDictionary = {}
 
+    @Primitive
     partnerToDictionary_repeatsCount = 0
 
     @Option(OptionEntryUsage.ref)
     partnerToOption = OptionEntryUsage.First
 
+    @Primitive
     partnerToOption_label = ''
 
+    @Primitive
     partnerMultiple = false
 
+    @Primitive
     partnerMultiple_and = false
 
+    @Primitive
     partnerMultiple_or = 0
 
+    @Primitive
     partnerMultiple_plus = false
 
+    @Primitive
     partnerMultiple_butNot = ''
 }

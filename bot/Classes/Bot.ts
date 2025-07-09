@@ -1,11 +1,8 @@
-import { ConfigAuth, ConfigServer } from '../../lib/index.ts'
-import Log, { ELogLevel } from '../../lib/SharedUtils/Log.ts'
+import {promptSecret} from 'jsr:@std/cli'
+import {ConfigAuth, ConfigServer} from '../../lib/index.ts'
 import ValueUtils from '../../lib/SharedUtils/ValueUtils.ts'
 import ErrorCodes from '../Constants/ErrorCodes.ts'
 import ItemStore from '../Database/ItemStore.ts'
-import HttpHandler from '../Server/HttpHandler.ts'
-import WebSocketHandler from '../Server/WebSocketHandler.ts'
-import { promptSecret } from 'jsr:@std/cli'
 import Modules from '../Singletons/Modules.ts'
 import exit = Deno.exit
 
@@ -17,7 +14,8 @@ type TPromptOptions = {
 }
 
 export default class Bot {
-    static readonly TAG = this.name
+    static readonly #tag = this.name
+
     static async init(): Promise<void> {
         const printTitle = (title: string) => {
             console.log(`%c\n${title}`, 'text-decoration: underline;')
@@ -80,7 +78,11 @@ export default class Bot {
             printTitle('Hosting')
             console.log('Optionally change the ports for the server components.')
             const newHttpPort = promptUntilOk({message: '  HTTP Port:', defaultValue: '8080', verifyNumber: true})
-            const newWebSocketPort = promptUntilOk({message: '  WebSocket Port:', defaultValue: '7712', verifyNumber: true})
+            const newWebSocketPort = promptUntilOk({
+                message: '  WebSocket Port:',
+                defaultValue: '7712',
+                verifyNumber: true
+            })
             if (!ValueUtils.isBlank(newHttpPort)) server.httpPort = parseInt(newHttpPort)
             if (!ValueUtils.isBlank(newWebSocketPort)) server.webSocketPort = parseInt(newWebSocketPort)
             const key = ItemStore.do.saveMain(server)

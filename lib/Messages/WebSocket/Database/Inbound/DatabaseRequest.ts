@@ -15,10 +15,10 @@ export default class DatabaseRequest extends Serializable {
     messageId: string = '' // Identify the message
 
     // Item selection
-    groupClass?: string // Select from group
-    groupKey?: string // Select on group key
-    rowId?: number // Select on row ID
-    parentId?: number // Filter on parent ID
+    groupClass: string = '' // Select from group
+    groupKey: string = '' // Select on group key
+    rowId: number = 0 // Select on row ID
+    parentId: number = 0 // Filter on parent ID
 
     // Item data
     data: TItemParsed = {} // Ingoing data

@@ -1,5 +1,5 @@
 import {IBooleanDictionary, INumberDictionary, IStringDictionary} from '../../../SharedUtils/Dictionary.ts'
-import {Enlist, Item, Purpose, Value} from '../../Decorators.ts'
+import {Enlist, Item, Primitive, Purpose, Value} from '../../Decorators.ts'
 import {Type} from '../../DecoratorType.ts'
 import {PresetTest} from '../Preset/PresetTest.ts'
 import {AbstractConfig} from './AbstractConfig.ts'
@@ -7,18 +7,19 @@ import {AbstractConfig} from './AbstractConfig.ts'
 @Enlist()
 @Purpose('A test config used when testing specific features.')
 export class ConfigTest extends AbstractConfig {
-    @Item(PresetTest.ref.id)
+    @Item(PresetTest.ref)
     singleReference: number = 0
 
-    @Item(PresetTest.ref.id)
+    @Item(PresetTest.ref)
     multiReference: number[] = []
 
-    @Item(PresetTest.ref.id)
+    @Item(PresetTest.ref)
     namedReference: INumberDictionary = {}
 
-    @Item(AbstractConfig.ref.id)
+    @Item(AbstractConfig.ref)
     genericSingleReference: number = 0
 
+    @Primitive
     singleNumber: number = 0
 
     @Value(Type.number)
@@ -27,6 +28,7 @@ export class ConfigTest extends AbstractConfig {
     @Value(Type.number)
     namedNumber: INumberDictionary = {}
 
+    @Primitive
     singleString: string = ''
 
     @Value(Type.string)
@@ -35,6 +37,7 @@ export class ConfigTest extends AbstractConfig {
     @Value(Type.string)
     namedString: IStringDictionary = {}
 
+    @Primitive
     singleBoolean: boolean = false
 
     @Value(Type.boolean)

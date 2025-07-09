@@ -10,9 +10,10 @@ export default class ItemHelper {
     static readonly #mainKey = 'Main'
     static get mainKey(): string { return this.#mainKey }
 
-    // TODO: Handle the conversion to and from data objects here
-    //  THIS SHOULD BE CROSS PLATFORM, SO WE CAN RECREATE THINGS FROM DATA OVER WEBSOCKETS! YEAH!
-
+    /**
+     Takes a dictionary of JSON objects, decoded or not, where the first object will become the root object.
+     This is an assumption that matches the database result when loading an object and all its references.
+     */
     static recreateWithChildren<T extends AbstractItem>(items: IDictionary<IJsonStoreDecoded> | IDictionary<IJsonStore> | IJsonStore[]): T | undefined {
         // 1. Recreate the whole list of items, fill the private info property
         let rootItem: T | undefined
@@ -34,7 +35,7 @@ export default class ItemHelper {
                 Log.e(this.#tag, `Catastrophic failure: Found no constructor for ${className} when recreating item ${id}.`)
                 return undefined
             }
-            const recreatedItem = this.recreateSingle(itemMeta.classConstructor, jsonStore, itemData)
+            const recreatedItem = this.#recreateSingle(itemMeta.classConstructor, jsonStore, itemData)
 
             // 2. Use the first item as the root item
             if (!rootItem) rootItem = recreatedItem
@@ -47,7 +48,7 @@ export default class ItemHelper {
         return rootItem
     }
 
-    static recreateSingle<T extends AbstractItem>(constructor: TClassConstructor<T>, jsonStore: IJsonStore, jsonObj: string | TItemParsed): T {
+    static #recreateSingle<T extends AbstractItem>(constructor: TClassConstructor<T>, jsonStore: IJsonStore, jsonObj: string | TItemParsed): T {
         const instance = new constructor()
         instance.__setInfo({
             rowId: jsonStore.row_id,

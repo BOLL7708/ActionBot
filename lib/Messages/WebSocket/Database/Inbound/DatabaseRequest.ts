@@ -1,13 +1,11 @@
-import {TItemParsed} from '../../../../Objects/AbstractItem.ts'
-import {IDictionary} from '../../../../SharedUtils/Dictionary.ts'
-import Serializable from '../../../../SharedUtils/Serializable.ts'
+import Serializable, {TSerializableParsedInput} from '../../../../SharedUtils/Serializable.ts'
 
 export type TDatabaseAction =
     | 'unknown'
     | 'load'
     | 'save'
     | 'delete'
-    // TODO: Add more as is needed, like listing various things.
+// TODO: Add more as is needed, like listing various things.
 
 export default class DatabaseRequest extends Serializable {
     // Meta
@@ -21,5 +19,5 @@ export default class DatabaseRequest extends Serializable {
     parentId: number = 0 // Filter on parent ID
 
     // Item data
-    data: TItemParsed = {} // Ingoing data
+    data: TSerializableParsedInput = {} // Ingoing data
 }

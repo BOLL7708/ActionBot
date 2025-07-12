@@ -155,8 +155,11 @@ Test.run('convenience actions', () => {
     })
     const result = JsonStore.loadWithChildrenByGroupAndKey(ConfigTest.name, 'Parent')
     assertEquals(Object.keys(result).length, 2)
+})
 
-    // TODO: Is this enough, more?
+Test.run('deep objects, load references of references', () =>{
+    Test.truncateData()
+    // const child
 })
 
 Test.run('deinit', () => {

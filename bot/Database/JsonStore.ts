@@ -5,7 +5,7 @@ import {
     IJsonStoreInput,
     ItemMap,
     TDatabaseQueryInput,
-    TItemParsed
+    TSerializableParsedInput
 } from '../../lib/index.ts'
 import Log from '../../lib/SharedUtils/Log.ts'
 import ValueUtils from '../../lib/SharedUtils/ValueUtils.ts'
@@ -21,11 +21,12 @@ export default class JsonStore {
     static readonly #tag = this.name
     static readonly OBJECT_MAIN_KEY: string = 'Main'
     static isTesting: boolean = false
-    static #db: Sqlite|undefined
-    static get #do():Sqlite {
-        if(!this.#db) {
+    static #db: Sqlite | undefined
+
+    static get #do(): Sqlite {
+        if (!this.#db) {
             const directory = '../_user/db'
-            Deno.mkdirSync(directory, { recursive: true })
+            Deno.mkdirSync(directory, {recursive: true})
             const filename = this.isTesting ? 'test.sqlite' : 'main.sqlite'
             this.#db = new Sqlite({
                 name: this.OBJECT_MAIN_KEY,
@@ -219,7 +220,7 @@ export default class JsonStore {
     }
 
     static deleteAll(): boolean {
-        if(this.isTesting) {
+        if (this.isTesting) {
             return !!this.#do.queryRun({query: 'DELETE FROM json_store WHERE 1;'})
         } else {
             Log.w(this.#tag, 'Blocked attempt to delete all data as we are not testing.')
@@ -264,7 +265,7 @@ export default class JsonStore {
         const itemMeta = ItemMap.get(rootItem.group_class)
         if (itemMeta === undefined) return {}
 
-        const jsonObj = ValueUtils.safeJsonParse<TItemParsed>(rootItem.json_text)
+        const jsonObj = ValueUtils.safeJsonParse<TSerializableParsedInput>(rootItem.json_text)
         if (jsonObj === undefined) return {}
 
         const childrenIds: number[] = []

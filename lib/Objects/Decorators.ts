@@ -4,14 +4,14 @@ import Log from '../SharedUtils/Log.ts'
 import {AbstractItem} from './AbstractItem.ts'
 import {AbstractOption} from './AbstractOption.ts'
 import {
-    BooleanTypeBuilder,
     AbstractTypeBuilder,
+    BooleanTypeBuilder,
+    ItemTypeBuilder,
     NumberTypeBuilder,
     OptionTypeBuilder,
-    ItemTypeBuilder,
     StringTypeBuilder
 } from './DecoratorType.ts'
-import {ItemMap, IItemMeta} from './ItemMap.ts'
+import {IItemMeta, ItemMap} from './ItemMap.ts'
 import {IOptionMeta, OptionsMap} from './OptionsMap.ts'
 
 // region Class
@@ -21,7 +21,8 @@ export interface IMetaBase {
     className?: string
     abstractClassName?: string
 }
-type TClassConstructors = (TClassConstructor & AbstractItem) | (TClassConstructor & AbstractOption)
+
+type TClassConstructors = (TClassConstructor & AbstractItem) | (TClassConstructor & AbstractOption) | TClassConstructor
 
 export function Enlist(): TClassDecorator {
     return (
@@ -102,7 +103,11 @@ export function Value(typeBuilder: StringTypeBuilder | NumberTypeBuilder | Boole
 
 /**  */
 export function Primitive<This, Value>(_value: undefined, context: ClassFieldDecoratorContext<This, Value>) {
-    context.addInitializer(function(this: This) {
+    // TODO: This works in the TypeScript playground, but not in Deno.
+    //  We throw an error at the top so we will know when it starts working.
+    context.addInitializer(function (this: This) {
+        throw new Error('APPARENTLY DECORATOR ADD-INITIALIZER WORKS NOW, VALIDATE FUNCTIONALITY!')
+        /*
         const descriptor = Object.getOwnPropertyDescriptor(this, context.name)
         if(!descriptor || typeof descriptor.value === 'undefined') return
 
@@ -110,7 +115,7 @@ export function Primitive<This, Value>(_value: undefined, context: ClassFieldDec
         let expectedType: string | undefined
         if(initialValue !== undefined && initialValue !== null) {
             const type = typeof initialValue
-            if(['string', 'number', 'boolean'].includes(type)) {
+            if(abstractItemAllowedPrimitives.includes(type)) {
                 expectedType = type
             }
         }
@@ -134,6 +139,7 @@ export function Primitive<This, Value>(_value: undefined, context: ClassFieldDec
             enumerable: descriptor.enumerable,
             configurable: descriptor.configurable
         })
+        */
     })
 }
 
@@ -164,15 +170,6 @@ function getMetadataObject<T>(context: ClassDecoratorContext | ClassMemberDecora
     //@ts-ignore
     context['metadata'] ??= {} // Required as it's a readonly value set to undefined otherwise.
     return context['metadata'] as T
-}
-
-// endregion
-
-// region Test
-export function TypeTest<T>(instance: T): TClassFieldDecorator {
-    return (_value, context) => {
-
-    }
 }
 
 // endregion

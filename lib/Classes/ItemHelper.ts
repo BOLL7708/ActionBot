@@ -1,14 +1,17 @@
-import {AbstractItem, TItemParsed} from '../Objects/AbstractItem.ts'
+import {AbstractItem} from '../Objects/AbstractItem.ts'
 import {ItemMap} from '../Objects/ItemMap.ts'
 import {IDictionary} from '../SharedUtils/Dictionary.ts'
 import {TClassConstructor} from '../SharedUtils/LanguageTypes.ts'
 import Log from '../SharedUtils/Log.ts'
+import {TSerializableParsedInput} from '../SharedUtils/Serializable.ts'
 import {IJsonStore, IJsonStoreDecoded} from '../Types/Database.ts'
 
 export default class ItemHelper {
     static readonly #tag = this.name
     static readonly #mainKey = 'Main'
-    static get mainKey(): string { return this.#mainKey }
+    static get mainKey(): string {
+        return this.#mainKey
+    }
 
     /**
      Takes a dictionary of JSON objects, decoded or not, where the first object will become the root object.
@@ -19,7 +22,7 @@ export default class ItemHelper {
         let rootItem: T | undefined
         const recreatedItems: IDictionary<AbstractItem> = {}
         for (const [_id, item] of Object.entries(items)) {
-            let itemData: string | TItemParsed
+            let itemData: string | TSerializableParsedInput
             let jsonStore: IJsonStore
             if (item.hasOwnProperty('jsonStore')) {
                 jsonStore = (item as IJsonStoreDecoded).jsonStore
@@ -48,7 +51,7 @@ export default class ItemHelper {
         return rootItem
     }
 
-    static #recreateSingle<T extends AbstractItem>(constructor: TClassConstructor<T>, jsonStore: IJsonStore, jsonObj: string | TItemParsed): T {
+    static #recreateSingle<T extends AbstractItem>(constructor: TClassConstructor<T>, jsonStore: IJsonStore, jsonObj: string | TSerializableParsedInput): T {
         const instance = new constructor()
         instance.__setInfo({
             rowId: jsonStore.row_id,
@@ -61,7 +64,7 @@ export default class ItemHelper {
         return instance.__apply(jsonObj)
     }
 
-    static recreateSimple<T extends AbstractItem>(className: string, jsonObj: TItemParsed): T | undefined {
+    static recreateSimple<T extends AbstractItem>(className: string, jsonObj: TSerializableParsedInput): T | undefined {
         const constructor = ItemMap.get(className)?.classConstructor
         if (!constructor) return
         const instance = new constructor()
@@ -71,12 +74,15 @@ export default class ItemHelper {
 
 export abstract class AbstractItemHelper {
     /** If the keyOrId value is a string, it will be used as a key, if it is a number, it will be used as an id. */
-    abstract load<T extends AbstractItem>(classConstructor: TClassConstructor<T>, keyOrId: string): T|Promise<T>
-    /** If the keyOrParentId value is a string, it will be used as a key, if it is a number, it will be used as a parent id. */
-    abstract save<T extends AbstractItem>(item: T, keyOrParentId: string|number): number|Promise<number>
-    /** Only deletes on id as every single thing in the database has an id. */
-    abstract delete(rowId: number): number|Promise<number>
+    abstract load<T extends AbstractItem>(classConstructor: TClassConstructor<T>, keyOrId: string): T | Promise<T>
 
-    abstract loadMain<T extends AbstractItem>(classConstructor: TClassConstructor<T>): T|Promise<T>
-    abstract saveMain<T extends AbstractItem>(item: T): number|Promise<number>
+    /** If the keyOrParentId value is a string, it will be used as a key, if it is a number, it will be used as a parent id. */
+    abstract save<T extends AbstractItem>(item: T, keyOrParentId: string | number): number | Promise<number>
+
+    /** Only deletes on id as every single thing in the database has an id. */
+    abstract delete(rowId: number): number | Promise<number>
+
+    abstract loadMain<T extends AbstractItem>(classConstructor: TClassConstructor<T>): T | Promise<T>
+
+    abstract saveMain<T extends AbstractItem>(item: T): number | Promise<number>
 }

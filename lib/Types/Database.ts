@@ -1,10 +1,9 @@
-import {TItemParsed} from '../Objects/AbstractItem.ts'
+import {TSerializableParsedInput} from '../SharedUtils/Serializable.ts'
 
-/** TODO: Does this really need all these types? */
-export type TDatabaseQueryInput = null | undefined | number | bigint | string | boolean | Date | Uint8Array | [] | Record<PropertyKey, never>
+export type TDatabaseQueryInput = undefined | null | number | string | boolean // Undefined is included to allow optional fields that will default to null in the DB
 
 export interface IJsonStoreDecoded {
-    jsonObj: TItemParsed
+    jsonObj: TSerializableParsedInput
     jsonStore: IJsonStore
 }
 
@@ -24,9 +23,9 @@ export interface IJsonStoreInput extends Record<string, TDatabaseQueryInput> {
     /** The class name of the object that was encoded */
     group_class: string
     /** This is mutually exclusive to parent_id */
-    group_key: string|null
+    group_key: string | null
     /** This is mutually exclusive to group_key */
-    parent_id: number|null
+    parent_id: number | null
     /** Needs to be a valid JSON string */
     json_text: string
     /** When set, will cause an explicit update. */

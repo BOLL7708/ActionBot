@@ -1,0 +1,54 @@
+- ActionBot 2025 Reboot
+	- Structure
+		- ✅ Monorepo for Backend, Frontend and Shared
+	- Backend
+		- Command line interface
+			- ✅ Setup
+				- ✅ Database
+				- ✅ Account
+				- ✅ Ports
+		- Http Server
+			- ✅ Serve simple endpoints
+			- ✅ Serve static content
+		- WebSocket Server
+			- ✅ Authentication
+			- ✅ Protocol for Editor (Database)
+			- Protocol for Presenter
+			- Protocol for Dashboard
+		- Database
+			- ✅ Serialization of Items
+			- ✅ Recreation of Items
+		- External APIs
+			- Twitch
+			- Google TTS
+			- Discord
+			- Steam Web API
+			- OpenVR2WS
+			- OpenVROverlayPipe
+			- SuperScreenShotterVR
+	- Frontend
+		- ✅ Start page
+			- ✅ Authentication
+		- Setup
+			- Connect Twitch
+			- Connect Google TTS
+			- Connect Steam Web API
+		- Editor
+			- List Item types
+			- List Item instances
+			- Edit Item
+			- Edit Item children
+		- Presenter
+			- Play back audio
+			- Display overlays
+				- Make compatible with OpenVROverlayPipe?
+			- Display Twitch chat
+		- Dashboard
+	- Items
+		- Config
+		- Setting
+		- Preset
+		- Event
+			- Trigger
+			- Action
+			- Callback

@@ -9,6 +9,7 @@ import {
 } from '../../lib/index.ts'
 import Log from '../../lib/SharedUtils/Log.ts'
 import ValueUtils from '../../lib/SharedUtils/ValueUtils.ts'
+import Session from '../Classes/Session.ts'
 import FileUtils from '../DenoUtils/FileUtils.ts'
 import Sqlite from '../DenoUtils/Sqlite.ts'
 
@@ -25,15 +26,21 @@ export default class JsonStore {
 
     static get #do(): Sqlite {
         if (!this.#db) {
-            const directory = '../_user/db'
-            Deno.mkdirSync(directory, {recursive: true})
+            const directory = ValueUtils.isNotBlank(Session.databaseDirectory)
+                ? `${Session.databaseDirectory}/db`
+                : '../_user/db' // TODO: Or shoüld we terminate? The above _should always be set_.
+            try {
+                Deno.mkdirSync(directory, {recursive: true})
+            } catch(_e) {
+                // Not sure if we need to handle this.
+            }
             const filename = this.isTesting ? 'test.sqlite' : 'main.sqlite'
             this.#db = new Sqlite({
                 name: this.OBJECT_MAIN_KEY,
                 directory,
                 filename,
                 loggingProxy: Log.get(),
-                structure: {json_store: [FileUtils.loadTextFile('../sql/structure.sql') ?? '']}
+                structure: {json_store: [FileUtils.readText('../sql/structure.sql') ?? '']}
             })
         }
         return this.#db

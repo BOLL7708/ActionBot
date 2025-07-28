@@ -48,6 +48,8 @@
     }
 
     const onsubmit = (event: SubmitEvent) => {
+        message = 'Loading...'
+        messageColor = 'transparent'
         disabled = true
         event.preventDefault()
         Authentication.login(port, username, password, authCallback)
@@ -63,7 +65,7 @@
             <p class="statusMessage" style="background-color: {messageColor};">{message}</p>
         {/if}
         <form {onsubmit}>
-            <fieldset {disabled}>
+            <fieldset {disabled} class="card">
                 <h2>Connect & Sign In</h2>
                 <label>Bot WebSocket port: <input type="number" placeholder="Port" required bind:value={port}/></label>
                 <label>Username: <input type="text"
@@ -88,27 +90,14 @@
         display: flex;
         flex-direction: column;
         gap: 1em;
-        margin: 0 auto;
-        border: 1px solid #fff8;
-        border-radius: .5rem;
-        padding: 1.5rem;
-        max-width: 20rem;
     }
 
-    input {
-        padding: 0.5em;
-        font-size: 1em;
-        border: 1px solid #fff8;
-        border-radius: 0.5em;
-        background-color: transparent;
-        color: white;
-    }
 
-    input[type="number"] {
+    input[type=number] {
         max-width: 4em;
     }
     .statusMessage {
-        padding: .5rem;
+        padding: .5em;
         border-radius: .5em;
     }
 </style>

@@ -9,7 +9,7 @@
         window.open(url)
     }
 </script>
-<button {onclick}>{text}</button>
+<button class="primary" {onclick}>{text}</button>
 <style>
 
 </style>

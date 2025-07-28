@@ -7,10 +7,12 @@
 </script>
 
 <main transition:fade>
-    <img src={actionbotLogo} class="logo" alt="ActionBot Logo"/>
-    <h1>ActionBot</h1>
+    <div class="logo-container">
+        <img src={actionbotLogo} class="logo" alt="ActionBot Logo"/>
+        <h1>ActionBot</h1>
+    </div>
     <AuthBarrier>
-        <div>
+        <div class="card">
             <div>
                 <p>Signed in as: {StorageHelper.get('usr-name')}</p>
             </div>
@@ -32,14 +34,18 @@
 
 <style>
     .logo {
+        margin-top: 1em;
         width: 16em;
+        filter: var(--logo-filter)
     }
+
     main {
         text-align: center;
         display: flex;
         flex-direction: column;
         place-items: center;
     }
+
     h1 {
         font-size: 400%;
         margin: 0;

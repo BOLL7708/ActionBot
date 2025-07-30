@@ -1,7 +1,8 @@
 import Log from '../../../SharedUtils/Log.ts'
 import {AbstractItem} from '../../AbstractItem.ts'
+import {AbstractNode} from '../AbstractNode.ts'
 
-export abstract class AbstractTrigger extends AbstractItem {
+export abstract class AbstractTrigger extends AbstractNode {
     /**
      * This is used to register the trigger in the bot. This is filled by Runners.
      * @param eventKey The key for the event we are registering for.
@@ -9,5 +10,13 @@ export abstract class AbstractTrigger extends AbstractItem {
     // deno-lint-ignore require-await
     async register(eventKey: string): Promise<void> {
         Log.w(this.constructor.name, `Register not implemented for Trigger: ${eventKey}`)
+    }
+
+    __nodeColor(): string {
+        return 'blue'
+    }
+
+    __nodeTitle(): string {
+        return this.constructor.name
     }
 }

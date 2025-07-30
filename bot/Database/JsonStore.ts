@@ -28,7 +28,7 @@ export default class JsonStore {
         if (!this.#db) {
             const directory = ValueUtils.isNotBlank(Session.databaseDirectory)
                 ? `${Session.databaseDirectory}/db`
-                : '../_user/db' // TODO: Or shoüld we terminate? The above _should always be set_.
+                : '../_user/db' // TODO: Or should we terminate? The above _should always be set_.
             try {
                 Deno.mkdirSync(directory, {recursive: true})
             } catch(_e) {

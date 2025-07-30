@@ -1,8 +1,8 @@
 import {EEventSource} from '../../../Types/Event.ts'
 import {ITwitchEventSubEventRedemption} from '../../../Types/Twitch.ts'
-import {AbstractItem} from '../../AbstractItem.ts'
+import {AbstractNode} from '../AbstractNode.ts'
 
-export abstract class AbstractAction extends AbstractItem {
+export abstract class AbstractAction extends AbstractNode {
     /**
      * This builds a callback that takes in user data to execute the action. This is filled by Runners.
      * @param key

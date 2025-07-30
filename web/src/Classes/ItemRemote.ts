@@ -3,6 +3,7 @@ import DatabaseRequest from '../../../lib/Messages/WebSocket/Database/Inbound/Da
 import type DatabaseResponse from '../../../lib/Messages/WebSocket/Database/Outbound/DatabaseResponse.ts'
 import type {AbstractItem} from '../../../lib/Objects/AbstractItem.ts'
 import type {TClassConstructor} from '../../../lib/SharedUtils/LanguageTypes.ts'
+import Log from '../../../lib/SharedUtils/Log.ts'
 import WebSocketClient from '../../../lib/SharedUtils/WebSocketClient.ts'
 import type {IJsonStore} from '../../../lib/Types/Database.ts'
 import WebSocketClients from './WebSocketClients.ts'
@@ -10,6 +11,8 @@ import WebSocketClients from './WebSocketClients.ts'
 export default class ItemRemote implements AbstractItemHelper {
     static #instance: ItemRemote | undefined
     static #isInternal: boolean = false
+
+    #tag = this.constructor.name
 
     /**
      * This is a singleton only due to implementing abstract methods, which cannot be static.
@@ -33,7 +36,10 @@ export default class ItemRemote implements AbstractItemHelper {
 
     // region Base
     async load<T extends AbstractItem>(classConstructor: TClassConstructor<T>, keyOrId: string | number): Promise<T> {
-        if (this.#db === undefined) return new classConstructor()
+        if (this.#db === undefined) {
+            Log.e(this.#tag, `Database is not initialized.`)
+            return new classConstructor()
+        }
 
         const request = new DatabaseRequest()
         request.action = 'load'
@@ -58,7 +64,10 @@ export default class ItemRemote implements AbstractItemHelper {
     }
 
     async save<T extends AbstractItem>(item: T, keyOrParentId: string | number): Promise<number> {
-        if (this.#db === undefined) return -1
+        if (this.#db === undefined) {
+            Log.e(this.#tag, `Database is not initialized.`)
+            return -1
+        }
 
         const request = new DatabaseRequest()
         request.action = 'save'
@@ -77,11 +86,15 @@ export default class ItemRemote implements AbstractItemHelper {
         if (response) {
             return response.savedRowId
         }
+        Log.e(this.#tag, `Failed to save.`)
         return -1
     }
 
     async delete(rowId: number): Promise<number> {
-        if (this.#db === undefined) return -1
+        if (this.#db === undefined) {
+            Log.e(this.#tag, `Database is not initialized.`)
+            return -1
+        }
 
         const request = new DatabaseRequest()
         request.action = 'delete'
@@ -91,6 +104,8 @@ export default class ItemRemote implements AbstractItemHelper {
         if (response) {
             return response.deleteCount
         }
+
+        Log.w(this.#tag, `Did not find anything to delete.`)
         return -1
     }
 

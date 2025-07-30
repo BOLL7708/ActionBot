@@ -2,35 +2,41 @@ import {IJsonStore} from '../../../lib/index.ts'
 import DatabaseRequest from '../../../lib/Messages/WebSocket/Database/Inbound/DatabaseRequest.ts'
 import DatabaseResponse from '../../../lib/Messages/WebSocket/Database/Outbound/DatabaseResponse.ts'
 import Log from '../../../lib/SharedUtils/Log.ts'
+import ValueUtils from '../../../lib/SharedUtils/ValueUtils.ts'
 import WebSocketServer, {IWebSocketServerSession} from '../../DenoUtils/WebSocketServer.ts'
 import JsonStore from '../../Database/JsonStore.ts'
 import AbstractWebSocketHandler from './AbstractWebSocketHandler.ts'
 
 export default class DatabaseHandler extends AbstractWebSocketHandler {
     readonly #tag = this.constructor.name
+
     override handle(server: WebSocketServer, messageStr: string, session: IWebSocketServerSession): void {
         const request = new DatabaseRequest().__apply(messageStr)
         Log.d(this.#tag, 'Received DB message', {message: request, session})
-        switch(request.action) {
+        switch (request.action) {
             case 'unknown':
                 Log.w(this.#tag, 'Received unknown action', {message: request, session})
                 break
             case 'load': {
                 // Load from database
-                let data: IJsonStore[]|undefined = []
-                if(request.groupClass) {
-                    if(request.groupKey) {
-                        data = JsonStore.loadByGroupAndKey(request.groupClass,request.groupKey)
+                let data: IJsonStore[] | undefined = []
+                if (request.groupClass) {
+                    if (ValueUtils.isNotBlank(request.groupKey)) {
+                        data = Object.values(JsonStore.loadWithChildrenByGroupAndKey(
+                            request.groupClass, request.groupKey
+                        )).map(it => it.jsonStore)
                     } else {
                         data = []
                     }
-                } else if(request.rowId) {
-                    data = JsonStore.loadByRowId(request.rowId, request.parentId)
+                } else if (ValueUtils.ensureNumber(request.rowId) > 0) {
+                    data = Object.values(JsonStore.loadWithChildrenByRowId(
+                        request.rowId, request.parentId
+                    )).map(it => it.jsonStore)
                 }
                 Log.i(this.#tag, 'DatabaseMessage', {data})
 
                 // Build response
-                if(data) {
+                if (data) {
                     const response = new DatabaseResponse()
                     response.messageId = request.messageId
                     response.items = data
@@ -42,11 +48,16 @@ export default class DatabaseHandler extends AbstractWebSocketHandler {
             }
             case 'save': {
                 let id = -1
-                if(request.groupClass && (request.groupKey || request.parentId)) {
+                if (
+                    request.groupClass && (
+                        ValueUtils.isNotBlank(request.groupKey)
+                        || ValueUtils.ensureNumber(request.parentId) > 0
+                    )
+                ) {
                     id = JsonStore.save({
                         group_class: request.groupClass,
-                        group_key: request.groupKey ?? null,
-                        parent_id: request.parentId ?? null,
+                        group_key: ValueUtils.nullIfBlank(request.groupKey),
+                        parent_id: ValueUtils.nullIfZeroOrLess(request.parentId),
                         json_text: JSON.stringify(request.data)
                     })
                 } else {
@@ -60,7 +71,7 @@ export default class DatabaseHandler extends AbstractWebSocketHandler {
             }
             case 'delete': {
                 let deleteCount = -1
-                if(request.rowId) {
+                if (ValueUtils.ensureNumber(request.rowId) > 0) {
                     deleteCount = JsonStore.deleteByRowId(request.rowId)
                 } else {
                     Log.e(this.#tag, 'Missing row ID in incoming DB Delete message', {messageStr, session})

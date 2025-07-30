@@ -1,9 +1,10 @@
-import {ConfigAuth, ConfigServer, TWebSocketSubprotocol} from '../../lib/index.ts'
+import {ConfigAuth, ConfigServer, IDictionary, TWebSocketSubprotocol} from '../../lib/index.ts'
 import StatusCodes from '../../lib/SharedConstants/StatusCodes.ts'
 import Log from '../../lib/SharedUtils/Log.ts'
 import ValueUtils from '../../lib/SharedUtils/ValueUtils.ts'
 import WebSocketServer, {EWebSocketServerState, IWebSocketServerSession} from '../DenoUtils/WebSocketServer.ts'
 import ItemStore from '../Database/ItemStore.ts'
+import AbstractWebSocketHandler from './WebSocketHandlers/AbstractWebSocketHandler.ts'
 import SystemHandler from './WebSocketHandlers/SystemHandler.ts'
 import DatabaseHandler from './WebSocketHandlers/DatabaseHandler.ts'
 
@@ -17,6 +18,7 @@ import DatabaseHandler from './WebSocketHandlers/DatabaseHandler.ts'
 export default class WebSocketHandler {
     private readonly TAG = this.constructor.name
     private readonly _server: WebSocketServer
+    private readonly _handlers: IDictionary<AbstractWebSocketHandler> = {}
 
     constructor() {
         const config = ItemStore.do.loadMain(ConfigServer)
@@ -38,12 +40,14 @@ export default class WebSocketHandler {
                 }
                 switch (protocol as TWebSocketSubprotocol) {
                     case 'system': {
-                        const handler = new SystemHandler()
+                        if(!Object.hasOwn(this._handlers, protocol)) this._handlers[protocol] = new SystemHandler()
+                        const handler = this._handlers[protocol]
                         handler.handle(this._server, messageStr, session)
                         break
                     }
                     case 'database': {
-                        const handler = new DatabaseHandler()
+                        if(!Object.hasOwn(this._handlers, protocol)) this._handlers[protocol] = new DatabaseHandler()
+                        const handler = this._handlers[protocol]
                         handler.handle(this._server, messageStr, session)
                         break
                     }

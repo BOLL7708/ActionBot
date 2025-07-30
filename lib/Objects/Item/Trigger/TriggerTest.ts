@@ -10,4 +10,9 @@ export class TriggerTest extends AbstractTrigger {
     @About('A single setting')
     @Item(SettingTest.ref)
     setting: number = 0
+
+    __nodeText(): string {
+        return `Value: ${this.setting}`
+    }
+
 }

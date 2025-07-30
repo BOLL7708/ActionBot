@@ -106,7 +106,10 @@ export function Primitive<This, Value>(_value: undefined, context: ClassFieldDec
     // TODO: This works in the TypeScript playground, but not in Deno.
     //  We throw an error at the top so we will know when it starts working.
     context.addInitializer(function (this: This) {
-        throw new Error('APPARENTLY DECORATOR ADD-INITIALIZER WORKS NOW, VALIDATE FUNCTIONALITY!')
+        // throw new Error('APPARENTLY DECORATOR ADD-INITIALIZER WORKS NOW, VALIDATE FUNCTIONALITY!')
+
+        // The above would trigger in the browser code, whoops.
+
         /*
         const descriptor = Object.getOwnPropertyDescriptor(this, context.name)
         if(!descriptor || typeof descriptor.value === 'undefined') return

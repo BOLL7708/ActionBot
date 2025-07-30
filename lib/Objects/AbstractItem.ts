@@ -1,5 +1,6 @@
 import {IDictionary} from '../SharedUtils/Dictionary.ts'
 import Serializable, {TSerializableInput, TSerializableMethod} from '../SharedUtils/Serializable.ts'
+import ValueUtils from '../SharedUtils/ValueUtils.ts'
 import {ItemTypeBuilder} from './DecoratorType.ts'
 
 // Database meta data
@@ -53,7 +54,15 @@ export abstract class AbstractItem extends Serializable {
 
     #children: IDictionary<AbstractItem> = {}
 
-    __children(): IDictionary<AbstractItem> {
+    __children(ids: number[] = []): IDictionary<AbstractItem> {
+        if (ids.length) {
+            return Object.fromEntries(
+                Object.entries(this.#children)
+                    .filter(([id, _setting]) =>
+                        ids.includes(ValueUtils.ensureNumber(id))
+                    )
+            )
+        }
         return this.#children
     }
 

@@ -1,9 +1,9 @@
+import Constants from '../../../lib/Classes/Constants.ts'
 import DatabaseResponse from '../../../lib/Messages/WebSocket/Database/Outbound/DatabaseResponse.ts'
 import Log from '../../../lib/SharedUtils/Log.ts'
 import ValueUtils from '../../../lib/SharedUtils/ValueUtils.ts'
-import WebSocketClient from '../../../lib/SharedUtils/WebSocketClient.js'
-import Constants from './Constants.js'
-import StorageHelper from './StorageHelper.js'
+import WebSocketClient from '../../../lib/SharedUtils/WebSocketClient.ts'
+import StorageHelper from './StorageHelper.ts'
 
 export default class WebSocketClients {
     static #tag = this.name
@@ -12,7 +12,7 @@ export default class WebSocketClients {
         if(this.#databaseClient) return this.#databaseClient
 
         const passwordHash = StorageHelper.get('pwd-hash') ?? ''
-        const port = StorageHelper.get('ws-port') ?? Constants.DEFAULT_WS_PORT
+        const port = StorageHelper.get('ws-port') ?? Constants.defaultPorts.webSocket
         const host = window.location.hostname
         const wsc = new WebSocketClient({
             clientName: 'Database Client',

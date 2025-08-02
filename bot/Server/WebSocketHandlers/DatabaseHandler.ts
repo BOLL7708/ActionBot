@@ -55,6 +55,7 @@ export default class DatabaseHandler extends AbstractWebSocketHandler {
                     )
                 ) {
                     id = JsonStore.save({
+                        row_id: ValueUtils.nullIfZeroOrLess(request.rowId) ?? undefined,
                         group_class: request.groupClass,
                         group_key: ValueUtils.nullIfBlank(request.groupKey),
                         parent_id: ValueUtils.nullIfZeroOrLess(request.parentId),

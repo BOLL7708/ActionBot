@@ -167,6 +167,7 @@ export default class JsonStore {
             })
         } else {
             // Upsert
+            delete input.row_id // Ensure it is not included even as undefined.
             result = this.#do.queryValue({
                 query: `
                     INSERT INTO json_store (group_class, group_key, parent_id, json_text)
@@ -278,9 +279,11 @@ export default class JsonStore {
         const childrenIds: number[] = []
         for (const itemProp of itemMeta.fieldTypes?.items ?? []) {
             const itemValue = jsonObj[itemProp]
+            // Multiple item ids
             if (Array.isArray(itemValue)) childrenIds.push(
                 ...itemValue.map(iv => ValueUtils.ensureNumber(iv))
             )
+            // Single item id
             else childrenIds.push(ValueUtils.ensureNumber(itemValue))
         }
 

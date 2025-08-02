@@ -24,7 +24,7 @@ export default class ItemHelper {
         for (const [_id, item] of Object.entries(items)) {
             let itemData: string | TSerializableParsedInput
             let jsonStore: IJsonStore
-            if (item.hasOwnProperty('jsonStore')) {
+            if (Object.hasOwn(item, 'jsonStore')) {
                 jsonStore = (item as IJsonStoreDecoded).jsonStore
                 itemData = (item as IJsonStoreDecoded).jsonObj
             } else {

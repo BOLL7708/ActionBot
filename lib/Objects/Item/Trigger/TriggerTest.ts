@@ -1,5 +1,6 @@
 import {Purpose, About, Enlist, Item, Tag} from '../../Decorators.ts'
 import {ItemMap} from '../../ItemMap.ts'
+import {IAbstractNodeHandle} from '../AbstractNode.ts'
 import {SettingTest} from '../Setting/SettingTest.ts'
 import {AbstractTrigger} from './AbstractTrigger.ts'
 
@@ -11,8 +12,15 @@ export class TriggerTest extends AbstractTrigger {
     @Item(SettingTest.ref)
     setting: number = 0
 
+    __nodeTopHandles(): IAbstractNodeHandle[] {
+        return []
+    }
+
+    __nodeBottomHandles(): IAbstractNodeHandle[] {
+        return []
+    }
+
     __nodeText(): string {
         return `Value: ${this.setting}`
     }
-
 }

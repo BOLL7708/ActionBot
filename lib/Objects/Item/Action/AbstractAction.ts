@@ -3,6 +3,14 @@ import {ITwitchEventSubEventRedemption} from '../../../Types/Twitch.ts'
 import {AbstractNode} from '../AbstractNode.ts'
 
 export abstract class AbstractAction extends AbstractNode {
+    __nodeColor(): string {
+        return 'yellow'
+    }
+
+    __nodeTitle(): string {
+        return this.constructor.name
+    }
+
     /**
      * This builds a callback that takes in user data to execute the action. This is filled by Runners.
      * @param key

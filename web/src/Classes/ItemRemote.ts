@@ -63,7 +63,7 @@ export default class ItemRemote implements AbstractItemHelper {
         return new classConstructor()
     }
 
-    async save<T extends AbstractItem>(item: T, keyOrParentId: string | number): Promise<number> {
+    async save<T extends AbstractItem>(item: T, keyOrParentId: string | number, rowId?: number): Promise<number> {
         if (this.#db === undefined) {
             Log.e(this.#tag, `Database is not initialized.`)
             return -1
@@ -73,6 +73,7 @@ export default class ItemRemote implements AbstractItemHelper {
         request.action = 'save'
         request.messageId = this.#db.getNextMessageId()
         request.groupClass = item.constructor.name
+        if(rowId) request.rowId = rowId
         switch (typeof keyOrParentId) {
             case 'string':
                 request.groupKey = keyOrParentId

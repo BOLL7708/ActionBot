@@ -1,5 +1,6 @@
 import {promptSecret} from 'jsr:@std/cli'
 import * as path from 'jsr:@std/path'
+import Constants from '../../lib/Classes/Constants.ts'
 import {ConfigAuth, ConfigServer} from '../../lib/index.ts'
 import ValueUtils from '../../lib/SharedUtils/ValueUtils.ts'
 import ErrorCodes from '../Constants/ErrorCodes.ts'
@@ -158,12 +159,12 @@ export default class Bot {
             )
             const newHttpPort = promptUntilOk({
                 message: 'HTTP Port:',
-                defaultValue: '8080',
+                defaultValue: `${Constants.defaultPorts.http}`,
                 validator: 'number_lt_zero'
             })
             const newWebSocketPort = promptUntilOk({
                 message: 'WebSocket Port:',
-                defaultValue: '7712',
+                defaultValue: `${Constants.defaultPorts.webSocket}`,
                 validator: 'number_lt_zero'
             })
             if (!ValueUtils.isBlank(newHttpPort)) server.httpPort = parseInt(newHttpPort)

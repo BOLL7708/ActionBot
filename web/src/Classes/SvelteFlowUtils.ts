@@ -18,11 +18,6 @@ export interface ISvelteNodeProps extends Record<string, unknown> {
     bottomHandles: IAbstractNodeHandle[]
 }
 
-export interface ISvelteEdgeProps extends Record<string, unknown> {
-    id: number
-    color: string
-}
-
 export default class SvelteFlowUtils {
     /**
      * Builds a Node object for Svelte Flow from a SettingEventNode instance.
@@ -30,7 +25,6 @@ export default class SvelteFlowUtils {
      * @param setting
      */
     static buildNode(props: ISvelteNodeProps, setting: SettingEventNode): Node {
-        // TODO: Get which class the item ID is associated with and apply settings from it.
         return {
             id: `id-${props.id}`,
             position: {x: setting.xPos, y: setting.yPos},
@@ -72,18 +66,16 @@ export default class SvelteFlowUtils {
 
     /**
      * Builds an Edge object for Svelte Flow from a SettingEventEdge instance.
-     * @param props
      * @param setting
      */
-    static buildEdge(props: ISvelteEdgeProps, setting: SettingEventEdge): Edge {
+    static buildEdge(id: string, setting: SettingEventEdge): Edge {
         return {
-            id: `id-${props.id}`,
+            id: `id-${id}`,
             source: `id-${setting.source}`,
             sourceHandle: `${setting.sourceHandle}`,
             target: `id-${setting.target}`,
             targetHandle: `${setting.targetHandle}`,
-            type: 'CustomEdge',
-            data: {color: props.color}
+            type: 'CustomEdge'
         }
     }
 
@@ -96,11 +88,7 @@ export default class SvelteFlowUtils {
         return Object.entries(settings)
             .filter(([_id, setting]) => setting instanceof SettingEventEdge)
             .map(([id, setting]) => {
-                let color = this.getColorForType((setting as SettingEventEdge).sourceHandle)
-                return this.buildEdge({
-                    id: ValueUtils.ensureNumber(id),
-                    color
-                }, setting as SettingEventEdge)
+                return this.buildEdge(id, setting as SettingEventEdge)
             })
     }
 
@@ -130,6 +118,29 @@ export default class SvelteFlowUtils {
             default: break
         }
         return color
+    }
+
+    static getLabelForType(type: number): string {
+        let label = ''
+        switch(type) {
+            case Constants.nodeHandleIds.activate:
+                label = 'Activate'
+                break
+            case Constants.nodeHandleIds.audio:
+                label = 'Audio'
+                break
+            case Constants.nodeHandleIds.image:
+                label = 'Image'
+                break
+            case Constants.nodeHandleIds.text:
+                label = 'Text'
+                break
+            case Constants.nodeHandleIds.video:
+                label = 'Video'
+                break
+            default: break
+        }
+        return label
     }
     // endregion
 }

@@ -3,11 +3,14 @@
         Background,
         type ColorMode,
         Controls,
-        type Edge, type IsValidConnection,
+        type DefaultEdgeOptions,
+        type Edge,
+        type IsValidConnection,
         MiniMap,
         type Node,
         SvelteFlow,
-        SvelteFlowProvider
+        SvelteFlowProvider,
+        Panel
     } from '@xyflow/svelte'
     import Constants from '../../lib/Classes/Constants.ts'
     import {ActionFlow} from '../../lib/Objects/Item/Action/ActionFlow.ts'
@@ -43,7 +46,7 @@
     let nodes: Node[] = $state.raw([])
     let edges: Edge[] = $state.raw([])
 
-    ;(async()=>{
+    ;(async () => {
         const db = ItemRemote.do
         // const test = await db.loadMain(ConfigServer)
         // console.log({test})
@@ -143,43 +146,33 @@
 
     const nodeColor = (node: Node): string => (node.data as ISvelteNodeProps).color
 
-    $effect(()=>{
+    const defaultEdgeOptions: DefaultEdgeOptions = {
+        type: 'CustomEdge'
+    }
+
+    $effect(() => {
         console.log('UPDATE', {nodes, edges})
-        // Update entries in the database here, somehow.
+        // TODO: Update entries in the database here, somehow, probably.
 
     })
 </script>
 
 <AuthBarrier>
     <SvelteFlowProvider>
-        <main>
-            <div>
-                <ul>
-                    <li>TriggerTimer</li>
-                    <li>TriggerChat</li>
-                    <li>TriggerCommand</li>
-                </ul>
-            </div>
-            <div style:flex="max-content">
-                <SvelteFlow bind:nodes
-                            bind:edges
-                            {colorMode}
-                            {nodeTypes}
-                            {edgeTypes}
-                            {isValidConnection}
-                            fitView>
-                    <Background/>
-                    <Controls/>
-                    <MiniMap {nodeColor}/>
-                </SvelteFlow>
-            </div>
-        </main>
+        <div style:width="100vw" style:height="100vh">
+            <SvelteFlow
+                    bind:nodes
+                    bind:edges
+                    {colorMode}
+                    {nodeTypes}
+                    {edgeTypes}
+                    {defaultEdgeOptions}
+                    {isValidConnection}
+                    fitView>
+                <Background/>
+                <Controls/>
+                <MiniMap {nodeColor}/>
+            </SvelteFlow>
+        </div>
     </SvelteFlowProvider>
 </AuthBarrier>
-<style>
-    main {
-        height: 100vh;
-        display: flex;
-        flex-direction: row;
-    }
-</style>

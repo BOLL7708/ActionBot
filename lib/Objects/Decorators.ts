@@ -1,7 +1,7 @@
 import '../SharedUtils/DecoratorShim.ts'
 import {TClassConstructor, TClassDecorator, TClassFieldDecorator} from '../SharedUtils/LanguageTypes.ts'
 import Log from '../SharedUtils/Log.ts'
-import {AbstractItem} from './AbstractItem.ts'
+import {AbstractItem, abstractItemAllowedPrimitives} from './AbstractItem.ts'
 import {AbstractOption} from './AbstractOption.ts'
 import {
     AbstractTypeBuilder,
@@ -103,14 +103,9 @@ export function Value(typeBuilder: StringTypeBuilder | NumberTypeBuilder | Boole
 
 /**  */
 export function Primitive<This, Value>(_value: undefined, context: ClassFieldDecoratorContext<This, Value>) {
-    // TODO: This works in the TypeScript playground, but not in Deno.
-    //  We throw an error at the top so we will know when it starts working.
+    // TODO: The below works in the TypeScript playground, but not in Deno.
+    //  As this is shared code, we leave it active as it works in the browser.
     context.addInitializer(function (this: This) {
-        // throw new Error('APPARENTLY DECORATOR ADD-INITIALIZER WORKS NOW, VALIDATE FUNCTIONALITY!')
-
-        // The above would trigger in the browser code, whoops.
-
-        /*
         const descriptor = Object.getOwnPropertyDescriptor(this, context.name)
         if(!descriptor || typeof descriptor.value === 'undefined') return
 
@@ -142,7 +137,6 @@ export function Primitive<This, Value>(_value: undefined, context: ClassFieldDec
             enumerable: descriptor.enumerable,
             configurable: descriptor.configurable
         })
-        */
     })
 }
 

@@ -20,17 +20,13 @@ export default class DatabaseHandler extends AbstractWebSocketHandler {
             case 'load': {
                 // Load from database
                 let data: IJsonStore[] | undefined = []
-                if (request.groupClass) {
-                    if (ValueUtils.isNotBlank(request.groupKey)) {
-                        data = Object.values(JsonStore.loadWithChildrenByGroupAndKey(
-                            request.groupClass, request.groupKey
-                        )).map(it => it.jsonStore)
-                    } else {
-                        data = []
-                    }
-                } else if (ValueUtils.ensureNumber(request.rowId) > 0) {
+                if (request.groupClass && ValueUtils.isNotBlank(request.groupKey)) {
+                    data = Object.values(JsonStore.loadWithChildrenByGroupAndKey(
+                        request.groupClass, request.groupKey
+                    )).map(it => it.jsonStore)
+                } else if (request.groupClass && ValueUtils.ensureNumber(request.rowId) > 0) {
                     data = Object.values(JsonStore.loadWithChildrenByRowId(
-                        request.rowId, request.parentId
+                        request.rowId, ValueUtils.undefinedIfZeroOrLess(request.parentId)
                     )).map(it => it.jsonStore)
                 }
                 Log.i(this.#tag, 'DatabaseMessage', {data})
@@ -74,8 +70,10 @@ export default class DatabaseHandler extends AbstractWebSocketHandler {
                 let deleteCount = -1
                 if (ValueUtils.ensureNumber(request.rowId) > 0) {
                     deleteCount = JsonStore.deleteByRowId(request.rowId)
+                } else if(Array.isArray(request.rowIds) && request.rowIds.length > 0) {
+                    deleteCount = JsonStore.deleteByRowId(request.rowIds)
                 } else {
-                    Log.e(this.#tag, 'Missing row ID in incoming DB Delete message', {messageStr, session})
+                    Log.e(this.#tag, 'Missing row ID or IDs in incoming DB Delete message', {messageStr, session})
                 }
                 const response = new DatabaseResponse()
                 response.messageId = request.messageId

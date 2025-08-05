@@ -4,7 +4,6 @@ import ItemHelper from '../../../lib/Classes/ItemHelper.ts'
 import {ConfigTest, EventFlow, PresetTest} from '../../../lib/index.ts'
 import SettingEventNode from '../../../lib/Objects/Item/Setting/SettingEventNode.ts'
 import ValueUtils from '../../../lib/SharedUtils/ValueUtils.ts'
-import ItemStore from '../../Database/ItemStore.ts'
 import JsonStore from '../../Database/JsonStore.ts'
 import Test from '../../Utils/Test.ts'
 

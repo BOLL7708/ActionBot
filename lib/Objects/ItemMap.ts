@@ -1,7 +1,7 @@
 import {IDictionary, IStringDictionary} from '../SharedUtils/Dictionary.ts'
 import Log from '../SharedUtils/Log.ts'
-import {IItemType} from './DecoratorType.ts'
 import {IMetaBase} from './Decorators.ts'
+import {IItemType} from './DecoratorType.ts'
 
 export interface IItemMeta extends IMetaBase {
     // Main
@@ -44,5 +44,12 @@ export class ItemMap {
 
     static has(className: string): boolean {
         return this.#map.has(className)
+    }
+
+    static getRange(startsWith: string): IDictionary<IItemMeta> {
+        return Object.fromEntries(
+            Array.from(this.#map)
+            .filter(([key, _value]) => key.startsWith(startsWith))
+        )
     }
 }

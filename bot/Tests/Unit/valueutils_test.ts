@@ -2,7 +2,7 @@ import {assert, assertEquals} from 'jsr:@std/assert'
 import ValueUtils from '../../../lib/SharedUtils/ValueUtils.ts'
 import Test from '../../Utils/Test.ts'
 
-Test.run('value utils', async () => {
+Test.run('crypto', async () => {
     const value = 'test value'
 
     // B64
@@ -28,7 +28,9 @@ Test.run('value utils', async () => {
     assert(!ValueUtils.isBlank(hash1))
     assert(!ValueUtils.isBlank(hash2))
     assertEquals(hash1, hash2)
+})
 
+Test.run('type matching', () => {
     // Match type
     // string
     assertEquals(ValueUtils.tryToMatchTypes('test', 'cake'), 'cake')
@@ -69,4 +71,49 @@ Test.run('value utils', async () => {
     assertEquals(ValueUtils.tryToMatchTypes({}, [1, 2, 3]), {'0': 1, '1': 2, '2': 3})
     // null
     assertEquals(ValueUtils.tryToMatchTypes(null, []), undefined)
+})
+
+Test.run('null or undefined if x', () => {
+    assertEquals(ValueUtils.undefinedIfZeroOrLess(100), 100)
+    assertEquals(ValueUtils.undefinedIfZeroOrLess(1), 1)
+    assertEquals(ValueUtils.undefinedIfZeroOrLess(0.1), 0.1)
+    assertEquals(ValueUtils.undefinedIfZeroOrLess(0), undefined)
+    assertEquals(ValueUtils.undefinedIfZeroOrLess(-1), undefined)
+    assertEquals(ValueUtils.undefinedIfZeroOrLess(-100), undefined)
+    assertEquals(ValueUtils.undefinedIfZeroOrLess('test'), undefined)
+    assertEquals(ValueUtils.undefinedIfZeroOrLess(null), undefined)
+
+    assertEquals(ValueUtils.nullIfZeroOrLess(100), 100)
+    assertEquals(ValueUtils.nullIfZeroOrLess(1), 1)
+    assertEquals(ValueUtils.nullIfZeroOrLess(0.1), 0.1)
+    assertEquals(ValueUtils.nullIfZeroOrLess(0), null)
+    assertEquals(ValueUtils.nullIfZeroOrLess(-1), null)
+    assertEquals(ValueUtils.nullIfZeroOrLess(-100), null)
+    assertEquals(ValueUtils.nullIfZeroOrLess('test'), null)
+    assertEquals(ValueUtils.nullIfZeroOrLess(undefined), null)
+
+    assertEquals(ValueUtils.nullIfBlank('test'), 'test')
+    assertEquals(ValueUtils.nullIfBlank('0'), '0')
+    assertEquals(ValueUtils.nullIfBlank(''), null)
+    assertEquals(ValueUtils.nullIfBlank(' '), null)
+    assertEquals(ValueUtils.nullIfBlank('\t'), null)
+    assertEquals(ValueUtils.nullIfBlank('\n'), null)
+    assertEquals(ValueUtils.nullIfBlank(' \t \n '), null)
+
+    assertEquals(ValueUtils.nullIfEmpty(''), null)
+    assertEquals(ValueUtils.nullIfEmpty(0), null)
+    assertEquals(ValueUtils.nullIfEmpty(1), 1)
+    assertEquals(ValueUtils.nullIfEmpty(true), true)
+    assertEquals(ValueUtils.nullIfEmpty(false), null)
+    assertEquals(ValueUtils.nullIfEmpty(' '), ' ')
+    assertEquals(ValueUtils.nullIfEmpty('\t'), '\t')
+    assertEquals(ValueUtils.nullIfEmpty('\n'), '\n')
+    assertEquals(ValueUtils.nullIfEmpty(' \t \n '), ' \t \n ')
+})
+
+Test.run('predicate partitioning', () => {
+    assertEquals(
+        ValueUtils.partition([1, 2, 3, 4, 5], (it: number) => it > 2),
+        {include: [3, 4, 5], exclude: [1, 2]}
+    )
 })

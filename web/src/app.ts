@@ -1,3 +1,4 @@
+import '../../lib/index.ts'
 import {type Component, mount} from 'svelte'
 import './app.css'
 import Log, {ELogLevel} from '../../lib/SharedUtils/Log.js'

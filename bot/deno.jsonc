@@ -13,9 +13,10 @@
     "generate": "cd ../dev && deno run --allow-read --allow-write generate.ts",
     "run": "deno run --allow-all main.ts",
     "watch": "deno run --allow-all --watch main.ts",
+    "watch-test": "deno test --allow-all --trace-leaks --watch",
 
     // General
-    "test": "deno task generate && deno test --allow-all --trace-leaks --watch",
+    "test": "deno task generate && deno task watch-test",
     "dev": "deno task generate && deno task watch",
     "live": "deno task generate && deno task run",
 

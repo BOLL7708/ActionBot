@@ -82,6 +82,15 @@ export default class JsonStore {
         return result
     }
 
+    /**
+     * Builds values to be used in database queries.
+     * @param startWhere
+     * @param startParams
+     * @param valueOrArray
+     * @param fieldAndKey
+     * @param parent_id This is skipped as a parameter if it is undefined.
+     * @private
+     */
     private static buildQueryValues(
         startWhere: string[],
         startParams: IDictionary<TDatabaseQueryInput>,

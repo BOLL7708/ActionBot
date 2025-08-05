@@ -9,12 +9,12 @@ export default class SettingEventEdge extends AbstractSetting {
     @Item(SettingEventNode.ref)
     source: number = 0
 
+    @About('The ID of the source handle on the source node.')
+    sourceHandle: number = 0
+
     @About('The ID of the target node.')
     @Item(SettingEventNode.ref)
     target: number = 0
-
-    @About('The ID of the source handle on the source node.')
-    sourceHandle: number = 0
 
     @About('The ID of the target handle on the target node.')
     targetHandle: number = 0

@@ -26,12 +26,32 @@ export default class SvelteFlowUtils {
      */
     static buildNode(props: ISvelteNodeProps, setting: SettingEventNode): Node {
         return {
-            id: `id-${props.id}`,
+            id: `${props.id}`,
             position: {x: setting.xPos, y: setting.yPos},
             data: props,
             type: 'CustomNode',
             style: `background-color: ${props.color};`
         }
+    }
+
+    static buildNodeFromItem(item: AbstractItem|undefined, setting: SettingEventNode): Node {
+        const props: ISvelteNodeProps = {
+            type: item?.__info().groupClass ?? 'AbstractItem',
+            id: setting.__info().rowId,
+            title: 'Node',
+            label: 'N/A',
+            color: 'gray',
+            topHandles: [],
+            bottomHandles: []
+        }
+        if(this.isAbstractNode(item)) {
+            props.title = ValueUtils.removeFirstWord(item.__nodeTitle())
+            props.label = item.__nodeText()
+            props.color = item.__nodeColor()
+            props.topHandles = item.__nodeTopHandles()
+            props.bottomHandles = item.__nodeBottomHandles()
+        }
+        return this.buildNode(props, setting as SettingEventNode)
     }
 
     /**
@@ -44,36 +64,21 @@ export default class SvelteFlowUtils {
             .filter(([_id, setting]) => setting instanceof SettingEventNode)
             .map(([id, setting]) => {
                 const item = Object.values(eventFlow.__children([ValueUtils.ensureNumber(setting.item)])).pop()
-                const props: ISvelteNodeProps = {
-                    type: item?.__info().groupClass ?? '',
-                    id: ValueUtils.ensureNumber(id),
-                    title: 'Node',
-                    label: 'N/A',
-                    color: 'gray',
-                    topHandles: [],
-                    bottomHandles: []
-                }
-                if(this.isAbstractNode(item)) {
-                    props.title = ValueUtils.removeFirstWord(item.__nodeTitle())
-                    props.label = item.__nodeText()
-                    props.color = item.__nodeColor()
-                    props.topHandles = item.__nodeTopHandles()
-                    props.bottomHandles = item.__nodeBottomHandles()
-                }
-                return this.buildNode(props, setting as SettingEventNode)
+                return this.buildNodeFromItem(item, setting as SettingEventNode)
             })
     }
 
     /**
      * Builds an Edge object for Svelte Flow from a SettingEventEdge instance.
+     * @param id
      * @param setting
      */
-    static buildEdge(id: string, setting: SettingEventEdge): Edge {
+    static buildEdge(id: number, setting: SettingEventEdge): Edge {
         return {
-            id: `id-${id}`,
-            source: `id-${setting.source}`,
+            id: `${id}`,
+            source: `${setting.source}`,
             sourceHandle: `${setting.sourceHandle}`,
-            target: `id-${setting.target}`,
+            target: `${setting.target}`,
             targetHandle: `${setting.targetHandle}`,
             type: 'CustomEdge'
         }
@@ -88,7 +93,7 @@ export default class SvelteFlowUtils {
         return Object.entries(settings)
             .filter(([_id, setting]) => setting instanceof SettingEventEdge)
             .map(([id, setting]) => {
-                return this.buildEdge(id, setting as SettingEventEdge)
+                return this.buildEdge(ValueUtils.ensureNumber(id), setting as SettingEventEdge)
             })
     }
 

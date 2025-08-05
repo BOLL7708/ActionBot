@@ -1,6 +1,7 @@
 <script lang="ts">
     import {BaseEdge, EdgeLabel, type EdgeProps, getBezierPath, useEdges} from '@xyflow/svelte'
     import ValueUtils from '../../../lib/SharedUtils/ValueUtils.ts'
+    import Session from '../Classes/Session.ts'
     import SvelteFlowUtils from '../Classes/SvelteFlowUtils.ts'
 
     let {id, sourceX, sourceY, targetX, targetY, sourceHandleId}: EdgeProps = $props()
@@ -19,7 +20,11 @@
 
     const edges = useEdges()
     const deleteEdge = () => {
-        edges.update((eds) => eds.filter((edge) => edge.id !== id))
+        edges.update((eds) => {
+            const split = ValueUtils.partition(eds, it => it.id !== id)
+            Session.editorOnDelete({nodes: [], edges: split.exclude})
+            return split.include
+        })
     }
 </script>
 

@@ -91,7 +91,7 @@ export default class ItemRemote implements AbstractItemHelper {
         return -1
     }
 
-    async delete(rowId: number): Promise<number> {
+    async delete(rowId: number|number[]): Promise<number> {
         if (this.#db === undefined) {
             Log.e(this.#tag, `Database is not initialized.`)
             return -1
@@ -100,7 +100,11 @@ export default class ItemRemote implements AbstractItemHelper {
         const request = new DatabaseRequest()
         request.action = 'delete'
         request.messageId = this.#db.getNextMessageId()
-        request.rowId = rowId
+        if(Array.isArray(rowId)) {
+            request.rowIds = rowId
+        } else {
+            request.rowId = rowId
+        }
         const response = await this.#db.sendMessageWithPromise<DatabaseResponse>(request, request.messageId)
         if (response) {
             return response.deleteCount

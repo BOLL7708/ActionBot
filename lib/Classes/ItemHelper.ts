@@ -64,11 +64,12 @@ export default class ItemHelper {
         return instance.__apply(jsonObj)
     }
 
-    static recreateSimple<T extends AbstractItem>(className: string, jsonObj: TSerializableParsedInput): T | undefined {
+    static recreateSimple<T extends AbstractItem>(className: string, jsonObj?: TSerializableParsedInput): T | undefined {
         const constructor = ItemMap.get(className)?.classConstructor
         if (!constructor) return
         const instance = new constructor()
-        return instance.__apply(jsonObj)
+        if(jsonObj) return instance.__apply(jsonObj)
+        return instance
     }
 }
 

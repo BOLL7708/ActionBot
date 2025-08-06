@@ -126,8 +126,8 @@ export default class Bot {
         const auth = ItemStore.do.loadMain(ConfigAuth) // TODO: <- This initializes the DB
         const server = ItemStore.do.loadMain(ConfigServer)
         let didDoSetup: boolean = false
-        let authOK = 0
-        let serverOK = 0
+        let authOk = 0
+        let serverOk = 0
 
         const setupInvoked = Deno.args.includes('--setup') || Deno.args.includes('-s')
         if (!ValueUtils.isObjectFilled(auth) || setupInvoked) { // TODO: We should check everything separately and not just auth, in case people terminated mid-flow.
@@ -147,7 +147,7 @@ export default class Bot {
             auth.username = username
             auth.passwordHash = await ValueUtils.hashPassword(password, salt, true)
             auth.passwordSalt = ValueUtils.encodeBytes(salt, true)
-            authOK = ItemStore.do.saveMain(auth)
+            authOk = ItemStore.do.saveMain(auth)
             didDoSetup = true
         }
 
@@ -169,19 +169,20 @@ export default class Bot {
             })
             if (!ValueUtils.isBlank(newHttpPort)) server.httpPort = parseInt(newHttpPort)
             if (!ValueUtils.isBlank(newWebSocketPort)) server.webSocketPort = parseInt(newWebSocketPort)
-            serverOK = ItemStore.do.saveMain(server)
+            serverOk = ItemStore.do.saveMain(server)
             didDoSetup = true
         }
 
         if (didDoSetup) {
-            if (authOK && serverOK) {
+            if (authOk && serverOk) {
                 printTitle('Setup Complete')
                 printLines(
                     'Configuration was successfully saved to the database.',
                     'To redo the setup, run the bot with the setup launch parameter: -s, --setup'
                 )
             } else {
-                printError('Unable to save configuration to database for unknown reasons. Terminating.')
+                // TODO: This seems to happen on first installation setup, but then be OK on next launch... hmm? Maybe just on this laptop.
+                printError(`Unable to save configuration to database for unknown reasons. Terminating. (${authOk}, ${serverOk})`)
                 exit(ErrorCodes.COULD_NOT_SAVE_CONFIG)
             }
         }

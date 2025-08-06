@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {BaseEdge, EdgeLabel, type EdgeProps, getBezierPath, useEdges} from '@xyflow/svelte'
+    import {BaseEdge, EdgeLabel, type EdgeProps, getBezierPath, useEdges, useOnSelectionChange} from '@xyflow/svelte'
     import ValueUtils from '../../../lib/SharedUtils/ValueUtils.ts'
     import Session from '../Classes/Session.ts'
     import SvelteFlowUtils from '../Classes/SvelteFlowUtils.ts'
@@ -26,9 +26,18 @@
             return split.include
         })
     }
+
+    let strokeWidth = $state(3)
+    useOnSelectionChange(({nodes, edges}) => {
+        if (edges.map(e => e.id).includes(id)) {
+            strokeWidth = 6
+        } else {
+            strokeWidth = 3
+        }
+    })
 </script>
 
-<BaseEdge {id} {path} style="stroke: {color};"/>
+<BaseEdge {id} {path} style="stroke-width: {strokeWidth}px; stroke: {color};"/>
 {#if label.length}
     <EdgeLabel x={labelX} y={labelY}>
         <div class="edge-label">{label}<br/>

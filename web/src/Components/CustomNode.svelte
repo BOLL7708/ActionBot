@@ -2,7 +2,15 @@
     // Custom Node
     // https://svelteflow.dev/examples/nodes/custom-node
 
-    import {Handle, type NodeProps, Position, useEdges, useNodes, useSvelteFlow} from '@xyflow/svelte'
+    import {
+        Handle,
+        type NodeProps,
+        Position,
+        useEdges,
+        useNodes,
+        useOnSelectionChange,
+        useSvelteFlow
+    } from '@xyflow/svelte'
     import type {IAbstractNodeHandle} from '../../../lib/Objects/Item/AbstractNode.ts'
     import Session from '../Classes/Session.ts'
     import SvelteFlowUtils from '../Classes/SvelteFlowUtils.ts'
@@ -14,8 +22,14 @@
     const handleMargin = 33
     const getPos = (index: number, source: unknown[]): number => handleMargin + (index / (source.length - 1) * (100 - handleMargin * 2))
 
-    const nodes = useNodes()
-    const edges = useEdges()
+    let borderColor = $state('transparent')
+    useOnSelectionChange(({nodes, edges}) => {
+        if (nodes.map(n => n.id).includes(id)) {
+            borderColor = 'green'
+        } else {
+            borderColor = 'transparent'
+        }
+    })
 
     /**
      * https://svelteflow.dev/examples/edges/custom-edges
@@ -39,7 +53,7 @@
     }
 </script>
 
-<div style="display: flex; flex-direction: column;">
+<div style="display: flex; flex-direction: column; border: 6px solid {borderColor};">
     <div style="display: flex; flex-direction: row;">
         <button onclick={editData}>✏️</button>
         <p>{data.title}</p>

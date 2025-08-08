@@ -12,6 +12,7 @@ export abstract class AbstractAction extends AbstractNode {
     }
 
     /**
+     * TODO: OLD
      * This builds a callback that takes in user data to execute the action. This is filled by Runners.
      * @param key
      * @param instance

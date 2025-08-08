@@ -6,6 +6,7 @@ export default class Constants {
     static readonly nodeHandleIds = {
         activate: 1,
         text: 101,
+        number: 102,
         audio: 201,
         image: 301,
         video: 401

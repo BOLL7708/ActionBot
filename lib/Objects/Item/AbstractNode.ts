@@ -1,7 +1,8 @@
 import {AbstractItem} from '../AbstractItem.ts'
 
 export interface IAbstractNodeHandle {
-    type: number
+    type: number,
+    label?: string
 }
 
 /**

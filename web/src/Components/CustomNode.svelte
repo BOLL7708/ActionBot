@@ -16,9 +16,9 @@
     import SvelteFlowUtils from '../Classes/SvelteFlowUtils.ts'
 
     let {id, data, isConnectable}: NodeProps = $props() // Grab things from the SvelteFlow system
-    let {updateNodeData, deleteElements} = useSvelteFlow() // TODO: Perform this after an editor has been dismissed?
     const topHandles = (data.topHandles ?? []) as IAbstractNodeHandle[]
     const bottomHandles = (data.bottomHandles ?? []) as IAbstractNodeHandle[]
+    let {updateNodeData, deleteElements} = useSvelteFlow()
     const handleMargin = 33
     const getPos = (index: number, source: unknown[]): number => handleMargin + (index / (source.length - 1) * (100 - handleMargin * 2))
 
@@ -36,7 +36,7 @@
      * @param _ev
      */
     const deleteNode = async (_ev: MouseEvent | TouchEvent) => {
-        // TODO: Make a setting to disable this prompt (or rather all prompts)
+        // TODO: Make a setting to disable this prompt (or rather all prompts I guess)
         const doIt = confirm('Are you sure you want to delete this node the edges connected to it, and the associated data?')
         if (!doIt) return
         const deleted = await deleteElements({nodes: [{id}]})
@@ -59,14 +59,16 @@
         <p>{data.title}</p>
         <button onclick={deleteNode}>🗑️</button>
     </div>
-    <p>{data.label}</p>
+    <pre>{data.label}</pre>
 </div>
 {#each topHandles as handle, i}
     <Handle type="target"
             position={Position.Top}
             {isConnectable}
             id={`${handle.type}`}
-            style="left: {getPos(i, topHandles)}%; background: {SvelteFlowUtils.getColorForType(handle.type)};"/>
+            style="left: {getPos(i, topHandles)}%; background: {SvelteFlowUtils.getColorForType(handle.type)};">
+        <span>{handle.label}</span><!-- TODO: Fix this so the labels all fit and are rotated out from the node. -->
+    </Handle>
 {/each}
 {#each bottomHandles as handle, i}
     <Handle type="source"

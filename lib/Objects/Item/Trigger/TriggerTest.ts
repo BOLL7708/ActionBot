@@ -1,6 +1,5 @@
-import {Purpose, About, Enlist, Item, Tag} from '../../Decorators.ts'
-import {ItemMap} from '../../ItemMap.ts'
 import {IAbstractNodeHandle} from '../AbstractNode.ts'
+import {About, Enlist, Item, Purpose, Tag} from '../../Decorators.ts'
 import {SettingTest} from '../Setting/SettingTest.ts'
 import {AbstractTrigger} from './AbstractTrigger.ts'
 

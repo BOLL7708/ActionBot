@@ -117,6 +117,9 @@ export default class SvelteFlowUtils {
             case Constants.nodeHandleIds.text:
                 color = 'blue'
                 break
+            case Constants.nodeHandleIds.number:
+                color = 'cyan'
+                break
             case Constants.nodeHandleIds.video:
                 color = 'purple'
                 break
@@ -139,6 +142,9 @@ export default class SvelteFlowUtils {
                 break
             case Constants.nodeHandleIds.text:
                 label = 'Text'
+                break
+            case Constants.nodeHandleIds.number:
+                label = 'Number'
                 break
             case Constants.nodeHandleIds.video:
                 label = 'Video'

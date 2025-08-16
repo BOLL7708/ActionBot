@@ -29,21 +29,17 @@
     import CustomEdge from './CustomEdge.svelte'
     import CustomNode from './CustomNode.svelte'
     import EditorFlowMenu from './EditorFlowMenu.svelte'
+    import SvelteUtils from "../Classes/SvelteUtils.ts";
+
+    const tag = SvelteUtils.tag(import.meta.url)
 
     const {screenToFlowPosition} = useSvelteFlow()
     let nodes: Node[] = $state.raw([])
     let edges: Edge[] = $state.raw([])
 
-    const eventKey = 'TestEvent' // TODO: This should be loaded from Session, or URL param, or picked from menu.
+    const eventKey = 'TestEvent' // TODO: This should be loaded from Session, or URL param, or picked from the menu.
     let eventFlow: EventFlow | undefined
     let eventFlowId: number = -1
-
-        /*
-        TODO: Build utilities to handle the syncing of nodes to the DB and editor
-         1. Load an EventFlow object
-         2. Retain the list of nodes and edges inside the EventFlow object
-         3. Create and delete nodes and edges as they are added and removed
-        */
 
     ;(async () => {
         eventFlow = await ItemRemote.do.load(EventFlow, eventKey)
@@ -57,6 +53,7 @@
     let colorMode: ColorMode = $state('system')
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
         colorMode = event.matches ? 'dark' : 'light'
+        Session.colorMode = colorMode // TODO: Should this be a callback or something? Maybe a registration of listeners?
     })
     // endregion
 
@@ -68,8 +65,10 @@
         CustomEdge
     }
 
+    /** Filters if a connection is valid to make or not */
     const isValidConnection: IsValidConnection = (connection) => {
-        return connection.sourceHandle === connection.targetHandle
+        if (!eventFlow) return false
+        return SvelteFlowUtils.areHandleTypesEqual(connection as Connection, eventFlow) // TODO: Not sure if this matters, I think the EdgeBase class includes the same properties and more, but it fails to import.
     }
 
     const nodeColor = (node: Node): string => (node.data as ISvelteNodeProps).color
@@ -105,48 +104,42 @@
      * @param yPos
      */
     const doCreateNode: DoCreateNode = async (type, xPos, yPos) => {
-        console.log('doCreateNode', type, xPos, yPos)
-        /*
-         1. CREATE NODE WITH EVENT PARENT
-         2. CREATE ITEM WITH NODE PARENT
-         3. UPDATE NODE WITH ITEM
-         4. UPDATE EVENT WITH NODE
-         5. PUBLISH NODE TO EDITOR
-         */
+        Log.i(tag, 'doCreateNode->input', type, xPos, yPos)
         const item = ItemHelper.recreateSimple(type)
         const constructor = ItemMap.get(type)?.classConstructor
         if (constructor && item && item instanceof AbstractNode) {
             const newNodeSetting = new SettingEventNode()
             newNodeSetting.xPos = xPos
             newNodeSetting.yPos = yPos
-            const nodeId = await ItemRemote.do.save(newNodeSetting, eventFlowId) // 1
+            const nodeId = await ItemRemote.do.save(newNodeSetting, eventFlowId) // CREATE NODE WITH EVENT PARENT
 
-            const itemId = await ItemRemote.do.save(item, nodeId) // 2
+            const itemId = await ItemRemote.do.save(item, nodeId) // CREATE ITEM WITH NODE PARENT
             newNodeSetting.item = itemId
-            console.log('doCreateNode', {itemId})
-            await ItemRemote.do.save(newNodeSetting, eventFlowId, nodeId) // 3
+            Log.v(tag, 'doCreateNode->item', {itemId})
+            await ItemRemote.do.save(newNodeSetting, eventFlowId, nodeId) // UPDATE NODE WITH ITEM
 
             let eventResult: number = 0
             if (eventFlow) {
                 eventFlow.nodes.push(nodeId)
-                eventResult = await ItemRemote.do.save(eventFlow, eventKey) // 4
+                eventResult = await ItemRemote.do.save(eventFlow, eventKey) // UPDATE EVENT WITH NODE
             }
-            if(eventResult !== eventFlowId) Log.d('EditorFlow', 'Saving the event did not return the right ID.')
+            if (eventResult !== eventFlowId) Log.e(tag, `doCreateNode: Saving the event did not return the right ID (${eventResult} !== ${eventFlowId})`)
 
             const itemWithInfo = await ItemRemote.do.load(constructor, itemId)
             const settingWithInfo = await ItemRemote.do.load(SettingEventNode, nodeId)
             const newNode = SvelteFlowUtils.buildNodeFromItem(itemWithInfo, settingWithInfo)
-            nodes = [...nodes, newNode] // 5
+            nodes = [...nodes, newNode] // PUBLISH NODE TO EDITOR
         }
     }
     Session.editorDoCreateNode = doCreateNode
 
     /**
-     * Detects new edge creation, means it should be added to the database.
+     * Was detecting creation of edges to add them to the DB, is now used by the override of said edge creation.
+     * Adds the edge to the database and updates the editor.
      * @param connection
      */
     const onConnect = async (connection: Connection) => {
-        console.log('onConnect', connection)
+        Log.i(tag, 'onConnect->input', connection)
         const newEdgeSetting = new SettingEventEdge()
 
         // Even if we could run __apply() here, I don't want to _not_ reference
@@ -159,14 +152,25 @@
 
         const newEdgeId = await ItemRemote.do.save(newEdgeSetting, eventFlowId)
         let eventResult: number = 0
-        if(eventFlow) {
+        if (eventFlow) {
             eventFlow.edges.push(newEdgeId)
             eventResult = await ItemRemote.do.save(eventFlow, eventKey)
+            const sourceItem = SvelteFlowUtils.getChildFromEvent(connection.source, eventFlow)
+            const sourceHandleType = SvelteFlowUtils.getHandleTypeFromItem(connection.sourceHandle, sourceItem?.__meta()?.handleOutTypes ?? {})
+            const newEdge = SvelteFlowUtils.buildEdge(newEdgeId, sourceHandleType, newEdgeSetting)
+            edges = [...edges, newEdge]
         }
-        console.log('onConnect', {eventResult})
-
-        const newEdge = SvelteFlowUtils.buildEdge(newEdgeId, newEdgeSetting)
-        edges = [...edges, newEdge]
+        Log.i(tag, 'onConnect->done', {eventResult})
+    }
+    /**
+     * Overrides the edge creation by returning false
+     * TODO: which currently generates a type error, reported on Discord.
+     * [Documentation](https://svelteflow.dev/api-reference/types/on-before-connect)
+     * @param connection
+     */
+    const onBeforeConnect = (connection: Connection): void | Edge | Connection | false => {
+        onConnect(connection)
+        return false
     }
     /**
      * Detect the end of node movement, which means it should be updated in the database.
@@ -180,7 +184,7 @@
             eventNode.xPos = flowNode.position.x
             eventNode.yPos = flowNode.position.y
             const result = await ItemRemote.do.save(eventNode, eventFlowId, id)
-            if(result !== id) Log.w('EditorFlow', `ID from saving node (${result}) did not match incoming id (${id}).`)
+            if (result !== id) Log.w(tag, `onNodeDragStop: ID from saving node (${result}) did not match incoming id (${id}).`)
         }
     }
     /**
@@ -190,17 +194,23 @@
     const onDelete: OnDelete = async (params) => {
         const nodeIds = params.nodes.map(it => ValueUtils.ensureNumber(it.id))
         const edgeIds = params.edges.map(it => ValueUtils.ensureNumber(it.id))
+        Log.i(tag, 'onDelete->input', {nodeIds, edgeIds})
         const deleteResult = await ItemRemote.do.delete([...nodeIds, ...edgeIds])
         let eventResult: number = 0
         if (eventFlow) {
-            console.log('onDelete', {nodeIds, edgeIds, nodes: eventFlow.nodes, edges: eventFlow.edges})
+            Log.v(tag, 'onDelete->event', {nodes: eventFlow.nodes, edges: eventFlow.edges})
             eventFlow.edges = eventFlow.edges.filter(edge => !edgeIds.includes(edge))
             eventFlow.nodes = eventFlow.nodes.filter(node => !nodeIds.includes(node))
             eventResult = await ItemRemote.do.save(eventFlow, eventKey)
         }
-        console.log('onDelete', {deleteResult, eventResult})
+        Log.i(tag, 'onDelete->done', {deleteResult, eventResult})
     }
     Session.editorOnDelete = onDelete
+
+    // $inspect(edges).with(console.trace)
+    $effect(() => {
+        Log.w(tag, 'Edges updated', edges)
+    })
 
     const showHelpModal = () => {
         // Show modal dialog that displays help information?
@@ -223,7 +233,7 @@
             ondragover={onDragOver}
             ondrop={onDrop}
 
-            onconnect={onConnect}
+            onbeforeconnect={onBeforeConnect}
             onnodedragstop={onNodeDragStop}
             ondelete={onDelete}
     >

@@ -3,12 +3,13 @@ export default class Constants {
         webSocket: 7712,
         http: 8080
     }
-    static readonly nodeHandleIds = {
-        activate: 1,
-        text: 101,
-        number: 102,
-        audio: 201,
-        image: 301,
-        video: 401
+    static readonly nodeHandleTypes = {
+        invalid: 0,
+        activate: 100,
+        text: 200,
+        number: 201,
+        audio: 300,
+        image: 400,
+        video: 500
     }
 }

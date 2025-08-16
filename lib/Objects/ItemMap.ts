@@ -1,10 +1,10 @@
-import {IDictionary, IStringDictionary} from '../SharedUtils/Dictionary.ts'
+import {IDictionary, INumberDictionary, IStringDictionary} from '../SharedUtils/Dictionary.ts'
 import Log from '../SharedUtils/Log.ts'
-import {IMetaBase} from './Decorators.ts'
+import {IClassNodeHandle, IMetaBase} from './Decorators.ts'
 import {IItemType} from './DecoratorType.ts'
 
 export interface IItemMeta extends IMetaBase {
-    // Main
+    // region Data Format
     /** A list of how to treat the fields of this class. */
     fields?: IDictionary<IItemType>
     fieldTypes: {
@@ -15,12 +15,19 @@ export interface IItemMeta extends IMetaBase {
         /** List of fields that contain mutable collections of single type primitives. */
         values?: string[]
     }
+    // endregion
 
-    // Interface
+    // region Json Editor Interface
     tag?: string
     purpose?: string
     about?: IStringDictionary
     help?: IStringDictionary
+    // endregion
+
+    // region Node Editor
+    handleInTypes?: IDictionary<IClassNodeHandle>
+    handleOutTypes?: IDictionary<IClassNodeHandle>
+    // endregion
 }
 
 export class ItemMap {

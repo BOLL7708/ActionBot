@@ -2,6 +2,7 @@ import {IDictionary} from '../SharedUtils/Dictionary.ts'
 import Serializable, {TSerializableInput, TSerializableMethod} from '../SharedUtils/Serializable.ts'
 import ValueUtils from '../SharedUtils/ValueUtils.ts'
 import {ItemTypeBuilder} from './DecoratorType.ts'
+import {IItemMeta, ItemMap} from "./ItemMap.ts";
 
 // Database meta data
 export interface IItemInfo {
@@ -50,6 +51,10 @@ export abstract class AbstractItem extends Serializable {
 
     __setInfo(info: IItemInfo) {
         this.#info = info
+    }
+
+    __meta(): IItemMeta|undefined {
+        return ItemMap.get(this.#info.groupClass)
     }
 
     #children: IDictionary<AbstractItem> = {}

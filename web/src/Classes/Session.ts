@@ -7,4 +7,5 @@ export default class Session {
     }
     static editorOnDelete: OnDelete = () => {
     }
+    static colorMode: 'system' | 'light' | 'dark' = 'system'
 }

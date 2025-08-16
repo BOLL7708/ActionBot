@@ -1,10 +1,14 @@
 import {AbstractTrigger} from "./AbstractTrigger.ts";
 import Constants from "../../../Classes/Constants.ts";
-import {About, Enlist, Primitive, Purpose} from "../../Decorators.ts";
-import {IAbstractNodeHandle} from "../AbstractNode.ts";
+import {About, Enlist, HandleIn, HandleOut, Primitive, Purpose} from "../../Decorators.ts";
 
 @Enlist()
 @Purpose('Have something happen automatically on a timer.')
+@HandleIn({id: 1, label: 'Unpause', type: Constants.nodeHandleTypes.activate})
+@HandleIn({id: 2, label: 'Pause', type: Constants.nodeHandleTypes.activate})
+@HandleIn({id: 3, label: 'Restart', type: Constants.nodeHandleTypes.activate})
+@HandleOut({id: 1, label: 'Activate', type: Constants.nodeHandleTypes.activate})
+@HandleOut({id: 2, label: 'Iteration', type: Constants.nodeHandleTypes.activate})
 export default class TriggerTimer extends AbstractTrigger {
     @Primitive
     @About('Will start paused so it needs to be externally activated.')
@@ -28,33 +32,5 @@ export default class TriggerTimer extends AbstractTrigger {
 
     __nodeText(): string {
         return `Every ${this.interval}s\nRepeats ${this.repetitions <= 0 ? 'indefinitely' : this.repetitions+'x'}`
-    }
-
-    __nodeTopHandles(): IAbstractNodeHandle[] {
-        return [ // TODO: Handles might need IDs unless we just assign them serially... the type ID might not be enough of a differentiator. SHIT!
-            {
-                type: Constants.nodeHandleIds.activate,
-                label: 'Unpause'
-            },
-            {
-                type: Constants.nodeHandleIds.activate,
-                label: 'Pause'
-            },
-            {
-                type: Constants.nodeHandleIds.activate,
-                label: 'Reset'
-            }
-        ]
-    }
-
-    __nodeBottomHandles(): IAbstractNodeHandle[] {
-        return [
-            {
-                type: Constants.nodeHandleIds.activate
-            },
-            {
-                type: Constants.nodeHandleIds.number
-            }
-        ]
     }
 }

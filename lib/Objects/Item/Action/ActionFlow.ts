@@ -1,25 +1,12 @@
 import Constants from '../../../Classes/Constants.ts'
-import {Enlist} from '../../Decorators.ts'
-import {IAbstractNodeHandle} from '../AbstractNode.ts'
+import {Enlist, HandleIn, HandleOut} from '../../Decorators.ts'
 import {AbstractAction} from './AbstractAction.ts'
 
 @Enlist()
+@HandleIn({id: 1, type: Constants.nodeHandleTypes.activate})
+@HandleIn({id: 2, type: Constants.nodeHandleTypes.image})
+@HandleOut({id: 1, type: Constants.nodeHandleTypes.activate})
 export class ActionFlow extends AbstractAction {
-    __nodeTopHandles(): IAbstractNodeHandle[] {
-        return [
-            {
-                type: Constants.nodeHandleIds.activate
-            },
-            {
-                type: Constants.nodeHandleIds.image
-            }
-        ]
-    }
-    __nodeBottomHandles(): IAbstractNodeHandle[] {
-        return [{
-            type: Constants.nodeHandleIds.activate
-        }]
-    }
     __nodeText(): string {
         return 'Data summary...'
     }

@@ -4,7 +4,7 @@
     import Session from '../Classes/Session.ts'
     import SvelteFlowUtils from '../Classes/SvelteFlowUtils.ts'
 
-    let {id, sourceX, sourceY, targetX, targetY, sourceHandleId}: EdgeProps = $props()
+    let {id, sourceX, sourceY, targetX, targetY, sourceHandleId, data}: EdgeProps = $props()
 
     let [path, labelX, labelY] = $derived(
         getBezierPath({
@@ -15,8 +15,8 @@
         })
     )
 
-    let color = $derived(SvelteFlowUtils.getColorForType(ValueUtils.ensureNumber(sourceHandleId)))
-    let label = $derived(SvelteFlowUtils.getLabelForType(ValueUtils.ensureNumber(sourceHandleId)))
+    let color = $derived(SvelteFlowUtils.getColorForType(ValueUtils.ensureNumber(data?.handleType)))
+    let label = $derived(SvelteFlowUtils.getLabelForType(ValueUtils.ensureNumber(data?.handleType)))
 
     const edges = useEdges()
     const deleteEdge = () => {

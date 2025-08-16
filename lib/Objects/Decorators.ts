@@ -24,6 +24,12 @@ export interface IMetaBase {
 
 type TClassConstructors = (TClassConstructor & AbstractItem) | (TClassConstructor & AbstractOption) | TClassConstructor
 
+export interface IClassNodeHandle {
+    id: number
+    type: number
+    label?: string
+}
+
 export function Enlist(): TClassDecorator {
     return (
         constructor: TClassConstructors,
@@ -55,6 +61,22 @@ export function Tag(text: string): TClassDecorator {
     return (_constructor, context) => {
         const metadata = getMetadataObject<IItemMeta>(context)
         metadata.tag = text
+    }
+}
+
+export function HandleIn(nodeHandle: IClassNodeHandle): TClassDecorator {
+    return (_constructor, context) => {
+        const metadata = getMetadataObject<IItemMeta>(context)
+        if(!metadata.handleInTypes) metadata.handleInTypes = {}
+        metadata.handleInTypes[nodeHandle.id] = nodeHandle
+    }
+}
+
+export function HandleOut(nodeHandle: IClassNodeHandle): TClassDecorator {
+    return (_constructor, context) => {
+        const metadata = getMetadataObject<IItemMeta>(context)
+        if(!metadata.handleOutTypes) metadata.handleOutTypes = {}
+        metadata.handleOutTypes[nodeHandle.id] = nodeHandle
     }
 }
 

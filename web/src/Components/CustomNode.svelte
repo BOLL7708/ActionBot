@@ -11,7 +11,7 @@
     const topHandles = (data.inHandles ?? []) as IClassNodeHandle[]
     const bottomHandles = (data.outHandles ?? []) as IClassNodeHandle[]
     let {updateNodeData, deleteElements} = useSvelteFlow()
-    const getPosAsPercent = (index: number, source: unknown[]): number => (index+1) / (source.length + 1) * 100
+    const getPosAsPercent = (index: number, source: unknown[]): number => (index + 1) / (source.length + 1) * 100
 
     let borderColor = $state('transparent')
     useOnSelectionChange(({nodes, edges}) => {
@@ -30,7 +30,12 @@
         // TODO: Make a setting to disable this prompt (or rather all prompts I guess)
         const doIt = confirm('Are you sure you want to delete this node the edges connected to it, and the associated data?')
         if (!doIt) return
-        const deleted = await deleteElements({nodes: [{id}]})
+        const deleted = await deleteElements({
+            nodes: [
+                {id}
+            ]
+        })
+        // TODO: This should not be required after 1.2.4 but I still need to use it?
         Session.editorOnDelete({nodes: deleted.deletedNodes, edges: deleted.deletedEdges})
     }
     /**

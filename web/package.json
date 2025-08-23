@@ -10,12 +10,12 @@
     "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json"
   },
   "dependencies": {
-    "@xyflow/svelte": "^1.2.3"
+    "@xyflow/svelte": "^1.2.4"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^5.1.1",
-    "@tsconfig/svelte": "^5.0.4",
-    "svelte": "^5.38.1",
+    "@tsconfig/svelte": "^5.0.5",
+    "svelte": "^5.38.2",
     "svelte-check": "^4.3.1",
     "typescript": "~5.8.3",
     "vite": "^6.3.5"

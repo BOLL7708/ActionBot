@@ -1,8 +1,15 @@
 <script lang="ts">
-    import {BaseEdge, EdgeLabel, type EdgeProps, getBezierPath, useEdges, useOnSelectionChange} from '@xyflow/svelte'
+    import {
+        BaseEdge,
+        EdgeLabel,
+        type EdgeProps,
+        getBezierPath,
+        useOnSelectionChange,
+        useSvelteFlow
+    } from '@xyflow/svelte'
     import ValueUtils from '../../../lib/SharedUtils/ValueUtils.ts'
-    import Session from '../Classes/Session.ts'
     import SvelteFlowUtils from '../Classes/SvelteFlowUtils.ts'
+    import Session from "../Classes/Session.ts";
 
     let {id, sourceX, sourceY, targetX, targetY, sourceHandleId, data}: EdgeProps = $props()
 
@@ -17,14 +24,15 @@
 
     let color = $derived(SvelteFlowUtils.getColorForType(ValueUtils.ensureNumber(data?.handleType)))
     let label = $derived(SvelteFlowUtils.getLabelForType(ValueUtils.ensureNumber(data?.handleType)))
-
-    const edges = useEdges()
-    const deleteEdge = () => {
-        edges.update((eds) => {
-            const split = ValueUtils.partition(eds, it => it.id !== id)
-            Session.editorOnDelete({nodes: [], edges: split.exclude})
-            return split.include
+    const {deleteElements} = useSvelteFlow()
+    const deleteEdge = async () => {
+        const deleted = await deleteElements({
+            edges: [
+                {id}
+            ]
         })
+        // TODO: This should not be required after 1.2.4 but I still need to use it?
+        Session.editorOnDelete({nodes: deleted.deletedNodes, edges: deleted.deletedEdges})
     }
 
     let strokeWidth = $state(3)

@@ -8,7 +8,7 @@ export abstract class AbstractTrigger extends AbstractNode {
     }
 
     __nodeTitle(): string {
-        return this.constructor.name
+        return this.constructor.name // TODO: Make this use a GROUP KEY as well if it exists. If the item was made global.
     }
 
     /**

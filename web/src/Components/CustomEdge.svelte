@@ -4,12 +4,13 @@
         EdgeLabel,
         type EdgeProps,
         getBezierPath,
+        Position,
         useOnSelectionChange,
         useSvelteFlow
     } from '@xyflow/svelte'
     import ValueUtils from '../../../lib/SharedUtils/ValueUtils.ts'
+    import Session from '../Classes/Session.ts'
     import SvelteFlowUtils from '../Classes/SvelteFlowUtils.ts'
-    import Session from "../Classes/Session.ts";
 
     let {id, sourceX, sourceY, targetX, targetY, sourceHandleId, data}: EdgeProps = $props()
 
@@ -18,7 +19,9 @@
             sourceX,
             sourceY,
             targetX,
-            targetY
+            targetY,
+            sourcePosition: Position.Right,
+            targetPosition: Position.Left
         })
     )
 

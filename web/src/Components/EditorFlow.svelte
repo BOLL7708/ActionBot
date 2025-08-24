@@ -122,6 +122,7 @@
             if (eventFlow) {
                 eventFlow.nodes.push(nodeId)
                 eventResult = await ItemRemote.do.save(eventFlow, eventKey) // UPDATE EVENT WITH NODE
+                eventFlow = await ItemRemote.do.load(EventFlow, eventKey) // Update children in eventFlow instance
             }
             if (eventResult !== eventFlowId) Log.e(tag, `doCreateNode: Saving the event did not return the right ID (${eventResult} !== ${eventFlowId})`)
 

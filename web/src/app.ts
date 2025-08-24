@@ -1,6 +1,6 @@
 import '../../lib/index.ts'
 import {type Component, mount} from 'svelte'
-import './app.css'
+// import './app.css'
 import Log, {ELogLevel} from '../../lib/SharedUtils/Log.js'
 import ValueUtils from '../../lib/SharedUtils/ValueUtils.js'
 import Dashboard from './Dashboard.svelte'

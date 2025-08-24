@@ -8,8 +8,8 @@
     import type {IClassNodeHandle} from "../../../lib/Objects/Decorators.ts";
 
     let {id, data, isConnectable}: NodeProps = $props() // Grab things from the SvelteFlow system
-    const topHandles = (data.inHandles ?? []) as IClassNodeHandle[]
-    const bottomHandles = (data.outHandles ?? []) as IClassNodeHandle[]
+    const inHandles = (data.inHandles ?? []) as IClassNodeHandle[]
+    const outHandles = (data.outHandles ?? []) as IClassNodeHandle[]
     let {updateNodeData, deleteElements} = useSvelteFlow()
     const getPosAsPercent = (index: number, source: unknown[]): number => (index + 1) / (source.length + 1) * 100
 
@@ -57,19 +57,19 @@
     </div>
     <pre>{data.label}</pre>
 </div>
-{#each topHandles as handle, i}
+{#each inHandles as handle, i}
     <Handle type="target"
-            position={Position.Top}
+            position={Position.Left}
             {isConnectable}
             id={`${handle.id}`}
-            style="left: {getPosAsPercent(i, topHandles)}%; background: {SvelteFlowUtils.getColorForType(handle.type)};">
+            style="top: {getPosAsPercent(i, inHandles)}%; background: {SvelteFlowUtils.getColorForType(handle.type)};">
         <span>{handle.label}</span><!-- TODO: Fix this so the labels all fit and are rotated out from the node. -->
     </Handle>
 {/each}
-{#each bottomHandles as handle, i}
+{#each outHandles as handle, i}
     <Handle type="source"
-            position={Position.Bottom}
+            position={Position.Right}
             {isConnectable}
             id={`${handle.id}`}
-            style="left: {getPosAsPercent(i, bottomHandles)}%; background: {SvelteFlowUtils.getColorForType(handle.type)};"/>
+            style="top: {getPosAsPercent(i, outHandles)}%; background: {SvelteFlowUtils.getColorForType(handle.type)};"/>
 {/each}

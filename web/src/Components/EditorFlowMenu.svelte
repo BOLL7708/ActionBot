@@ -15,7 +15,8 @@
     }
 </script>
 
-<div>
+<div class="editor-menu">
+    <!-- TODO: If this ends up too big, make it collapsible. -->
     <p>Triggers</p>
     <ul>
         {#each Object.keys(triggers) as trigger}
@@ -35,3 +36,9 @@
         {/each}
     </ul>
 </div>
+
+<style>
+    .editor-menu {
+        color: white;
+    }
+</style>

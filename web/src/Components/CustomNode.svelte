@@ -35,7 +35,11 @@
                 {id}
             ]
         })
-        // TODO: This should not be required after 1.2.4 but I still need to use it?
+
+        /*
+        TODO: This should not be required after 1.2.4 but I still need to use it?
+         Link: https://discord.com/channels/771389069270712320/1401918968972836886
+        */
         Session.editorOnDelete({nodes: deleted.deletedNodes, edges: deleted.deletedEdges})
     }
     /**

@@ -20,11 +20,14 @@ export default class DatabaseHandler extends AbstractWebSocketHandler {
             case 'load': {
                 // Load from database
                 let data: IJsonStore[] | undefined = []
-                if (request.groupClass && ValueUtils.isNotBlank(request.groupKey)) {
+                // Class and group key, used for Main configs and globalized items in general.
+                if (ValueUtils.isNotBlank(request.groupClass) && ValueUtils.isNotBlank(request.groupKey)) {
                     data = Object.values(JsonStore.loadWithChildrenByGroupAndKey(
                         request.groupClass, request.groupKey
                     )).map(it => it.jsonStore)
-                } else if (request.groupClass && ValueUtils.ensureNumber(request.rowId) > 0) {
+                }
+                // Only ID (class does not matter), used for all references stored in items and usually in the frontend code.
+                else if (ValueUtils.ensureNumber(request.rowId) > 0) {
                     data = Object.values(JsonStore.loadWithChildrenByRowId(
                         request.rowId, ValueUtils.undefinedIfZeroOrLess(request.parentId)
                     )).map(it => it.jsonStore)

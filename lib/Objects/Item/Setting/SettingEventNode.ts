@@ -14,6 +14,4 @@ export default class SettingEventNode extends AbstractSetting {
     xPos: number = 0
     @About('The Y position of the node in the editor.')
     yPos: number = 0
-
-    data: IDictionary<TPrimitives> = {} // TODO: Figure out what can go into data, normalize this.
 }

@@ -19,6 +19,7 @@
             <div>
                 <AppButton text="Setup" hash="setup"></AppButton>
                 <AppButton text="Editor" hash="editor"></AppButton>
+                <AppButton text="Events" hash="events"></AppButton>
                 <AppButton text="Dashboard" hash="dashboard"></AppButton>
                 <AppButton text="Presenter" hash="presenter"></AppButton>
             </div>

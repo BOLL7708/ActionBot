@@ -62,6 +62,22 @@ export default class ItemRemote implements AbstractItemHelper {
         }
         return new classConstructor()
     }
+    async loadById<T>(id: number): Promise<T&AbstractItem|undefined> {
+        if (this.#db === undefined) return undefined
+
+        const request = new DatabaseRequest()
+        request.action = 'load'
+        request.messageId = this.#db.getNextMessageId()
+        request.rowId = id
+        const response = await this.#db.sendMessageWithPromise<DatabaseResponse>(request, request.messageId)
+        if (response) {
+            if (response.items) {
+                const item = ItemHelper.recreateWithChildren<T&AbstractItem>(response.items as IJsonStore[])
+                if (item) return item
+            }
+        }
+        return undefined
+    }
 
     async save<T extends AbstractItem>(item: T, keyOrParentId: string | number, rowId?: number): Promise<number> {
         if (this.#db === undefined) {

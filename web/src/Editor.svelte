@@ -1,12 +1,9 @@
 <script lang="ts">
-    import {SvelteFlowProvider} from '@xyflow/svelte'
     import AuthBarrier from './Components/AuthBarrier.svelte'
     import '@xyflow/svelte/dist/style.css'
-    import EditorFlow from './Components/EditorFlow.svelte'
+    import EditorJson from './Components/EditorJson.svelte'
 </script>
 
 <AuthBarrier>
-    <SvelteFlowProvider>
-        <EditorFlow/>
-    </SvelteFlowProvider>
+    <EditorJson itemId="0"></EditorJson>
 </AuthBarrier>

@@ -5,6 +5,7 @@ import Log, {ELogLevel} from '../../lib/SharedUtils/Log.js'
 import ValueUtils from '../../lib/SharedUtils/ValueUtils.js'
 import Dashboard from './Dashboard.svelte'
 import Editor from './Editor.svelte'
+import Events from './Events.svelte'
 import Presenter from './Presenter.svelte'
 import Setup from './Setup.svelte'
 import Start from './Start.svelte'
@@ -17,6 +18,7 @@ let module: Component
 switch (hash) {
     case 'setup': module = Setup; break
     case 'editor': module = Editor; break
+    case 'events': module = Events; break
     case 'dashboard': module = Dashboard; break
     case 'presenter': module = Presenter; break
     default:

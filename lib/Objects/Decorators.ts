@@ -123,7 +123,9 @@ export function Value(typeBuilder: StringTypeBuilder | NumberTypeBuilder | Boole
     }
 }
 
-/**  */
+/**
+ TODO: Primitives could include meta data like: is it a specific unit, a color, a file path, whatever?
+ */
 export function Primitive<This, Value>(_value: undefined, context: ClassFieldDecoratorContext<This, Value>) {
     // TODO: The below works in the TypeScript playground, but not in Deno.
     //  As this is shared code, we leave it active as it works in the browser.

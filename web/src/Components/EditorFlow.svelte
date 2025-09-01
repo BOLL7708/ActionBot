@@ -41,6 +41,15 @@
     let eventFlow: EventFlow | undefined
     let eventFlowId: number = -1
 
+    let zoomOnScroll: boolean = $state(true)
+    let nodesDraggable: boolean = $state(true)
+    let panOnDrag: boolean = $state(true)
+    Session.toggleInput = (state: boolean) => {
+        zoomOnScroll = state
+        nodesDraggable = state
+        panOnDrag = state
+    }
+
     ;(async () => {
         eventFlow = await ItemRemote.do.load(EventFlow, eventKey)
         eventFlowId = eventFlow.__info().rowId
@@ -237,6 +246,10 @@
             onbeforeconnect={onBeforeConnect}
             onnodedragstop={onNodeDragStop}
             ondelete={onDelete}
+
+            {zoomOnScroll}
+            {nodesDraggable}
+            {panOnDrag}
     >
         <Background/>
         <Controls/>

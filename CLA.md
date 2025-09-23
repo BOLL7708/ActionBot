@@ -16,3 +16,4 @@ To sign, add your GitHub username as a new list entry at the bottom of this docu
 
 - BOLL7708
 - c0ldvengeance
+- jeppevinkel

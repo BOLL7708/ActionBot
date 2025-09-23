@@ -2,29 +2,16 @@
 
 Thank you for wanting to contribute to the project. The following is a set of guidelines for contributing to ActionBot, which is hosted on GitHub.
 
-## Bugs
-    
-You can file a bug report on [GitHub][issues] and tag it as a bug, or on the official [Discord][discord] server, but please make sure to search for existing issues first.
-    
-## Suggestions
+## How to Contribute
 
-You can post a suggestion on [GitHub][issues] and tag it as an enhancement, or on the official [Discord][discord] server, but please make sure to search for existing suggestions first.
+- Open a pull request with your changes.
+  - Sign the Contributor License Agreement (CLA) by adding your GitHub username to the bottom of [`CLA.md`](CLA.md) in your pull request.
+    - This is required for your pull request to be accepted. You only need to sign once.
 
-## Contributions
-
-Right now the project is still coming together and will see a few more major changes, but it is built with extensibility in mind so in the future plugin development will be possible. 
-
-If you want to contribute right now, the biggest need right now is frontend development as the editor is one massive class. Yeah, if you're a mildly masochistic programmer, get in touch on [Discord][discord]!
-    
 ## Development
 
-You don't need a special version of ActionBot to develop for it, the project is delivered as the source code, and can be modified at will. It is recommended to clone the project again though, so you have one bot to use when live, and one for development, unless you like to live dangerously.
-
-To build the project with a JetBrains editor, add these file names patterns to `Settings > Editor > File Types > TypeScript config`: `tsconfig.server.json`, `tsconfig.client.json`.
+You don't need special access to ActionBot to develop for it, the project is delivered as the full source code, and can be modified at will. Fork the project and clone your fork, apply your changes, and submit a pull request in accordance with the above.
 
 ## Roadmap
 
-See `README.md` for the current roadmap.
-
-[issues]: https://github.com/BOLL7708/ActionBot/issues
-[discord]: https://actionbot.app/discord
+See [`README.md`](README.md) for the current roadmap.

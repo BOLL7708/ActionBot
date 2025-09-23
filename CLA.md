@@ -15,3 +15,4 @@ By adding your GitHub username to the list below, you agree to the following:
 To sign, add your GitHub username as a new list entry at the bottom of this document. Do not modify other entries.
 
 - BOLL7708
+- c0ldvengeance

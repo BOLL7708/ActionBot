@@ -12,7 +12,7 @@ By adding your GitHub username to the list below, you agree to the following:
 [AGPL]: https://www.gnu.org/licenses/agpl-3.0.html
 
 ## Signed Contributors
-To sign, add your GitHub username as a new list entry at the bottom of this document. Make sure to not modify anyone else's entry, as well as leave an empty line at the bottom so the next person can avoid modifying your entry to add a new line.
+Add your GitHub username as a new entry at the end of the list. Do not alter other entries, and leave a blank line below yours.
 
 BOLL7708
 - c0ldvengeance
